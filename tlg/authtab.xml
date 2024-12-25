@@ -1,0 +1,114 @@
+<authtab corpus="tlg">
+<author name="Aristophanes Comic." n="0019">
+  <work name="Acharnenses" n="001">
+    <verse/>
+  </work>
+  <work name="Equites" n="002">
+    <verse/>
+  </work>
+  <work name="Nubes" n="003">
+    <verse/>
+  </work>
+  <work name="Vespae" n="004">
+    <verse/>
+  </work>
+  <work name="Pax" n="005">
+    <verse/>
+  </work>
+  <work name="Aves" n="006">
+    <verse/>
+  </work>
+  <work name="Lysistrata" n="007">
+    <verse/>
+  </work>
+  <work name="Thesmophoriazusae" n="008">
+    <verse/>
+  </work>
+  <work name="Ranae" n="009">
+    <verse/>
+  </work>
+  <work name="Ecclesiazusae" n="010">
+    <verse/>
+  </work>
+  <work name="Plutus" n="011">
+    <verse/>
+  </work>
+  <work name="Fragmenta" n="012">
+    <div name="Fragment"/>
+    <verse/>
+  </work>
+  <work name="Fragmenta" n="013">
+    <div name="Fragment"/>
+    <verse/>
+  </work>
+  <work name="Fragmenta" n="014">
+    <div name="Play"/>
+    <div name="fragment"/>
+    <verse/>
+  </work>
+  <work name="Fragmenta" n="015">
+    <div name="Fragment"/>
+    <verse/>
+  </work>
+  <work name="Fragmenta" n="016">
+    <div name="Fragment"/>
+    <verse/>
+  </work>
+  <work name="Fragmenta" n="017">
+    <div name="Fragment"/>
+    <verse/>
+  </work>
+  <work name="Fragmenta" n="018">
+    <div name="Play"/>
+    <div name="fragment"/>
+    <verse/>
+  </work>
+</author>
+<author name="Aristophanes Gramm." n="0644">
+  <work name="Aristophanis historiae animalium epitome subjunctis Aeliani Timothei aliorumque eclogis" n="001">
+    <div name="Chapter"/>
+    <div name="section"/>
+  </work>
+  <work name="Nomina aetatum (fragmentum Parisinum)" n="002">
+    <div name="Section"/>
+  </work>
+  <work name="Fragmenta" n="003">
+    <div name="Fragment"/>
+  </work>
+  <work name="Paroemiae (fragmenta)" n="004">
+    <div name="Fragment"/>
+  </work>
+  <work name="Commentaria in Callimachi pinaces (fragmenta)" n="005">
+    <div name="Fragment"/>
+  </work>
+  <work name="Ceteri Aristophanis libri (fragmenta)" n="006">
+    <div name="Treatise"/>
+    <div name="fragment"/>
+  </work>
+  <work name="Argumenta fabularum Aristophani tributa (fragmenta)" n="007">
+    <div name="Fragment"/>
+  </work>
+  <work name="Testimonia" n="008">
+    <div name="Volume-Jacoby#-T"/>
+    <div name="fragment"/>
+  </work>
+  <work name="Fragmenta" n="009">
+    <div name="Volume-Jacoby#-F"/>
+    <div name="fragment"/>
+  </work>
+  <work name="De suspectis apud veteres verbis (fragmenta)" n="010">
+    <div name="Page"/>
+  </work>
+  <work name="Nomina aetatum (fragmenta)" n="011">
+    <div name="Page"/>
+  </work>
+</author>
+<author name="Aristophanes Hist." n="1196">
+  <work name="Fragmentum (P. Oxy. 27.2463)" n="003">
+    <div name="FGrH-fragment"/>
+  </work>
+  <work name="Fragmenta" n="004">
+    <div name="Fragment"/>
+  </work>
+</author>
+</authtab>
