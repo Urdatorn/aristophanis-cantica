@@ -31,13 +31,20 @@ for line in tree.xpath("//tei:body//tei:l", namespaces=ns):
             capture = False
             continue  # Do not include this line in the output
 
-        # Append the line to the new TEI body if still capturing
+        # Remove <tei:space> elements within the line
+        etree.strip_elements(line, "{http://www.tei-c.org/ns/1.0}space", with_tail=False)
+
+        # Remove 'rend' attribute from <l> elements
+        if 'rend' in line.attrib:
+            del line.attrib['rend']
+
+        # Append the cleaned line to the new TEI body
         body_element.append(line)
 
 # Save the corrected TEI XML to a file
-output_file = "chorus_lines_corrected.xml"
+output_file = "chorus_lines_cleaned.xml"
 etree.ElementTree(output_root).write(
     output_file, encoding="UTF-8", xml_declaration=True, pretty_print=True
 )
 
-print(f"Saved corrected chorus lines to {output_file}")
+print(f"Saved cleaned chorus lines to {output_file}")
