@@ -40,11 +40,12 @@ print(metrically_responding_lines(line1, line2))
 
 def accentually_responding_lines(strophe_line, antistrophe_line):
     """
-    For two <l>:s which are metrically_responding_lines, return how many syllables with the same ordinal have the same accent (acute, grave and circumflex), as a list.
-    For example, in the below lines (from Pind. Ol. 2, str. 1-2), the first and fifth syllables have acutes:
+    For two <l>:s which are metrically_responding_lines, return a list of maps of pairs of syllables with the both same ordinal and accent (acute, grave or circumflex).
+    For example, in the below lines (last lines from the first two strophes of Pind. Ol. 2), the first and fifth syllables have acutes:
         <syll weight="light">ἄ</syll><syll weight="heavy">ω</syll><syll weight="light">το</syll><syll weight="heavy">ν ὀρ</syll><syll weight="light">θό</syll><syll weight="light">πο</syll><syll weight="heavy">λιν</syll>
         <syll weight="light">τρί</syll><syll weight="heavy">αν</syll> <syll weight="light">σφί</syll><syll weight="heavy">σιν</syll> <syll weight="light">κό</syll><syll weight="light">μι</syll><syll weight="heavy">σον</syll>
-    In that case, the function should return [2,0,0].
+    In that case, the function should return 
+        [{'ἄ': 'τρί', 'θό': 'κό'}, {}, {}]
     """
     if not metrically_responding_lines(strophe_line, antistrophe_line):
         return False
@@ -52,19 +53,33 @@ def accentually_responding_lines(strophe_line, antistrophe_line):
     syllables1 = strophe_line.findall('syll')
     syllables2 = antistrophe_line.findall('syll')
     
-    accent_matches = [0, 0, 0]
+    accent_maps = [dict(), dict(), dict()]  # [acute_map, grave_map, circumflex_map]
     
     for syll1, syll2 in zip(syllables1, syllables2):
         norm_syll1 = normalize_word(syll1.text)
         norm_syll2 = normalize_word(syll2.text)
         for i, (accent, chars) in enumerate(accents.items()):
             if any(ch in chars for ch in norm_syll1) and any(ch in chars for ch in norm_syll2):
-                accent_matches[i] += 1
-    
-    return accent_matches
+                # Store the entire text of the syllable
+                accent_maps[i][syll1.text] = syll2.text
+    return accent_maps
 
-strophe_line = etree.fromstring('<l n="" metre=""><syll weight="light">ἄ</syll><syll weight="heavy">ω</syll><syll weight="light">το</syll><syll weight="heavy">ν ὀρ</syll><syll weight="light">θό</syll><syll weight="light">πο</syll><syll weight="heavy">λὶν</syll></l>')
-antistrophe_line = etree.fromstring('<l n="" metre=""><syll weight="light">τρί</syll><syll weight="heavy">αν</syll> <syll weight="light">σφί</syll><syll weight="heavy">σιν</syll> <syll weight="light">κό</syll><syll weight="light">μι</syll><syll weight="heavy">σὸν</syll></l>')
+def responding_acutes(strophe_line, antistrophe_line):
+    """
+    For two <l>:s which are metrically_responding_lines, return how many syllables with the same ordinal have the same acute accent.
+    """
+    accent_maps = accentually_responding_lines(strophe_line, antistrophe_line)
+    if not accent_maps:
+        return False
+    
+    return len(accent_maps[0])
+
+strophe_line = etree.fromstring('<l n="" metre=""><syll weight="light">ἄ</syll><syll weight="heavy">ῶ</syll><syll weight="light">το</syll><syll weight="heavy">ν ὀρ</syll><syll weight="light">θό</syll><syll weight="light">πο</syll><syll weight="heavy">λὶν</syll></l>')
+antistrophe_line = etree.fromstring('<l n="" metre=""><syll weight="light">τρί</syll><syll weight="heavy">ὦν</syll> <syll weight="light">σφί</syll><syll weight="heavy">σιν</syll> <syll weight="light">κό</syll><syll weight="light">μι</syll><syll weight="heavy">σὸν</syll></l>')
+print(accentually_responding_lines(strophe_line, antistrophe_line))
+
+strophe_line = etree.fromstring('<l n="" metre=""><syll weight="light">ἄ</syll><syll weight="heavy">ω</syll><syll weight="light">το</syll><syll weight="heavy">ν ὀρ</syll><syll weight="light">θό</syll><syll weight="light">πο</syll><syll weight="heavy">λιν</syll></l>')
+antistrophe_line = etree.fromstring('<l n="" metre=""><syll weight="light">τρί</syll><syll weight="heavy">αν</syll> <syll weight="light">σφί</syll><syll weight="heavy">σιν</syll> <syll weight="light">κό</syll><syll weight="light">μι</syll><syll weight="heavy">σον</syll></l>')
 print(accentually_responding_lines(strophe_line, antistrophe_line))
 
 def responds(strophe, antistrophe):
