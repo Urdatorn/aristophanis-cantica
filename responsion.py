@@ -38,7 +38,7 @@ line1 = etree.fromstring('<l n="208-209" metre="2 cr"><syll weight="heavy">Ἐκ
 line2 = etree.fromstring('<l n="223-224" metre="2 cr"><syll weight="heavy">ὅσ</syll><syll weight="light">τι</syll><syll weight="heavy">ς, ὦ Ζ</syll><syll weight="heavy">εῦ</syll><syll weight="light">πά</syll><syll weight="heavy">τερ</syll></l>')
 print(metrically_responding_lines(line1, line2))
 
-def accentually_responding_lines(strophe_line, antistrophe_line):
+def accentually_responding_syllables_of_line_pair(strophe_line, antistrophe_line):
     """
     For two <l>:s which are metrically_responding_lines, return a list of maps of pairs of syllables with the both same ordinal and accent (acute, grave or circumflex).
     For example, in the below lines (last lines from the first two strophes of Pind. Ol. 2), the first and fifth syllables have acutes:
@@ -68,23 +68,70 @@ def responding_acutes(strophe_line, antistrophe_line):
     """
     For two <l>:s which are metrically_responding_lines, return how many syllables with the same ordinal have the same acute accent.
     """
-    accent_maps = accentually_responding_lines(strophe_line, antistrophe_line)
+    accent_maps = accentually_responding_syllables_of_line_pair(strophe_line, antistrophe_line)
     if not accent_maps:
         return False
     
     return len(accent_maps[0])
 
-strophe_line = etree.fromstring('<l n="" metre=""><syll weight="light">ἄ</syll><syll weight="heavy">ῶ</syll><syll weight="light">το</syll><syll weight="heavy">ν ὀρ</syll><syll weight="light">θό</syll><syll weight="light">πο</syll><syll weight="heavy">λὶν</syll></l>')
-antistrophe_line = etree.fromstring('<l n="" metre=""><syll weight="light">τρί</syll><syll weight="heavy">ὦν</syll> <syll weight="light">σφί</syll><syll weight="heavy">σιν</syll> <syll weight="light">κό</syll><syll weight="light">μι</syll><syll weight="heavy">σὸν</syll></l>')
-print(accentually_responding_lines(strophe_line, antistrophe_line))
+def responding_graves(strophe_line, antistrophe_line):
+    """
+    For two <l>:s which are metrically_responding_lines, return how many syllables with the same ordinal have the same grave accent.
+    """
+    accent_maps = accentually_responding_syllables_of_line_pair(strophe_line, antistrophe_line)
+    if not accent_maps:
+        return False
+    
+    return len(accent_maps[1])
 
-strophe_line = etree.fromstring('<l n="" metre=""><syll weight="light">ἄ</syll><syll weight="heavy">ω</syll><syll weight="light">το</syll><syll weight="heavy">ν ὀρ</syll><syll weight="light">θό</syll><syll weight="light">πο</syll><syll weight="heavy">λιν</syll></l>')
-antistrophe_line = etree.fromstring('<l n="" metre=""><syll weight="light">τρί</syll><syll weight="heavy">αν</syll> <syll weight="light">σφί</syll><syll weight="heavy">σιν</syll> <syll weight="light">κό</syll><syll weight="light">μι</syll><syll weight="heavy">σον</syll></l>')
-print(accentually_responding_lines(strophe_line, antistrophe_line))
-
-def responds(strophe, antistrophe):
+def accentually_responding_syllables_of_strophe_pair(strophe, antistrophe):
     """
     Takes a pair of 
     <strophe type="strophe" responsion="XXXX"> and 
-    <strophe type="antistrophe" responsion="XXXX"> XML elements containing <l>'s with nested <syll> elements.
+    <strophe type="antistrophe" responsion="XXXX"> XML elements with identical responsion attributes, and containing <l>'s with nested <syll> elements.
+    Returns a list of maps of pairs of syllables with the both same ordinal and accent (acute, grave or circumflex).
     """
+    # Check matching responsion
+    if strophe.get('responsion') != antistrophe.get('responsion'):
+        return False
+    
+    strophe_lines = strophe.findall('l')
+    antistrophe_lines = antistrophe.findall('l')
+    
+    # Check line counts
+    if len(strophe_lines) != len(antistrophe_lines):
+        return False
+    
+    # Prepare combined maps for the strophe pair
+    combined_accent_maps = [dict(), dict(), dict()]  # [acute_map, grave_map, circumflex_map]
+    
+    # Process each pair of lines
+    for s_line, a_line in zip(strophe_lines, antistrophe_lines):
+        if not metrically_responding_lines(s_line, a_line):
+            return False
+        line_maps = accentually_responding_syllables_of_line_pair(s_line, a_line)
+        if not line_maps:
+            continue
+        for i in range(3):
+            combined_accent_maps[i].update(line_maps[i])
+    
+    return combined_accent_maps
+
+strophe_line = etree.fromstring('<l n="" metre=""><syll weight="light">ἄ</syll><syll weight="heavy">ῶ</syll><syll weight="light">το</syll><syll weight="heavy">ν ὀρ</syll><syll weight="light">θό</syll><syll weight="light">πο</syll><syll weight="heavy">λὶν</syll></l>')
+antistrophe_line = etree.fromstring('<l n="" metre=""><syll weight="light">τρί</syll><syll weight="heavy">ὦν</syll> <syll weight="light">σφί</syll><syll weight="heavy">σιν</syll> <syll weight="light">κό</syll><syll weight="light">μι</syll><syll weight="heavy">σὸν</syll></l>')
+accent_maps = accentually_responding_syllables_of_strophe_pair(strophe_line, antistrophe_line)
+print(f'Strophe total: {accent_maps}')
+print(f'acutes: {len(accent_maps[0])}, graves: {len(accent_maps[1])}, circumflexes: {len(accent_maps[2])}')
+
+# Parse the file
+tree = etree.parse("responsion_acharnenses_processed.xml")
+
+# Find matching strophe/antistrophe with responsion="0001"
+strophe = tree.xpath('//strophe[@type="strophe" and @responsion="0001"]')[0]
+antistrophe = tree.xpath('//strophe[@type="antistrophe" and @responsion="0001"]')[0]
+
+# Call the function
+accent_maps = accentually_responding_syllables_of_strophe_pair(strophe, antistrophe)
+print(accent_maps)
+#print(f'Strophe total: {accent_maps}')
+#print(f'acutes: {len(accent_maps[0])}, graves: {len(accent_maps[1])}, circumflexes: {len(accent_maps[2])}')
