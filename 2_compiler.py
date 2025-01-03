@@ -47,11 +47,11 @@ def replace_in_l_elements(xml_text):
             content = content.replace(key, value)
 
         # Split each syllable onto a new line
-        content = re.sub(r"(</syll>)", r"\1\n", content)
-        content = re.sub(r"(<syll weight=\"[^\"]*\">)", r"\n\1", content)
+        #content = re.sub(r"(</syll>)", r"\1\n", content)
+        #content = re.sub(r"(<syll weight=\"[^\"]*\">)", r"\n\1", content)
 
         # Remove extra spaces/line breaks
-        content = re.sub(r"\s*\n\s*", "\n", content).strip()
+        #content = re.sub(r"\s*\n\s*", "\n", content).strip()
 
         return f"{opening}\n{content}\n{closing}"
 
@@ -92,6 +92,6 @@ def prettify(xml_text):
 
 # Write out the processed file
 with open(output_file, "w", encoding="utf-8") as f:
-    f.write(prettify(processed_xml))
+    f.write(processed_xml)
 
 print(f"Processed XML saved to {output_file}")
