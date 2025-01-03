@@ -1,15 +1,33 @@
 import re
+from lxml import etree
 
 # File paths
 input_file = "responsion_acharnenses_scan.xml"
 output_file = "responsion_acharnenses_processed.xml"
 
 # Mapping of brackets to <syll> tags
+# Original:
+#   [ -> heavy
+#   ] -> close heavy
+#   { -> light
+#   } -> close light
+#
+# Now including four new entries:
+#   [# -> heavy + anceps
+#   [% -> heavy + contraction
+#   [€ -> heavy + resolution
+#   {€ -> light + resolution
+# IMPORTANT: Put multi-character keys (e.g. "[#") before single-character keys ("[")
 bracket_map = {
+    "[#": '<syll weight="heavy" anceps="True">',
+    "{#": '<syll weight="light" anceps="True">',
+    "[%": '<syll weight="heavy" contraction="True">',
+    "{€": '<syll weight="light" resolution="True">',
+
     "[": '<syll weight="heavy">',
     "]": '</syll>',
     "{": '<syll weight="light">',
-    "}": '</syll>',
+    "}": '</syll>'
 }
 
 # Read the entire XML file as plain text
@@ -17,28 +35,26 @@ with open(input_file, "r", encoding="utf-8") as f:
     xml_content = f.read()
 
 
-# Function to replace bracketed text inside <l> elements
 def replace_in_l_elements(xml_text):
-    # Regex to match <l>...</l> elements (non-greedy for single <l>)
+    """Replace bracket patterns inside <l> elements only."""
+    # Regex to match <l>...</l> blocks
     l_pattern = re.compile(r"(<l[^>]*>)(.*?)(</l>)", re.DOTALL)
 
     def replace_brackets(match):
         opening, content, closing = match.groups()
-        # Perform bracket replacement within the content of <l>
+        # Perform bracket replacement within <l>
         for key, value in bracket_map.items():
             content = content.replace(key, value)
-        
-        # Split into separate <syll> per line
+
+        # Split each syllable onto a new line
         content = re.sub(r"(</syll>)", r"\1\n", content)
         content = re.sub(r"(<syll weight=\"[^\"]*\">)", r"\n\1", content)
 
-        # Remove trailing/leading spaces and line breaks
+        # Remove extra spaces/line breaks
         content = re.sub(r"\s*\n\s*", "\n", content).strip()
-        
-        # Return the modified <l> block
+
         return f"{opening}\n{content}\n{closing}"
 
-    # Apply bracket replacement only within <l> tags (preserve sibling structure)
     return l_pattern.sub(replace_brackets, xml_text)
 
 
@@ -46,8 +62,8 @@ def replace_in_l_elements(xml_text):
 processed_xml = replace_in_l_elements(xml_content)
 
 
-# Prettify (Optional): Clean up indentations for readability
 def prettify(xml_text):
+    """Optional: Simple indentation for readability."""
     lines = xml_text.split("\n")
     indent = 0
     prettified_lines = []
@@ -55,7 +71,7 @@ def prettify(xml_text):
     for line in lines:
         stripped = line.strip()
 
-        # Reduce indent for closing tags (except <l>)
+        # Decrease indent for closing tags (except <l>)
         if stripped.startswith("</") and not stripped.startswith("</l"):
             indent -= 1
 
@@ -63,10 +79,10 @@ def prettify(xml_text):
 
         # Increase indent for opening tags (except <l> or <syll>)
         if (
-            stripped.startswith("<") 
-            and not stripped.startswith("</") 
-            and not stripped.endswith("/>") 
-            and not stripped.startswith("<l") 
+            stripped.startswith("<")
+            and not stripped.startswith("</")
+            and not stripped.endswith("/>")
+            and not stripped.startswith("<l")
             and not stripped.startswith("<syll")
         ):
             indent += 1
@@ -74,7 +90,7 @@ def prettify(xml_text):
     return "\n".join(prettified_lines)
 
 
-# Save the updated XML to file
+# Write out the processed file
 with open(output_file, "w", encoding="utf-8") as f:
     f.write(prettify(processed_xml))
 
