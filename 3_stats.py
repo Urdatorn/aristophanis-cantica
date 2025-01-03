@@ -2,9 +2,11 @@ from lxml import etree
 
 from grc_utils import normalize_word
 
-from vowels import UPPER_SMOOTH_ACUTE, UPPER_ROUGH_ACUTE, LOWER_ACUTE, LOWER_SMOOTH_ACUTE, LOWER_ROUGH_ACUTE, LOWER_DIAERESIS_ACUTE
-from vowels import UPPER_SMOOTH_GRAVE, UPPER_ROUGH_GRAVE, LOWER_GRAVE, LOWER_SMOOTH_GRAVE, LOWER_ROUGH_GRAVE, LOWER_DIAERESIS_GRAVE
-from vowels import UPPER_SMOOTH_CIRCUMFLEX, UPPER_ROUGH_CIRCUMFLEX, LOWER_CIRCUMFLEX, LOWER_SMOOTH_CIRCUMFLEX, LOWER_ROUGH_CIRCUMFLEX, LOWER_DIAERESIS_CIRCUMFLEX
+from vowels import (
+    UPPER_SMOOTH_ACUTE, UPPER_ROUGH_ACUTE, LOWER_ACUTE, LOWER_SMOOTH_ACUTE, LOWER_ROUGH_ACUTE, LOWER_DIAERESIS_ACUTE,
+    UPPER_SMOOTH_GRAVE, UPPER_ROUGH_GRAVE, LOWER_GRAVE, LOWER_SMOOTH_GRAVE, LOWER_ROUGH_GRAVE, LOWER_DIAERESIS_GRAVE,
+    UPPER_SMOOTH_CIRCUMFLEX, UPPER_ROUGH_CIRCUMFLEX, LOWER_CIRCUMFLEX, LOWER_SMOOTH_CIRCUMFLEX, LOWER_ROUGH_CIRCUMFLEX, LOWER_DIAERESIS_CIRCUMFLEX
+)
 
 accents = {
     'acute': set(UPPER_SMOOTH_ACUTE + UPPER_ROUGH_ACUTE + LOWER_ACUTE 
@@ -15,7 +17,9 @@ accents = {
                       + LOWER_SMOOTH_CIRCUMFLEX + LOWER_ROUGH_CIRCUMFLEX + LOWER_DIAERESIS_CIRCUMFLEX)
 }
 
+###########################
 ### METRICAL RESPONSION ###
+###########################
 
 def canonical_sylls(xml_line):
     """
@@ -88,13 +92,11 @@ def metrically_responding_lines(strophe_line, antistrophe_line):
 
     return True
 
-#line1 = etree.fromstring('<l n="208-209" metre="2 cr"><syll weight="heavy">Ἐκ</syll><syll weight="light">πέ</syll><syll weight="heavy">φευγ</syll><syll weight="heavy">οἴ</syll><syll weight="light">χε</syll><syll weight="heavy">ται</syll></l>')
-#line2 = etree.fromstring('<l n="223-224" metre="2 cr"><syll weight="heavy">ὅσ</syll><syll weight="light">τι</syll><syll weight="heavy">ς, ὦ Ζ</syll><syll weight="heavy">εῦ</syll><syll weight="light">πά</syll><syll weight="heavy">τερ</syll></l>')
-#print(metrically_responding_lines(line1, line2))
 
 ############################
 ### ACCENTUAL RESPONSION ###
 ############################
+
 
 def build_units_for_accent(line):
     """
@@ -248,28 +250,41 @@ def accentually_responding_syllables_of_strophe_pair(strophe, antistrophe):
     
     return combined_accent_maps
 
-strophe_line = etree.fromstring('<l n="" metre=""><syll weight="light">ἄ</syll><syll weight="heavy">ῶ</syll><syll weight="light">το</syll><syll weight="heavy">ν ὀρ</syll><syll weight="light">θό</syll><syll weight="light">πο</syll><syll weight="heavy">λὶν</syll></l>')
-antistrophe_line = etree.fromstring('<l n="" metre=""><syll weight="light">τρί</syll><syll weight="heavy">ὦν</syll> <syll weight="light">σφί</syll><syll weight="heavy">σιν</syll> <syll weight="light">κό</syll><syll weight="light">μι</syll><syll weight="heavy">σὸν</syll></l>')
-accent_maps = accentually_responding_syllables_of_line_pair(strophe_line, antistrophe_line)
-print(f'Line total: {accent_maps}')
-print(f'acutes: {len(accent_maps[0])}, graves: {len(accent_maps[1])}, circumflexes: {len(accent_maps[2])}')
 
-strophe_line = etree.fromstring('<strophe type="strophe" responsion="0001"><l n="" metre=""><syll weight="light">ἄ</syll><syll weight="heavy">ῶ</syll><syll weight="light">το</syll><syll weight="heavy">ν ὀρ</syll><syll weight="light">θό</syll><syll weight="light">πο</syll><syll weight="heavy">λὶν</syll></l></strophe>')
-antistrophe_line = etree.fromstring('<strophe type="strophe" responsion="0001"><l n="" metre=""><syll weight="light">τρί</syll><syll weight="heavy">ὦν</syll> <syll weight="light">σφί</syll><syll weight="heavy">σιν</syll> <syll weight="light">κό</syll><syll weight="light">μι</syll><syll weight="heavy">σὸν</syll></l></strophe>')
-accent_maps = accentually_responding_syllables_of_strophe_pair(strophe_line, antistrophe_line)
-print(f'Strophe total: {accent_maps}')
-print(f'acutes: {len(accent_maps[0])}, graves: {len(accent_maps[1])}, circumflexes: {len(accent_maps[2])}')
-
-# Parse the file
-tree = etree.parse("responsion_acharnenses_processed.xml")
-
-# Find matching strophe/antistrophe with responsion="0001"
+tree = etree.parse("responsion_acharnenses_compiled.xml")
 strophe = tree.xpath('//strophe[@type="strophe" and @responsion="0001"]')[0]
 antistrophe = tree.xpath('//strophe[@type="antistrophe" and @responsion="0001"]')[0]
-
-# Call the function
 accent_maps = accentually_responding_syllables_of_strophe_pair(strophe, antistrophe)
-print(accent_maps)
 print(f'acutes: {len(accent_maps[0])}, graves: {len(accent_maps[1])}, circumflexes: {len(accent_maps[2])}')
-#print(f'Strophe total: {accent_maps}')
+print(f'Strophe total: {accent_maps}')
 #print(f'acutes: {len(accent_maps[0])}, graves: {len(accent_maps[1])}, circumflexes: {len(accent_maps[2])}')
+
+[
+    {
+        {
+            [205, 7]: 'πάν', 
+            [210, 8]: 'τεί'
+        }, 
+        {
+            [210, 4]: 'πό', 
+            [240, 4]: 'κέ'
+        }
+    }, 
+    {
+        {
+            [211, 5]: 'πὸ', 
+            [240, 5]: 'κὲ'
+        }
+    }, 
+    {
+        {
+            [211, 8]: 'πῶ', 
+            [240, 8]: 'κῆ'
+        }
+    }
+]
+
+
+########################
+### βαρύς RESPONSION ###
+########################

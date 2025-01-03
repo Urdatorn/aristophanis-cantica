@@ -3,7 +3,7 @@ from lxml import etree
 
 # File paths
 input_file = "responsion_acharnenses_scan.xml"
-output_file = "responsion_acharnenses_processed.xml"
+output_file = "responsion_acharnenses_compiled.xml"
 
 # Mapping of brackets to <syll> tags
 # Original:

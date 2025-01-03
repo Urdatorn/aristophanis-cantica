@@ -57,7 +57,7 @@ def is_in_range(line_number, start, end):
 pairs = [
     {"strophe": (204, 218), "antistrophe": (219, 233)},
     {"strophe": (358, 365), "antistrophe": (385, 392)},
-    {"strophe": (665, 675), "antistrophe": (692, 702)},  # New pair added
+    {"strophe": (665, 675), "antistrophe": (692, 702)},
 ]
 
 responsion_counter = 1
