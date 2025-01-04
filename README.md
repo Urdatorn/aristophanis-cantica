@@ -10,3 +10,10 @@
 4. Runs responsion stats 
 
 ## The stats
+
+There are two separate statistical analyses:
+
+- Count accents/προσῳδίαι straight off
+- Count βαρύς and ὀξύς, where
+  - a heavy syll is βαρύς if it has circumflex or the preceeding syll has an acute 
+  - a syll is ὀξύς if it has an acute and the subsequent syll is light

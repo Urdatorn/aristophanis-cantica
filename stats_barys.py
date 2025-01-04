@@ -4,8 +4,18 @@
 stats_barys.py
 
 A variant of stats.py that implements barys/oxys accentual responsion,
-and improves readability for barys matches by including the previous syllable's text
-if the barys is not purely circumflex-based.
+and prints combined text if:
+ - barys is from heavy+acute logic (prepend previous syllable),
+ - oxys is from the new rule (append next syllable's text).
+
+Updated oxys criteria for single vs single:
+   Two single syllables respond "oxys" iff:
+    1) both have acute
+    2) each is either the last syll in its line OR followed by a light syllable
+Weight of the oxys syllable is irrelevant.
+
+Also, for printing we now combine the matched syllable's text with
+the NEXT syllable's text if present, e.g. "ἄξ" + "ε" => "ἄξε".
 """
 
 from lxml import etree
@@ -68,45 +78,87 @@ def barys_responsion(syll1, syll2, prev_syll1=None, prev_syll2=None):
     return False
 
 
-def oxys_responsion(syll1, syll2):
+##############################################################################
+# 2a) OXYS LOGIC: updated criterion
+##############################################################################
+def next_syll_is_light_or_none(curr_syll, all_sylls):
     """
-    Returns True if these two single syllables respond "oxys":
-      - both are heavy
-      - both have an acute
+    Returns True if 'curr_syll' is the last in its line
+    OR the next syllable is weight="light".
     """
-    return (
-        is_heavy(syll1) and
-        is_heavy(syll2) and
-        has_acute(syll1) and
-        has_acute(syll2)
-    )
+    try:
+        idx = all_sylls.index(curr_syll)
+    except ValueError:
+        return False
+
+    # If it's the last syllable in the line
+    if idx == len(all_sylls) - 1:
+        return True
+
+    # Otherwise check if next is light
+    nxt = all_sylls[idx + 1]
+    return (nxt.get('weight') == 'light')
+
+
+def oxys_responsion_single_syllables(s_syll, a_syll, all_sylls_1, all_sylls_2):
+    """
+    Two single syllables respond "oxys" iff each:
+      1) has an acute
+      2) is last or followed by a light syllable
+    """
+    if not has_acute(s_syll):
+        return False
+    if not has_acute(a_syll):
+        return False
+
+    if not next_syll_is_light_or_none(s_syll, all_sylls_1):
+        return False
+    if not next_syll_is_light_or_none(a_syll, all_sylls_2):
+        return False
+
+    return True
+
 
 # ------------------------------------------------------------------------
-# 3) HELPER FOR PRINTING BARYS TEXT (PREPEND PREV SYLL IF NEEDED)
+# 3) HELPER FOR PRINTING BARYS / OXYS TEXT
 # ------------------------------------------------------------------------
 def get_barys_print_text(curr_syll, prev_syll):
     """
-    If curr_syll has a circumflex, we just return its text.
-    Otherwise (i.e. if barys is triggered by heavy+prev-acute logic),
-    we prepend the previous syllable's text if available.
+    For barys: if curr_syll has a circumflex, we just return it.
+    If barys is from heavy+acute logic => prepend prev_syll's text.
     """
     if has_circumflex(curr_syll):
-        # purely circumflex-based barys
         return curr_syll.text or ""
     else:
-        # barys from heavy + acute logic => show previous + current
         if prev_syll is not None:
             return (prev_syll.text or "") + (curr_syll.text or "")
         else:
             return curr_syll.text or ""
 
+
+def get_oxys_print_text(curr_syll, next_syll):
+    """
+    For oxys: we want to append the next syllable's text if it exists.
+    So e.g. "ἄξ" + "ε" => "ἄξε".
+    """
+    if curr_syll is None:
+        return ""
+
+    curr_text = curr_syll.text or ""
+    if next_syll is None:
+        return curr_text
+
+    next_text = next_syll.text or ""
+    return curr_text + next_text
+
 # ------------------------------------------------------------------------
-# 4) UNIT-BY-UNIT COMPARISONS
+# 4) SINGLE-LINE HELPER FUNCS
 # ------------------------------------------------------------------------
 def do_barys_single_vs_single(u1, u2, barys_list, oxys_list, all_sylls_1, all_sylls_2):
     """
     Compare strophe single vs antistrophe single for barys or oxys matches.
-    If barys => check if it's purely circumflex or not; if not, prepend the previous syllable's text.
+    If barys => if not purely circumflex, prepend the previous syll text.
+    If oxys => if next syll exists, append it.
     """
     s_syll = u1['syll']
     a_syll = u2['syll']
@@ -116,6 +168,15 @@ def do_barys_single_vs_single(u1, u2, barys_list, oxys_list, all_sylls_1, all_sy
             idx = all_sylls.index(syll)
             if idx > 0:
                 return all_sylls[idx - 1]
+        except ValueError:
+            pass
+        return None
+
+    def get_next(syll, all_sylls):
+        try:
+            idx = all_sylls.index(syll)
+            if idx < len(all_sylls) - 1:
+                return all_sylls[idx + 1]
         except ValueError:
             pass
         return None
@@ -133,11 +194,18 @@ def do_barys_single_vs_single(u1, u2, barys_list, oxys_list, all_sylls_1, all_sy
             (u2['line_n'], u2['unit_ord']): anti_text
         })
 
-    # Oxys check (FIX: we must append to oxys_list here, not barys_list!)
-    elif oxys_responsion(s_syll, a_syll):
+    # Oxys check => use updated rule + print next syll text if present
+    elif oxys_responsion_single_syllables(s_syll, a_syll, all_sylls_1, all_sylls_2):
+        next_s_syll = get_next(s_syll, all_sylls_1)
+        next_a_syll = get_next(a_syll, all_sylls_2)
+
+        # build the "expanded" text
+        strophe_text = get_oxys_print_text(s_syll, next_s_syll)
+        anti_text    = get_oxys_print_text(a_syll, next_a_syll)
+
         oxys_list.append({
-            (u1['line_n'], u1['unit_ord']): s_syll.text or "",
-            (u2['line_n'], u2['unit_ord']): a_syll.text or ""
+            (u1['line_n'], u1['unit_ord']): strophe_text,
+            (u2['line_n'], u2['unit_ord']): anti_text
         })
 
 
@@ -145,13 +213,16 @@ def do_barys_double_vs_double(u1, u2, barys_list, oxys_list):
     """
     Compare resolution pair vs resolution pair for barys or oxys.
     We'll specifically check the 2nd sub-syllable in each pair with the 1st as 'prev'.
+
+    We do not fully implement the "append next syll text" here, 
+    but you can replicate the pattern if you want sub-syllable wise.
     """
     s1 = u1['syll1']
     s2 = u1['syll2']
     a1 = u2['syll1']
     a2 = u2['syll2']
 
-    # Attempt barys for (s2,a2) with prev = (s1,a1)
+    # Barys
     if barys_responsion(s2, a2, prev_syll1=s1, prev_syll2=a1):
         strophe_text = get_barys_print_text(s2, s1)
         anti_text    = get_barys_print_text(a2, a1)
@@ -161,46 +232,41 @@ def do_barys_double_vs_double(u1, u2, barys_list, oxys_list):
             (u2['line_n'], u2['unit_ord']): anti_text
         })
 
-    # Oxys check (FIX: again, must append to oxys_list)
-    elif oxys_responsion(s2, a2):
-        oxys_list.append({
-            (u1['line_n'], u1['unit_ord']): s2.text or "",
-            (u2['line_n'], u2['unit_ord']): a2.text or ""
-        })
+    # If you want "oxys" for double sub-syllables, you'd do something similar here:
+    # elif <some condition>:
+    #    pass
 
 
 def do_barys_double_vs_single(u_double, u_single, barys_list, oxys_list):
     """
     Compare a double in strophe vs a single in antistrophe, or vice versa.
     We'll check the 2nd sub-syllable in the double for barys/oxys.
+    For printing, we haven't added the next-syll logic, but you can adapt similarly if wanted.
     """
     d1 = u_double['syll1']
     d2 = u_double['syll2']
     s_syll = u_single['syll']
 
-    # Barys check => (d2, s_syll), with d1 as 'previous' for d2
     if barys_responsion(d2, s_syll, prev_syll1=d1, prev_syll2=None):
         strophe_text = get_barys_print_text(d2, d1)
-        anti_text    = s_syll.text or ""  # or find the single's prev if needed
+        anti_text    = s_syll.text or ""
 
         barys_list.append({
             (u_double['line_n'], u_double['unit_ord']): strophe_text,
             (u_single['line_n'], u_single['unit_ord']): anti_text
         })
 
-    # Oxys check (FIX: must append to oxys_list here)
-    elif oxys_responsion(d2, s_syll):
-        oxys_list.append({
-            (u_double['line_n'], u_double['unit_ord']): d2.text or "",
-            (u_single['line_n'], u_single['unit_ord']): s_syll.text or ""
-        })
+    # For oxys, you can do a partial approach if desired
+    # elif <some condition>:
+    #     pass
+
 
 # ------------------------------------------------------------------------
-# 5) LINE-PAIR FUNCTION
+# 5) PER-LINE FUNCTION
 # ------------------------------------------------------------------------
 def barys_accentually_responding_syllables_of_line_pair(strophe_line, antistrophe_line):
     """
-    Returns [barys_list, oxys_list] if the lines are metrically responding, else False.
+    Returns [barys_list, oxys_list] if they are metrically responding, else False.
     """
     if not metrically_responding_lines(strophe_line, antistrophe_line):
         return False
@@ -240,12 +306,12 @@ def barys_accentually_responding_syllables_of_line_pair(strophe_line, antistroph
     return [barys_list, oxys_list]
 
 # ------------------------------------------------------------------------
-# 6) STROPHE-PAIR FUNCTION
+# 6) PER-STROPHE FUNCTION
 # ------------------------------------------------------------------------
 def barys_accentually_responding_syllables_of_strophe_pair(strophe, antistrophe):
     """
-    For each matching pair of <l> lines, gather barys/oxys matches.
-    Returns [ [barys matches], [oxys matches] ] or False if mismatch.
+    For each matching pair of <l> lines, gather barys/oxys matches, 
+    returning [ [barys], [oxys] ] or False if mismatch.
     """
     if strophe.get('responsion') != antistrophe.get('responsion'):
         return False
@@ -281,7 +347,7 @@ if __name__ == "__main__":
     # Example usage:
     tree = etree.parse("responsion_acharnenses_compiled.xml")
 
-    # Suppose we pick the pair with responsion="0001"
+    # Suppose we pick strophe & antistrophe with responsion="0001"
     strophe = tree.xpath('//strophe[@type="strophe" and @responsion="0001"]')[0]
     antistrophe = tree.xpath('//strophe[@type="antistrophe" and @responsion="0001"]')[0]
 

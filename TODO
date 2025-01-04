@@ -1,0 +1,6 @@
+TODO
+
+☐ learn do this!
+☐ 3rd statistic: melodic direction (rate of change) based on responsion
+    ☐ melodic acceleration: a metric of the larger arc of the melody
+    ☐ melodic jerk: a metric of the vivacity of the melody d3[melody]/dt3
