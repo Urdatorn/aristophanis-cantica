@@ -1,35 +1,28 @@
-# stats_barys.py
-
 #!/usr/bin/env python3
+
 """
 stats_barys.py
 
-This file reuses the basic metrical and accent helpers from stats.py
-but overrides the accentual “barys/oxys” responsion logic.
-
-You’ll need 'stats.py' in the same directory, or otherwise on your Python path.
+A variant of stats.py that implements barys/oxys accentual responsion,
+and improves readability for barys matches by including the previous syllable's text
+if the barys is not purely circumflex-based.
 """
-
-# ------------------------------------------------------------------------
-# 1) IMPORTS (from your existing stats.py)
-# ------------------------------------------------------------------------
-
-
-from stats import (
-    canonical_sylls,
-    metrically_responding_lines,
-    build_units_for_accent,
-    is_heavy,
-    has_acute,
-    accents
-)
 
 from lxml import etree
 from grc_utils import normalize_word
 
-# If you do NOT export 'accents' from stats.py, you can define it here or import from vowels:
-# from vowels import (UPPER_SMOOTH_ACUTE, ..., LOWER_DIAERESIS_CIRCUMFLEX)
-
+# ------------------------------------------------------------------------
+# 1) IMPORT WHAT'S UNCHANGED FROM stats.py
+# ------------------------------------------------------------------------
+# Adjust these imports based on your actual code organization and exports in stats.py
+from stats import (
+    canonical_sylls,                # same metrical logic
+    metrically_responding_lines,    # same line-to-line matching
+    build_units_for_accent,         # same 'unit' building logic
+    is_heavy,                       # same helper
+    has_acute,                      # same helper
+    accents                         # same accent dict
+)
 
 # ------------------------------------------------------------------------
 # 2) NEW BARYS/OXYS LOGIC
@@ -45,9 +38,9 @@ def has_circumflex(syll):
 
 def barys_responsion(syll1, syll2, prev_syll1=None, prev_syll2=None):
     """
-    Returns True if these two single syllables respond "barys" per your spec:
-      (1) both have circumflex
-      (2) both are heavy & each's preceding syllable has an acute
+    Returns True if these two single syllables respond "barys":
+      (1) both have circumflex, OR
+      (2) both are heavy & each's preceding syllable has an acute, OR
       (3) one has circumflex & the other meets #2
     """
     c1 = has_circumflex(syll1)
@@ -55,22 +48,20 @@ def barys_responsion(syll1, syll2, prev_syll1=None, prev_syll2=None):
     h1 = is_heavy(syll1)
     h2 = is_heavy(syll2)
 
-    # preceding syllable acute?
     prev_acute_1 = (prev_syll1 is not None) and has_acute(prev_syll1)
     prev_acute_2 = (prev_syll2 is not None) and has_acute(prev_syll2)
 
-    # (1) both have circumflex
+    # (1) both circumflex
     if c1 and c2:
         return True
 
-    # (2) both heavy & preceding each has acute
+    # (2) both heavy & each's preceding syll has an acute
     if h1 and h2 and prev_acute_1 and prev_acute_2:
         return True
 
-    # (3) one has circumflex, the other is #2
-    meets_2_for_syll1 = h1 and prev_acute_1
-    meets_2_for_syll2 = h2 and prev_acute_2
-
+    # (3) one has circumflex, the other meets #2
+    meets_2_for_syll1 = (h1 and prev_acute_1)
+    meets_2_for_syll2 = (h2 and prev_acute_2)
     if (c1 and meets_2_for_syll2) or (c2 and meets_2_for_syll1):
         return True
 
@@ -83,22 +74,43 @@ def oxys_responsion(syll1, syll2):
       - both are heavy
       - both have an acute
     """
-    return (is_heavy(syll1) and is_heavy(syll2)
-            and has_acute(syll1) and has_acute(syll2))
-
+    return (
+        is_heavy(syll1) and
+        is_heavy(syll2) and
+        has_acute(syll1) and
+        has_acute(syll2)
+    )
 
 # ------------------------------------------------------------------------
-# 3) UNIT-BY-UNIT COMPARISONS (like do_single_vs_single, etc.)
+# 3) HELPER FOR PRINTING BARYS TEXT (PREPEND PREV SYLL IF NEEDED)
+# ------------------------------------------------------------------------
+def get_barys_print_text(curr_syll, prev_syll):
+    """
+    If curr_syll has a circumflex, we just return its text.
+    Otherwise (i.e. if barys is triggered by heavy+prev-acute logic),
+    we prepend the previous syllable's text if available.
+    """
+    if has_circumflex(curr_syll):
+        # purely circumflex-based barys
+        return curr_syll.text or ""
+    else:
+        # barys from heavy + acute logic => show previous + current
+        if prev_syll is not None:
+            return (prev_syll.text or "") + (curr_syll.text or "")
+        else:
+            return curr_syll.text or ""
+
+# ------------------------------------------------------------------------
+# 4) UNIT-BY-UNIT COMPARISONS
 # ------------------------------------------------------------------------
 def do_barys_single_vs_single(u1, u2, barys_list, oxys_list, all_sylls_1, all_sylls_2):
     """
-    Compare strophe single vs. antistrophe single for barys or oxys matches.
-    Figure out the 'previous' syllables (naive approach) and then do barys/oxys checks.
+    Compare strophe single vs antistrophe single for barys or oxys matches.
+    If barys => check if it's purely circumflex or not; if not, prepend the previous syllable's text.
     """
     s_syll = u1['syll']
     a_syll = u2['syll']
 
-    # minimal approach to get the previous <syll>
     def get_prev(syll, all_sylls):
         try:
             idx = all_sylls.index(syll)
@@ -111,13 +123,17 @@ def do_barys_single_vs_single(u1, u2, barys_list, oxys_list, all_sylls_1, all_sy
     prev_s_syll = get_prev(s_syll, all_sylls_1)
     prev_a_syll = get_prev(a_syll, all_sylls_2)
 
-    # Check barys
+    # Barys check
     if barys_responsion(s_syll, a_syll, prev_s_syll, prev_a_syll):
+        strophe_text = get_barys_print_text(s_syll, prev_s_syll)
+        anti_text    = get_barys_print_text(a_syll, prev_a_syll)
+
         barys_list.append({
-            (u1['line_n'], u1['unit_ord']): s_syll.text or "",
-            (u2['line_n'], u2['unit_ord']): a_syll.text or ""
+            (u1['line_n'], u1['unit_ord']): strophe_text,
+            (u2['line_n'], u2['unit_ord']): anti_text
         })
-    # If not barys, check oxys
+
+    # Oxys check (FIX: we must append to oxys_list here, not barys_list!)
     elif oxys_responsion(s_syll, a_syll):
         oxys_list.append({
             (u1['line_n'], u1['unit_ord']): s_syll.text or "",
@@ -128,19 +144,24 @@ def do_barys_single_vs_single(u1, u2, barys_list, oxys_list, all_sylls_1, all_sy
 def do_barys_double_vs_double(u1, u2, barys_list, oxys_list):
     """
     Compare resolution pair vs resolution pair for barys or oxys.
-    Example: check if the 2nd sub-syllable in each pair respond barys or oxys.
+    We'll specifically check the 2nd sub-syllable in each pair with the 1st as 'prev'.
     """
     s1 = u1['syll1']
     s2 = u1['syll2']
     a1 = u2['syll1']
     a2 = u2['syll2']
 
-    # Example logic: treat s2 vs. a2 as the potential match, with s1 and a1 as "previous"
+    # Attempt barys for (s2,a2) with prev = (s1,a1)
     if barys_responsion(s2, a2, prev_syll1=s1, prev_syll2=a1):
+        strophe_text = get_barys_print_text(s2, s1)
+        anti_text    = get_barys_print_text(a2, a1)
+
         barys_list.append({
-            (u1['line_n'], u1['unit_ord']): s2.text or "",
-            (u2['line_n'], u2['unit_ord']): a2.text or ""
+            (u1['line_n'], u1['unit_ord']): strophe_text,
+            (u2['line_n'], u2['unit_ord']): anti_text
         })
+
+    # Oxys check (FIX: again, must append to oxys_list)
     elif oxys_responsion(s2, a2):
         oxys_list.append({
             (u1['line_n'], u1['unit_ord']): s2.text or "",
@@ -150,60 +171,55 @@ def do_barys_double_vs_double(u1, u2, barys_list, oxys_list):
 
 def do_barys_double_vs_single(u_double, u_single, barys_list, oxys_list):
     """
-    Compare a double (resolution) in strophe vs. a single in antistrophe, or vice versa.
-    Typically we compare the double's 2nd sub-syllable with the single's syllable.
+    Compare a double in strophe vs a single in antistrophe, or vice versa.
+    We'll check the 2nd sub-syllable in the double for barys/oxys.
     """
     d1 = u_double['syll1']
     d2 = u_double['syll2']
     s_syll = u_single['syll']
 
-    # We'll consider d1 as "previous" for d2. 
-    # If you want to find a 'previous' in the single line, you'd do a separate lookup.
+    # Barys check => (d2, s_syll), with d1 as 'previous' for d2
     if barys_responsion(d2, s_syll, prev_syll1=d1, prev_syll2=None):
+        strophe_text = get_barys_print_text(d2, d1)
+        anti_text    = s_syll.text or ""  # or find the single's prev if needed
+
         barys_list.append({
-            (u_double['line_n'], u_double['unit_ord']): d2.text or "",
-            (u_single['line_n'], u_single['unit_ord']): s_syll.text or ""
+            (u_double['line_n'], u_double['unit_ord']): strophe_text,
+            (u_single['line_n'], u_single['unit_ord']): anti_text
         })
+
+    # Oxys check (FIX: must append to oxys_list here)
     elif oxys_responsion(d2, s_syll):
         oxys_list.append({
             (u_double['line_n'], u_double['unit_ord']): d2.text or "",
             (u_single['line_n'], u_single['unit_ord']): s_syll.text or ""
         })
 
-
 # ------------------------------------------------------------------------
-# 4) PER-LINE FUNCTION
+# 5) LINE-PAIR FUNCTION
 # ------------------------------------------------------------------------
 def barys_accentually_responding_syllables_of_line_pair(strophe_line, antistrophe_line):
     """
-    Returns [barys_list, oxys_list] if they are metrically responding, else False.
-
-    barys_list, oxys_list are each a list of dicts like:
-      [ { (line_n, unit_ord): "text", (line_n, unit_ord): "text" }, ... ]
+    Returns [barys_list, oxys_list] if the lines are metrically responding, else False.
     """
-    # 1) Metrical check
     if not metrically_responding_lines(strophe_line, antistrophe_line):
         return False
 
-    # 2) Build units
     units1 = build_units_for_accent(strophe_line)
     units2 = build_units_for_accent(antistrophe_line)
 
     if len(units1) != len(units2):
         return False
 
-    # For "previous syllable" lookups
     all_sylls_1 = strophe_line.findall('.//syll')
     all_sylls_2 = antistrophe_line.findall('.//syll')
 
-    # results
     barys_list = []
     oxys_list  = []
 
-    # 3) Compare units by ordinal
     for u1, u2 in zip(units1, units2):
         if u1['unit_ord'] != u2['unit_ord']:
-            continue  # or break, depending on your logic
+            continue
 
         # single vs single
         if u1['type'] == 'single' and u2['type'] == 'single':
@@ -223,20 +239,14 @@ def barys_accentually_responding_syllables_of_line_pair(strophe_line, antistroph
 
     return [barys_list, oxys_list]
 
-
 # ------------------------------------------------------------------------
-# 5) PER-STROPHE FUNCTION
+# 6) STROPHE-PAIR FUNCTION
 # ------------------------------------------------------------------------
 def barys_accentually_responding_syllables_of_strophe_pair(strophe, antistrophe):
     """
-    Takes:
-      strophe:     <strophe type="strophe"     responsion="XXX">
-      antistrophe: <strophe type="antistrophe" responsion="XXX">
-
-    For each matching pair of <l> lines, checks barys/oxys matches.
+    For each matching pair of <l> lines, gather barys/oxys matches.
     Returns [ [barys matches], [oxys matches] ] or False if mismatch.
     """
-    # same @responsion?
     if strophe.get('responsion') != antistrophe.get('responsion'):
         return False
 
@@ -258,7 +268,6 @@ def barys_accentually_responding_syllables_of_strophe_pair(strophe, antistrophe)
         if line_barys_oxys is False:
             return False
 
-        # line_barys_oxys => [barys_list, oxys_list]
         combined_barys.extend(line_barys_oxys[0])
         combined_oxys.extend(line_barys_oxys[1])
 
@@ -266,19 +275,18 @@ def barys_accentually_responding_syllables_of_strophe_pair(strophe, antistrophe)
 
 
 # ------------------------------------------------------------------------
-# 6) MAIN
+# 7) MAIN
 # ------------------------------------------------------------------------
 if __name__ == "__main__":
-    # Example usage with an XML compiled for responsion checks
+    # Example usage:
     tree = etree.parse("responsion_acharnenses_compiled.xml")
 
-    # For instance, pick strophe & antistrophe with responsion="0001"
+    # Suppose we pick the pair with responsion="0001"
     strophe = tree.xpath('//strophe[@type="strophe" and @responsion="0001"]')[0]
     antistrophe = tree.xpath('//strophe[@type="antistrophe" and @responsion="0001"]')[0]
 
-    # Get overall barys/oxys matches
     accent_maps = barys_accentually_responding_syllables_of_strophe_pair(strophe, antistrophe)
-    if accent_maps is False:
+    if not accent_maps:
         print("No barys/oxys responsion found or mismatch in lines.")
     else:
         barys_list, oxys_list = accent_maps
