@@ -1,27 +1,17 @@
 import re
-from lxml import etree
 
 # File paths
 input_file = "responsion_acharnenses_scan.xml"
 output_file = "responsion_acharnenses_compiled.xml"
 
 # Mapping of brackets to <syll> tags
-# Original:
-#   [ -> heavy
-#   ] -> close heavy
-#   { -> light
-#   } -> close light
 #
-# Now including four new entries:
-#   [# -> heavy + anceps
-#   [% -> heavy + contraction
-#   [€ -> heavy + resolution
-#   {€ -> light + resolution
 # IMPORTANT: Put multi-character keys (e.g. "[#") before single-character keys ("[")
 bracket_map = {
     "[#": '<syll weight="heavy" anceps="True">',
     "{#": '<syll weight="light" anceps="True">',
     "[%": '<syll weight="heavy" contraction="True">',
+    "[€": '<syll weight="heavy" contraction="True">',
     "{€": '<syll weight="light" resolution="True">',
 
     "[": '<syll weight="heavy">',
