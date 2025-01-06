@@ -54,29 +54,45 @@ for line_el in tree.xpath("//body//l"):
 # -----------------------------------------------------------------------------
 for label in tree.xpath("//label"):
     speaker_text = (label.text or "").strip()
-    label.attrib.clear()  # Remove all existing attributes
-    label.set("speaker", speaker_text)  # Add speaker attribute
-    label.text = None  # Make the <label> self-closing
+    label.attrib.clear()
+    label.set("speaker", speaker_text)
+    label.text = None
 
-# 5) Add or preserve metre="" to all <l> elements
+# 5) Add or preserve metre="" to all <l> elements, ordering attributes n -> metre -> others
 for l in tree.xpath("//body//l"):
-    if "metre" not in l.attrib:
-        l.set("metre", "")
+    n = l.get("n", "")
+    metre = l.get("metre", "")
+    
+    # Remove the 'rend' attribute from <l>
+    if "rend" in l.attrib:
+        del l.attrib["rend"]
+    
+    # Reconstruct attributes in correct order
+    attribs = {k: v for k, v in l.attrib.items() if k not in ["n", "metre"]}
+    new_attribs = [("n", n), ("metre", metre)] + list(attribs.items())
+    l.attrib.clear()
+    for k, v in new_attribs:
+        if v:
+            l.set(k, v)
 
-# 6) Replace &lt; and &gt; within text nodes with <conjecture> tags
-def replace_conjecture(text):
+# 6) Replace &lt; and &gt; within text nodes and ensure proper spacing
+def clean_and_format_line(text):
     if text:
-        text = re.sub(r'&lt;', '<conjecture author="" ref="">', text)
-        text = re.sub(r'&gt;', '</conjecture>', text)
+        # Remove &lt; and &gt;
+        text = re.sub(r'&lt;|&gt;', '', text)
+        # Ensure space at the end unless enjambment
+        if not text.endswith("-"):
+            text = text.rstrip() + " "  # Normal space
+        return text
     return text
 
-# Apply conjecture replacement to <l> and sub-elements
+# Apply cleaning to <l> and sub-elements
 for element in tree.xpath("//body//l"):
     if element.text:
-        element.text = replace_conjecture(element.text)
+        element.text = clean_and_format_line(element.text)
     for subelem in element:
         if subelem.tail:
-            subelem.tail = replace_conjecture(subelem.tail)
+            subelem.tail = clean_and_format_line(subelem.tail)
 
 # 7) Create the root elements (without namespace prefixes)
 output_root = etree.Element("TEI")
@@ -97,76 +113,52 @@ mismatch_log = []
 
 # 8) Build strophe + multiple antistrophes for each canticum
 for canticum in cantica:
-    # Create a <canticum> container for this responsion set
     canticum_element = etree.SubElement(body_element, "canticum")
-
-    # Create strophe/antistrophe containers with dynamic responsion number
     responsion_str = f"{responsion_counter:04d}"
 
-    # (A) Extract the strophe and antistrophes from the list
-    strophe_range = canticum[0]  # The first entry is always the strophe
-    antistrophes = canticum[1:]  # Remaining entries are the antistrophes
+    strophe_range = canticum[0]
+    antistrophes = canticum[1:]
 
-    # (B) Create the strophe element
     strophe_element = etree.SubElement(
         canticum_element, "strophe",
         attrib={"type": "strophe", "responsion": responsion_str}
     )
     strophe_element.text = "\n  "
-
-    # (C) We'll also create placeholders for line counts
     line_counts[responsion_str] = {"strophe": 0, "antistrophes": []}
 
-    # 8.1) Populate the strophe lines
     for line in tree.xpath("//body//l"):
         line_number = line.get("n")
         if line_number and is_in_range(line_number, strophe_range[0], strophe_range[1]):
-            if 'rend' in line.attrib:
-                del line.attrib['rend']
             etree.strip_elements(line, "space", with_tail=False)
             strophe_element.append(line)
             line_counts[responsion_str]["strophe"] += 1
 
-    # 8.2) For each antistrophe range, build <strophe type="antistrophe">
     for anti_range in antistrophes:
         anti_element = etree.SubElement(
             canticum_element, "strophe",
             attrib={"type": "antistrophe", "responsion": responsion_str}
         )
         anti_element.text = "\n  "
-        # We'll track line count
         line_count_for_this_antistroph = 0
 
-        # Populate this antistrophe
         for line in tree.xpath("//body//l"):
             line_number = line.get("n")
             if line_number and is_in_range(line_number, anti_range[0], anti_range[1]):
-                if 'rend' in line.attrib:
-                    del line.attrib['rend']
                 etree.strip_elements(line, "space", with_tail=False)
                 anti_element.append(line)
                 line_count_for_this_antistroph += 1
 
         line_counts[responsion_str]["antistrophes"].append(line_count_for_this_antistroph)
 
-    # Increment responsion for the next canticum
     responsion_counter += 1
 
-# 9) Pretty print the XML with proper indentation for closing tags
+# 9) Pretty print the XML
 etree.indent(output_root, space="  ")
 
-# 10) Save the new TEI XML to file
+# 10) Save the updated XML to file
 with open(output_file, "wb") as f:
     etree.ElementTree(output_root).write(
         f, encoding="UTF-8", xml_declaration=True, pretty_print=True
     )
-
-# 11) Print mismatches, if any
-if mismatch_log:
-    print("\nLine count mismatches detected:")
-    for mismatch in mismatch_log:
-        print(mismatch)
-else:
-    print("No line count mismatches detected.")
 
 print(f"Updated TEI XML saved to {output_file}")
