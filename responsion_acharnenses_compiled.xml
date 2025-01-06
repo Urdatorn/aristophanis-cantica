@@ -94,29 +94,25 @@
 <l n="297-299" speaker="ΧΟ." metre="4 cr">
 <syll weight="heavy">Οὐ</syll><syll weight="light">κ ἀ</syll><syll weight="heavy">νασ</syll><syll weight="heavy">χή</syll><syll weight="light">σο</syll><syll weight="heavy">μαι</syll>· <syll weight="heavy">μη</syll><syll weight="light">δὲ</syll> <syll weight="light" resolution="True">λέ</syll><syll weight="light" resolution="True">γε</syll> <syll weight="heavy">μοι</syll> <syll weight="light">σὺ</syll> <syll weight="light" resolution="True">λό</syll><syll weight="light" resolution="True">γον</syll>· 
 </l>
-<l n="300" metre="4 cr">
+<l n="300" metre="4 cr" problematic="True">
 ὡς μεμίσηκά σε Κλέωνος ἔτι μᾶλλον, ὃν <conjecture author="Bothe" ref="Parker, p. 130" deleted="ἐγώ"/>
 </l>
-<l n="301" metre="4 cr">
-κατατεμῶ τοῖσιν ἱππεῦσι καττύματα. 
-
+<l n="301" metre="4 cr" problematic="True">
+<syll weight="light" resolution="True">κα</syll><syll weight="light" resolution="True">τα</syll><syll weight="light">τε</syll><syll weight="heavy">μῶ</syll> <syll weight="heavy">τοῖ</syll><syll weight="light">σι</syll><syll weight="heavy">ν ἱπ</syll><syll weight="heavy">πεῦ</syll><syll weight="light">σι</syll><conjecture author="Σ vet. (300a)" ref="Parker, p. 130" deleted=" ποτ'"/><conjecture author="Elmsley" ref="Parker, p. 130" deleted=" ἐς"/> <syll weight="heavy">κατ</syll><syll weight="heavy">τύ</syll><syll weight="light">μα</syll><syll weight="light" brevis_in_longo="True" weight="light">τα</syll>. 
 </l>
         </strophe>
         <strophe type="antistrophe" responsion="0002">
 <l n="335" speaker="ΔΙ." metre="4 tr^">
-<syll weight="heavy">Ὡ</syll><syll weight="light">ς ἀ</syll><syll weight="heavy">ποκ</syll><syll weight="light">τε</syll><syll weight="heavy">νῶ</syll>· <syll weight="light">κέ</syll><syll weight="heavy">κραχ</syll><syll weight="light">θ'· ἐ</syll><syll weight="heavy">γὼ</syll> <syll weight="light">γὰ</syll><syll weight="heavy">ρ οὐ</syll><syll weight="light">κ ἀ</syll><syll weight="heavy">κού</syll><syll weight="light">σο</syll><syll weight="heavy">μαι</syll>. 
+<syll weight="heavy">Ὡ</syll><syll weight="light">ς ἀ</syll><syll weight="heavy">ποκ</syll><syll weight="light" anceps="True">τε</syll><syll weight="heavy">νῶ</syll>· <syll weight="light">κέ</syll><syll weight="heavy">κραχ</syll><syll weight="light" anceps="True">θ'· ἐ</syll><syll weight="heavy">γὼ</syll> <syll weight="light">γὰ</syll><syll weight="heavy">ρ οὐ</syll><syll weight="light" anceps="True">κ ἀ</syll><syll weight="heavy">κού</syll><syll weight="light">σο</syll><syll weight="heavy">μαι</syll>. 
 </l>
-<l n="336" speaker="ΧΟ." metre="5 ^da^">
+<l n="336" speaker="ΧΟ." metre="5 ^da^?">
 <syll weight="light">Ἀ</syll><syll weight="light">πο</syll><syll weight="heavy">λεῖ</syll><syll weight="light">ς ἄ</syll><syll weight="light">ρ' ὁ</syll><syll weight="heavy">μή</syll><syll weight="light">λι</syll><syll weight="light">κα</syll> <syll weight="heavy">τόν</syll><syll weight="light">δε</syll> <syll weight="light">φι</syll><syll weight="heavy">λαν</syll><syll weight="light">θρα</syll><syll weight="light">κέ</syll><syll weight="heavy">α</syll>; 
 </l>
 <l n="337" speaker="ΔΙ." metre="4 tr^">
-<syll weight="heavy">Οὐ</syll><syll weight="light">δ' ἐ</syll><syll weight="heavy">μοῦ</syll> <syll weight="light">λέ</syll><syll weight="heavy">γον</syll><syll weight="light">τος</syll> <syll weight="heavy">ὑ</syll><syll weight="heavy">μεῖ</syll><syll weight="heavy">ς ἀρ</syll><syll weight="light">τί</syll><syll weight="heavy">ως</syll> <syll weight="heavy">ἠ</syll><syll weight="heavy">κού</syll><syll weight="light">σα</syll><syll weight="heavy">τε</syll>. 
+<syll weight="heavy">Οὐ</syll><syll weight="light">δ' ἐ</syll><syll weight="heavy">μοῦ</syll> <syll weight="light" anceps="True">λέ</syll><syll weight="heavy">γον</syll><syll weight="light">τος</syll> <syll weight="heavy">ὑ</syll><syll weight="heavy" anceps="True">μεῖ</syll><syll weight="heavy">ς ἀρ</syll><syll weight="light">τί</syll><syll weight="heavy">ως</syll> <syll weight="heavy" anceps="True">ἠ</syll><syll weight="heavy">κού</syll><syll weight="light">σα</syll><syll weight="light" brevis_in_longo="True" weight="light">τε</syll>. 
 </l>
-<l n="338" speaker="ΧΟ." metre="4 cr">
-Ἀλλὰ νυνὶ λέγ', ὅ τι σοι δοκεῖ, τόν τε Λακε-
-</l>
-<l n="339" metre="+ 4 cr">
-δαιμόνιον αὐτόθεν ὅτῳ τρόπῳ σοὐστὶ φίλος· 
+<l n="338-339" speaker="ΧΟ." metre="8 cr" problematic="True">
+<syll weight="heavy">Ἀλ</syll><syll weight="light">λὰ</syll> <conjecture author="Bentley" ref="Parker, p. 132" manuscript="νῦν"><syll weight="heavy">νυ</syll><syll weight="heavy">νὶ</syll></conjecture> <syll weight="light">λέ</syll><syll weight="light" resolution="True">γ', ὅ</syll> <syll weight="light" resolution="True">τι</syll> <syll weight="heavy">σοι</syll> <syll weight="light">δο</syll><syll weight="heavy">κεῖ</syll>, <syll weight="heavy">τόν</syll> <syll weight="light">τε</syll> <syll weight="light" resolution="True">Λα</syll><syll weight="light" resolution="True">κε</syll><syll weight="heavy">δαι</syll><syll weight="light">μό</syll><syll weight="light" resolution="True">νι</syll><syll weight="light" resolution="True">ο</syll><syll weight="heavy">ν αὐ</syll><syll weight="light">τό</syll><syll weight="light" resolution="True">θε</syll><syll weight="light" resolution="True">ν ὅ</syll><syll weight="heavy">τῳ τ</syll><syll weight="light">ρό</syll><syll weight="heavy">πῳ</syll> <syll weight="heavy">σοὐσ</syll><syll weight="light">τὶ</syll> <syll weight="light">φί</syll><syll weight="light" brevis_in_longo="True" weight="light">λος</syll>· 
 </l>
 <l n="340" metre="4 cr">
 ὡς τόδε τὸ λαρκίδιον οὐ προδώσω ποτέ. 
