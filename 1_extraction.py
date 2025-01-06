@@ -83,9 +83,6 @@ output_root = etree.Element("TEI")
 text_element = etree.SubElement(output_root, "text")
 body_element = etree.SubElement(text_element, "body")
 
-# Create the <chorus> container
-chorus_element = etree.SubElement(body_element, "chorus")
-
 # Helper function to check if a line number is in a given range (handles spans)
 def is_in_range(line_number, start, end):
     if '-' in line_number:
@@ -100,6 +97,9 @@ mismatch_log = []
 
 # 8) Build strophe + multiple antistrophes for each canticum
 for canticum in cantica:
+    # Create a <canticum> container for this responsion set
+    canticum_element = etree.SubElement(body_element, "canticum")
+
     # Create strophe/antistrophe containers with dynamic responsion number
     responsion_str = f"{responsion_counter:04d}"
 
@@ -109,10 +109,10 @@ for canticum in cantica:
 
     # (B) Create the strophe element
     strophe_element = etree.SubElement(
-        chorus_element, "strophe",
+        canticum_element, "strophe",
         attrib={"type": "strophe", "responsion": responsion_str}
     )
-    strophe_element.text = "\n"
+    strophe_element.text = "\n  "
 
     # (C) We'll also create placeholders for line counts
     line_counts[responsion_str] = {"strophe": 0, "antistrophes": []}
@@ -130,10 +130,10 @@ for canticum in cantica:
     # 8.2) For each antistrophe range, build <strophe type="antistrophe">
     for anti_range in antistrophes:
         anti_element = etree.SubElement(
-            chorus_element, "strophe",
+            canticum_element, "strophe",
             attrib={"type": "antistrophe", "responsion": responsion_str}
         )
-        anti_element.text = "\n"
+        anti_element.text = "\n  "
         # We'll track line count
         line_count_for_this_antistroph = 0
 
@@ -152,16 +152,8 @@ for canticum in cantica:
     # Increment responsion for the next canticum
     responsion_counter += 1
 
-# 9) Compare line counts of strophe vs. antistrophes
-for responsion, counts in line_counts.items():
-    strophe_count = counts["strophe"]
-    antistro_count_list = counts["antistrophes"]
-    for idx, a_count in enumerate(antistro_count_list, start=1):
-        if a_count != strophe_count:
-            mismatch_log.append(
-                f"Mismatch for responsion={responsion}, "
-                f"antistrophe #{idx} (lines={a_count}), strophe lines={strophe_count}"
-            )
+# 9) Pretty print the XML with proper indentation for closing tags
+etree.indent(output_root, space="  ")
 
 # 10) Save the new TEI XML to file
 with open(output_file, "wb") as f:
