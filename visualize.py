@@ -1,5 +1,5 @@
+import sys
 from lxml import etree
-
 from stats import (
     accentually_responding_syllables_of_line_pair,
     build_units_for_accent,
@@ -34,9 +34,6 @@ def extract_strophe_accent_positions(strophe_line, antistrophe_line):
 
 
 def metre_line_with_accents(s_line, acutes_set, circ_set):
-    """
-    Builds a string representing the strophe line's metrical pattern.
-    """
     units = build_units_for_accent(s_line)
     line_pattern = []
 
@@ -82,30 +79,20 @@ def metre_line_with_accents(s_line, acutes_set, circ_set):
 
 
 def restore_text(l_element):
-    """
-    Given an <l> element, return the original text without XML markup.
-    """
     text_fragments = []
     
-    # Iterate over children of <l> in order
     for child in l_element:
-        # Ignore <label> tags, in case they appear
         if child.tag == 'label':
             continue
 
-        # If it's a syllable, we take whatever text is inside
         if child.tag == 'syll' and child.text:
             text_fragments.append(child.text)
         
-        # If there's a tail (text after the element), append it too
-        # (Though in most TEI-like structures, the tail of a <syll> is often whitespace
-        # or empty. Adjust if you do need it.)
         if child.tail:
             text_fragments.append(child.tail)
 
-    # Join everything together, removing double spaces if necessary
     combined = ''.join(text_fragments)
-    return ' '.join(combined.split())  # This step just normalizes spacing
+    return ' '.join(combined.split())
 
 
 def metre_strophe_with_accents(strophe, antistrophe):
@@ -116,30 +103,40 @@ def metre_strophe_with_accents(strophe, antistrophe):
 
     lines_output = []
     for s_line, a_line in zip(s_lines, a_lines):
-        # 1) Determine accent positions
         acutes_set, circ_set = extract_strophe_accent_positions(s_line, a_line)
-        # 2) Build the metre pattern
         pattern_str = metre_line_with_accents(s_line, acutes_set, circ_set)
         line_n = s_line.get('n', '???')
-
-        # 3) Reconstruct the original text from the <l> element
         original_text = restore_text(s_line)
 
-        # Output: two lines for each <l>
         lines_output.append(f"{line_n}: {pattern_str}")
         lines_output.append(original_text)
 
     return "\n".join(lines_output)
 
 
-if __name__ == "__main__":
+def visualize_responsion(responsion):
     tree = etree.parse("responsion_acharnenses_compiled.xml")
 
-    strophe = tree.xpath('//strophe[@type="strophe" and @responsion="0001"]')[0]
-    antistrophe = tree.xpath('//strophe[@type="antistrophe" and @responsion="0001"]')[0]
+    strophes = tree.xpath(f'//strophe[@type="strophe" and @responsion="{responsion}"]')
+    antistrophes = tree.xpath(f'//strophe[@type="antistrophe" and @responsion="{responsion}"]')
 
-    print("Strophe with accent-annotated metre (plus the original text):")
-    print(metre_strophe_with_accents(strophe, antistrophe))
+    if len(strophes) != len(antistrophes):
+        print(f"Mismatch in strophe and antistrophe counts for responsion {responsion}.")
+        return
 
-    print("\nAntistrophe with accent-annotated metre (plus original text):")
-    print(metre_strophe_with_accents(antistrophe, strophe))
+    for strophe, antistrophe in zip(strophes, antistrophes):
+        print(f"\nResponsion: {responsion}")
+        print("\nStrophe:")
+        print(metre_strophe_with_accents(strophe, antistrophe))
+
+        print("\nAntistrophe:")
+        print(metre_strophe_with_accents(antistrophe, strophe))
+
+
+if __name__ == "__main__":
+    if len(sys.argv) != 2:
+        print("Usage: python visualize.py <responsion_number>")
+        sys.exit(1)
+
+    responsion_number = sys.argv[1]
+    visualize_responsion(responsion_number)

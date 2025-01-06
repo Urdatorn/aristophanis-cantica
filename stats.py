@@ -35,6 +35,7 @@ def canonical_sylls(xml_line):
     Returns a list of 'weights' for the line, with special rules:
       - Two consecutive syllables both with resolution="True" count as one 'heavy'.
       - A syll with anceps="True" becomes 'anceps', ignoring weight.
+      - A light syll with brevis_in_longo="True" is treated as 'heavy'.
       - Otherwise, use 'heavy' or 'light' from the <syll weight="..."> attribute.
     """
     syllables = xml_line.findall('.//syll')
@@ -45,6 +46,7 @@ def canonical_sylls(xml_line):
         current = syllables[i]
         is_anceps = current.get('anceps') == 'True'
         is_res = current.get('resolution') == 'True'
+        is_brevis_in_longo = current.get('brevis_in_longo') == 'True'
         current_weight = current.get('weight', '')
 
         # (a) Two consecutive resolution => treat as one 'heavy'
@@ -59,11 +61,11 @@ def canonical_sylls(xml_line):
             i += 1
             continue
 
-        # (c) Otherwise => use 'heavy'/'light', default to 'light'
-        if current_weight in ('heavy', 'light'):
-            result.append(current_weight)
+        # (c) brevis_in_longo overrides light to be heavy
+        if is_brevis_in_longo:
+            result.append('heavy')
         else:
-            result.append('light')
+            result.append(current_weight if current_weight in ('heavy', 'light') else 'light')
 
         i += 1
 
@@ -73,8 +75,10 @@ def canonical_sylls(xml_line):
 def metrically_responding_lines(strophe_line, antistrophe_line):
     """
     Returns True if the two lines share the same 'canonical' sequence of syllables.
-    Consecutive resolution='True' => 'heavy' block, 'anceps' matches anything,
-    otherwise 'heavy' must match 'heavy', 'light' must match 'light'.
+    Considers:
+      - Consecutive resolution="True" => 'heavy'.
+      - 'anceps' matches anything.
+      - Light syll with brevis_in_longo="True" is treated as 'heavy'.
     """
     c1 = canonical_sylls(strophe_line)
     c2 = canonical_sylls(antistrophe_line)
@@ -329,26 +333,40 @@ if __name__ == "__main__":
     # Example usage:
     tree = etree.parse("responsion_acharnenses_compiled.xml")
 
-    strophe = tree.xpath('//strophe[@type="strophe" and @responsion="0001"]')[0]
-    antistrophe = tree.xpath('//strophe[@type="antistrophe" and @responsion="0001"]')[0]
+    # Specify the responsion numbers to process
+    responsion_numbers = {"0001", "0002", "0003"}
 
-    accent_maps = accentually_responding_syllables_of_strophe_pair(strophe, antistrophe)
-    if accent_maps:
-        print(f"Acute matches:      {len(accent_maps[0])}")
-        print(f"Grave matches:      {len(accent_maps[1])}")
-        print(f"Circumflex matches: {len(accent_maps[2])}")
-        print("\nDetailed accent pairs (prettified):\n")
+    # Collect and process all strophes and antistrophes matching the responsion numbers
+    for responsion in responsion_numbers:
+        strophes = tree.xpath(f'//strophe[@type="strophe" and @responsion="{responsion}"]')
+        antistrophes = tree.xpath(f'//strophe[@type="antistrophe" and @responsion="{responsion}"]')
 
-        # We have three sub-lists (for acute, grave, circumflex).
-        # Let’s label them for clarity.
-        labels = ["ACUTE", "GRAVE", "CIRCUMFLEX"]
-        
-        for i, label in enumerate(labels):
-            print(f"--- {label} MATCHES ({len(accent_maps[i])}) ---")
-            for idx, pair_dict in enumerate(accent_maps[i], start=1):
-                print(f"  Pair #{idx}:")
-                for (line_id, unit_ord), text in pair_dict.items():
-                    print(f"    ({line_id}, ordinal={unit_ord}) => \"{text}\"")
-                print()
-    else:
-        print("No accentual responsion found or mismatch in responsion lines.")
+        # Ensure we only process matching pairs
+        if len(strophes) != len(antistrophes):
+            print(f"Mismatch in line count for responsion {responsion}: "
+                  f"{len(strophes)} strophes, {len(antistrophes)} antistrophes.\n")
+            continue
+
+        for strophe, antistrophe in zip(strophes, antistrophes):
+            accent_maps = accentually_responding_syllables_of_strophe_pair(strophe, antistrophe)
+            
+            if accent_maps:
+                print(f"\nResponsion: {responsion}")
+                print(f"Acute matches:      {len(accent_maps[0])}")
+                print(f"Grave matches:      {len(accent_maps[1])}")
+                print(f"Circumflex matches: {len(accent_maps[2])}")
+                print("\nDetailed accent pairs (prettified):\n")
+
+                # We have three sub-lists (for acute, grave, circumflex).
+                # Let’s label them for clarity.
+                labels = ["ACUTE", "GRAVE", "CIRCUMFLEX"]
+                
+                for i, label in enumerate(labels):
+                    print(f"--- {label} MATCHES ({len(accent_maps[i])}) ---")
+                    for idx, pair_dict in enumerate(accent_maps[i], start=1):
+                        print(f"  Pair #{idx}:")
+                        for (line_id, unit_ord), text in pair_dict.items():
+                            print(f"    ({line_id}, ordinal={unit_ord}) => \"{text}\"")
+                        print()
+            else:
+                print(f"No accentual responsion found for responsion {responsion}.")
