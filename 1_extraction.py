@@ -58,21 +58,25 @@ for label in tree.xpath("//label"):
     label.set("speaker", speaker_text)
     label.text = None
 
-# 5) Add or preserve metre="" to all <l> elements, ordering attributes n -> metre -> others
+# 5) Ensure metre="" is present and ordered correctly
 for l in tree.xpath("//body//l"):
     n = l.get("n", "")
     metre = l.get("metre", "")
     
+    # Ensure metre is always present (empty if not already set)
+    if "metre" not in l.attrib:
+        metre = ""
+
     # Remove the 'rend' attribute from <l>
     if "rend" in l.attrib:
         del l.attrib["rend"]
     
-    # Reconstruct attributes in correct order
+    # Reconstruct attributes in correct order (n, metre, others)
     attribs = {k: v for k, v in l.attrib.items() if k not in ["n", "metre"]}
     new_attribs = [("n", n), ("metre", metre)] + list(attribs.items())
     l.attrib.clear()
     for k, v in new_attribs:
-        if v:
+        if v or k == "metre":  # Force-add empty metre=""
             l.set(k, v)
 
 # 6) Replace &lt; and &gt; within text nodes and ensure proper spacing
