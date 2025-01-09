@@ -34,6 +34,51 @@ from stats import (
     accents                         # same accent dict
 )
 
+
+def count_all_barys_oxys(tree):
+    """
+    Count all syllables that satisfy barys or oxys criteria, regardless of matching.
+    
+    Parameters:
+    tree (etree._ElementTree): The parsed XML tree
+    
+    Returns:
+    dict: Dictionary with counts of potential 'barys' and 'oxys' syllables
+    """
+    counts = {
+        'barys': 0,
+        'oxys': 0
+    }
+    
+    # Get all syllables
+    all_sylls = tree.findall('.//syll')
+    
+    for i, syll in enumerate(all_sylls):
+        # Get the line this syllable belongs to
+        line = syll.getparent().getparent()  # syll -> word -> line
+        line_sylls = line.findall('.//syll')
+        
+        # Get previous and next syllables if they exist
+        prev_syll = None if i == 0 else all_sylls[i-1]
+        
+        # Check for barys potential
+        is_circumflex = has_circumflex(syll)
+        is_heavy_with_prev_acute = (
+            is_heavy(syll) and 
+            prev_syll is not None and 
+            has_acute(prev_syll)
+        )
+        
+        if is_circumflex or is_heavy_with_prev_acute:
+            counts['barys'] += 1
+            
+        # Check for oxys potential
+        if has_acute(syll) and next_syll_is_light_or_none(syll, line_sylls):
+            counts['oxys'] += 1
+    
+    return counts
+
+
 # ------------------------------------------------------------------------
 # 2) NEW BARYS/OXYS LOGIC
 # ------------------------------------------------------------------------

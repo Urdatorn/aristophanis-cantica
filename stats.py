@@ -26,6 +26,57 @@ accents = {
     )
 }
 
+###############################################################################
+# 0) UTILITY FUNCTIONS
+###############################################################################
+
+def count_all_syllables(tree):
+    """
+    Returns the total count of canonical syllables across all lines in the XML tree.
+    Uses the canonical_sylls function to process each line according to the special rules
+    for resolution, anceps, and brevis in longo.
+    
+    Parameters:
+    tree (etree._ElementTree): The parsed XML tree containing lines of text
+    
+    Returns:
+    int: Total count of canonical syllables
+    """
+    total_count = 0
+    
+    # Find all line elements in the tree
+    lines = tree.findall('.//l')
+    
+    # For each line, get its canonical syllables and add their count
+    for line in lines:
+        syllable_list = canonical_sylls(line)
+        total_count += len(syllable_list)
+        
+    return total_count
+
+
+def count_all_accents(tree):
+    """
+    Counts all occurrences of acute, grave, and circumflex accents across all
+    strophes and antistrophes in the entire XML tree.
+    """
+    counts = {
+        'acute': 0,
+        'grave': 0,
+        'circumflex': 0
+    }
+
+    all_sylls = tree.xpath('//strophe//syll | //antistrophe//syll')
+
+    for syll in all_sylls:
+        text = syll.text or ""
+        norm_text = normalize_word(text)
+
+        for accent_type, accent_chars in accents.items():
+            if any(char in norm_text for char in accent_chars):
+                counts[accent_type] += 1
+
+    return counts
 
 ###############################################################################
 # 1) METRICAL RESPONSION
@@ -330,11 +381,30 @@ def accentually_responding_syllables_of_strophe_pair(strophe, antistrophe):
 
 
 if __name__ == "__main__":
-    # Example usage:
     tree = etree.parse("responsion_acharnenses_compiled.xml")
 
     # Specify the responsion numbers to process
     responsion_numbers = {"0001", "0002", "0003"}
+
+    # Print ASCII logo at the start
+    print(r"""
+                                     _             
+ _ __ ___  ___ _ __   ___  _ __  ___(_) ___  _ __  
+| '__/ _ \/ __| '_ \ / _ \| '_ \/ __| |/ _ \| '_ \ 
+| | |  __/\__ \ |_) | (_) | | | \__ \ | (_) | | | |
+|_|  \___||___/ .__/ \___/|_| |_|___/_|\___/|_| |_|
+              |_|                                  
+    """)
+
+    # Initialize counters for overall summary
+    overall_counts = {
+        'acute': 0,
+        'grave': 0,
+        'circumflex': 0
+    }
+
+    # Store individual responsion results
+    responsion_summaries = {}
 
     # Collect and process all strophes and antistrophes matching the responsion numbers
     for responsion in responsion_numbers:
@@ -347,20 +417,54 @@ if __name__ == "__main__":
                   f"{len(strophes)} strophes, {len(antistrophes)} antistrophes.\n")
             continue
 
+        # Initialize responsion-specific counts
+        counts = {
+            'acute': 0,
+            'grave': 0,
+            'circumflex': 0
+        }
+
+        for strophe, antistrophe in zip(strophes, antistrophes):
+            accent_maps = accentually_responding_syllables_of_strophe_pair(strophe, antistrophe)
+
+            if accent_maps:
+                counts['acute'] += len(accent_maps[0])
+                counts['grave'] += len(accent_maps[1])
+                counts['circumflex'] += len(accent_maps[2])
+
+        # Store summary for the current responsion
+        responsion_summaries[responsion] = counts
+
+        # Accumulate totals for overall summary
+        overall_counts['acute'] += counts['acute']
+        overall_counts['grave'] += counts['grave']
+        overall_counts['circumflex'] += counts['circumflex']
+
+    # Print summary section
+    print("### SUMMARY: ###")
+    responsion_range = '-'.join(sorted(responsion_numbers))
+    print(f"Responsion: {responsion_range}")
+    print(f"Acute matches:      {overall_counts['acute']}")
+    print(f"Grave matches:      {overall_counts['grave']}")
+    print(f"Circumflex matches: {overall_counts['circumflex']}")
+    print("################\n")
+
+    # Proceed with detailed printouts for each responsion (original logic preserved)
+    for responsion, counts in responsion_summaries.items():
+        strophes = tree.xpath(f'//strophe[@type="strophe" and @responsion="{responsion}"]')
+        antistrophes = tree.xpath(f'//strophe[@type="antistrophe" and @responsion="{responsion}"]')
+
+        print(f"\nResponsion: {responsion}")
+        print(f"Acute matches:      {counts['acute']}")
+        print(f"Grave matches:      {counts['grave']}")
+        print(f"Circumflex matches: {counts['circumflex']}")
+        print("\nDetailed accent pairs (prettified):\n")
+
         for strophe, antistrophe in zip(strophes, antistrophes):
             accent_maps = accentually_responding_syllables_of_strophe_pair(strophe, antistrophe)
             
             if accent_maps:
-                print(f"\nResponsion: {responsion}")
-                print(f"Acute matches:      {len(accent_maps[0])}")
-                print(f"Grave matches:      {len(accent_maps[1])}")
-                print(f"Circumflex matches: {len(accent_maps[2])}")
-                print("\nDetailed accent pairs (prettified):\n")
-
-                # We have three sub-lists (for acute, grave, circumflex).
-                # Let’s label them for clarity.
                 labels = ["ACUTE", "GRAVE", "CIRCUMFLEX"]
-                
                 for i, label in enumerate(labels):
                     print(f"--- {label} MATCHES ({len(accent_maps[i])}) ---")
                     for idx, pair_dict in enumerate(accent_maps[i], start=1):
