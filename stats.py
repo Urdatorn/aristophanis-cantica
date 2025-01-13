@@ -83,10 +83,14 @@ def count_all_accents(tree):
 ###############################################################################
 def canonical_sylls(xml_line):
     """
-    Returns a list of 'weights' for the line, with special rules:
-      - Two consecutive syllables both with resolution="True" count as one 'heavy'.
-      - A syll with anceps="True" becomes 'anceps', ignoring weight.
-      - A light syll with brevis_in_longo="True" is treated as 'heavy'.
+    Transforms a scanned line into an abstract metre representation.
+
+    Returns a list of 'weights' for the line, with the follwing rules:
+      - Resolution: two consecutive syllables both with resolution="True" count as one 'heavy'.
+      - Anceps: a syll with anceps="True" becomes 'anceps', ignoring weight.
+      - Brevis in longo: A light syllable is treated as 'heavy' if it is:
+        1) the last syllable of the line, and
+        2) it does NOT have resolution="True".
       - Otherwise, use 'heavy' or 'light' from the <syll weight="..."> attribute.
     """
     syllables = xml_line.findall('.//syll')
@@ -97,7 +101,6 @@ def canonical_sylls(xml_line):
         current = syllables[i]
         is_anceps = current.get('anceps') == 'True'
         is_res = current.get('resolution') == 'True'
-        is_brevis_in_longo = current.get('brevis_in_longo') == 'True'
         current_weight = current.get('weight', '')
 
         # (a) Two consecutive resolution => treat as one 'heavy'
@@ -112,8 +115,9 @@ def canonical_sylls(xml_line):
             i += 1
             continue
 
-        # (c) brevis_in_longo overrides light to be heavy
-        if is_brevis_in_longo:
+        # (c) brevis_in_longo logic: last syllable, light, and not resolution
+        is_last_syllable = (i == len(syllables) - 1)
+        if is_last_syllable and current_weight == 'light' and not is_res:
             result.append('heavy')
         else:
             result.append(current_weight if current_weight in ('heavy', 'light') else 'light')

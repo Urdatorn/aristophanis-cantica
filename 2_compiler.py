@@ -6,6 +6,8 @@ output_file = "responsion_acharnenses_compiled.xml"
 
 # Mapping of brackets to <syll> tags
 bracket_map = {
+    "(_": '<macron>',
+    "_)": '</macron>',
     "[#": '<syll weight="heavy" anceps="True">',
     "{#": '<syll weight="light" anceps="True">',
     "[%": '<syll weight="heavy" contraction="True">',

@@ -114,6 +114,8 @@ def metre_strophe_with_accents(strophe, antistrophe):
     return "\n".join(lines_output)
 
 
+from lxml import etree
+
 def visualize_responsion(responsion):
     tree = etree.parse("responsion_acharnenses_compiled.xml")
 
@@ -124,13 +126,24 @@ def visualize_responsion(responsion):
         print(f"Mismatch in strophe and antistrophe counts for responsion {responsion}.")
         return
 
+    # ANSI color codes
+    RED = '\033[31m'
+    GREEN = '\033[32m'
+    RESET = '\033[0m'
+
+    def color_accents(text):
+        # Replace ^ and ´ with colored versions, resetting the color after each character
+        return text.replace('^', f"{RED}^ {RESET}").replace("'", f"{GREEN}' {RESET}")
+
     for strophe, antistrophe in zip(strophes, antistrophes):
         print(f"\nResponsion: {responsion}")
         print("\nStrophe:")
-        print(metre_strophe_with_accents(strophe, antistrophe))
+        strophe_text = metre_strophe_with_accents(strophe, antistrophe)
+        print(color_accents(strophe_text))
 
         print("\nAntistrophe:")
-        print(metre_strophe_with_accents(antistrophe, strophe))
+        antistrophe_text = metre_strophe_with_accents(antistrophe, strophe)
+        print(color_accents(antistrophe_text))
 
 
 if __name__ == "__main__":
