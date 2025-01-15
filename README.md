@@ -11,10 +11,18 @@
 
 ## The stats
 
-There are two separate statistical analyses:
+There are tree separate statistical analyses:
 
 - Count accents/προσῳδίαι straight off
   - Might prove that grave responsion is not statistically significant
 - Count βαρύς and ὀξύς, where
   - a heavy syll is βαρύς if it has circumflex or the preceeding syll has an acute 
   - a syll is ὀξύς if it has an acute and the subsequent syll is light
+- Count compatible syllables
+
+## TODO
+
+☐ word breaks
+☐ 3rd statistic: melodic direction (rate of change) based on responsion
+    ☐ melodic acceleration: a metric of the larger arc of the melody
+    ☐ melodic jerk: a metric of the vivacity of the melody d3[melody]/dt3
