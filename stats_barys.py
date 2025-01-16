@@ -19,6 +19,8 @@ the NEXT syllable's text if present, e.g. "ἄξ" + "ε" => "ἄξε".
 """
 
 from lxml import etree
+from itertools import combinations
+
 from grc_utils import normalize_word
 
 # ------------------------------------------------------------------------
@@ -26,6 +28,7 @@ from grc_utils import normalize_word
 # ------------------------------------------------------------------------
 # Adjust these imports based on your actual code organization and exports in stats.py
 from stats import (
+    polystrophic,
     canonical_sylls,                # same metrical logic
     metrically_responding_lines,    # same line-to-line matching
     build_units_for_accent,         # same 'unit' building logic
@@ -76,6 +79,58 @@ def count_all_barys_oxys(tree):
         if has_acute(syll) and next_syll_is_light_or_none(syll, line_sylls):
             counts['oxys'] += 1
     
+    return counts
+
+
+def count_all_barys_oxys_canticum(tree, responsion):
+    """
+    Count all syllables that satisfy barys or oxys criteria for a specific responsion.
+
+    Parameters:
+    tree (etree._ElementTree): The parsed XML tree
+    responsion (str): The responsion number to filter strophes/antistrophes
+
+    Returns:
+    dict: Dictionary with counts of potential 'barys' and 'oxys' syllables
+    """
+    counts = {
+        'barys': 0,
+        'oxys': 0
+    }
+
+    # Restrict to syllables in the specific responsion
+    all_sylls = tree.xpath(f'//strophe[@responsion="{responsion}"]//syll | //antistrophe[@responsion="{responsion}"]//syll')
+
+    for syll in all_sylls:
+        # Get the line this syllable belongs to
+        line = syll.getparent().getparent()  # syll -> word -> line
+        line_sylls = line.findall('.//syll')
+
+        # Find the index of the current syllable in its line
+        try:
+            syll_index = line_sylls.index(syll)
+        except ValueError:
+            # Syllable not found in its parent line, skip
+            continue
+
+        # Get previous and next syllables in the same line
+        prev_syll = line_sylls[syll_index - 1] if syll_index > 0 else None
+        next_syll = line_sylls[syll_index + 1] if syll_index + 1 < len(line_sylls) else None
+
+        # Check for barys potential
+        is_circumflex = has_circumflex(syll)
+        is_heavy_with_prev_acute = (
+            is_heavy(syll) and 
+            prev_syll is not None and 
+            has_acute(prev_syll)
+        )
+        if is_circumflex or is_heavy_with_prev_acute:
+            counts['barys'] += 1
+
+        # Check for oxys potential
+        if has_acute(syll) and next_syll_is_light_or_none(syll, line_sylls):
+            counts['oxys'] += 1
+
     return counts
 
 
@@ -386,38 +441,151 @@ def barys_accentually_responding_syllables_of_strophe_pair(strophe, antistrophe)
 
 
 # ------------------------------------------------------------------------
-# 7) MAIN
+# 6) PER-CANTICUM FUNCTION (FOR POLYSTROPHIC CANTICA)
 # ------------------------------------------------------------------------
+
+
+def barys_accentually_responding_syllables_of_polystrophic_canticum(canticum_strophes):
+    """
+    Computes barys and oxys matches for a polystrophic canticum by considering
+    all pairwise combinations of the strophes and aggregating matches into n-tuples.
+
+    Parameters:
+    canticum_strophes (list): List of strophes in the canticum.
+
+    Returns:
+    list: A list of barys matches and a list of oxys matches, where each match
+          includes one entry from each strophe.
+    """
+    # Initialize matches
+    n = len(canticum_strophes)
+    aggregated_barys = {}
+    aggregated_oxys = {}
+
+    # Generate all combinations of strophe pairs (n choose 2)
+    strophe_combinations = combinations(canticum_strophes, 2)
+
+    for strophe1, strophe2 in strophe_combinations:
+        # Compute barys and oxys for the current pair
+        pair_results = barys_accentually_responding_syllables_of_strophe_pair(strophe1, strophe2)
+        if not pair_results:
+            continue  # Skip non-responding pairs
+
+        pair_barys, pair_oxys = pair_results
+
+        # For each barys match in this pair, aggregate into an n-tuple
+        for match in pair_barys:
+            key = tuple(sorted(match.keys()))  # Identify the match by its syllable keys
+            if key not in aggregated_barys:
+                aggregated_barys[key] = set()
+            aggregated_barys[key].update(match.items())
+
+        # For each oxys match in this pair, aggregate into an n-tuple
+        for match in pair_oxys:
+            key = tuple(sorted(match.keys()))  # Identify the match by its syllable keys
+            if key not in aggregated_oxys:
+                aggregated_oxys[key] = set()
+            aggregated_oxys[key].update(match.items())
+
+    # Filter out partial matches to ensure only full n-tuples are included
+    barys_n_tuples = [
+        {key: value for key, value in match}
+        for match in aggregated_barys.values()
+        if len(match) == n
+    ]
+    oxys_n_tuples = [
+        {key: value for key, value in match}
+        for match in aggregated_oxys.values()
+        if len(match) == n
+    ]
+
+    return barys_n_tuples, oxys_n_tuples
+
+
+# ------------------------------------------------------------------------
+# MAIN
+# ------------------------------------------------------------------------
+
+
 if __name__ == "__main__":
-    # Example usage:
+    # Parse the XML tree
     tree = etree.parse("responsion_acharnenses_compiled.xml")
 
-    # Suppose we pick strophe & antistrophe with responsion="0001"
-    strophe = tree.xpath('//strophe[@type="strophe" and @responsion="0001"]')[0]
-    antistrophe = tree.xpath('//strophe[@type="antistrophe" and @responsion="0001"]')[0]
+    # Get all unique responsion numbers
+    responsion_numbers = set(
+        strophe.get("responsion")
+        for strophe in tree.xpath('//strophe[@type="strophe"]')
+    )
 
-    accent_maps = barys_accentually_responding_syllables_of_strophe_pair(strophe, antistrophe)
-    if not accent_maps:
-        print("No barys/oxys responsion found or mismatch in lines.")
-    else:
-        barys_list, oxys_list = accent_maps
+    # Process each responsion
+    for responsion in sorted(responsion_numbers):
+        print(f"\nCanticum: {responsion}")
 
-        print(f"Barys matches: {len(barys_list)}")
-        print(f"Oxys matches:  {len(oxys_list)}\n")
+        # Determine if the canticum is polystrophic
+        if polystrophic(tree, responsion):
+            print("Polystrophic: Yes")
 
-        # Print them more clearly
-        if barys_list:
-            print("--- BARYS MATCHES ---")
-            for i, pair_dict in enumerate(barys_list, start=1):
-                print(f"  Pair #{i}:")
-                for (line_id, unit_ord), text in pair_dict.items():
-                    print(f"    (line {line_id}, ord={unit_ord}) => \"{text}\"")
-                print()
+            # Get all strophes for the responsion
+            strophes = tree.xpath(f'//strophe[@type="strophe" and @responsion="{responsion}"]')
 
-        if oxys_list:
-            print("--- OXYS MATCHES ---")
-            for i, pair_dict in enumerate(oxys_list, start=1):
-                print(f"  Pair #{i}:")
-                for (line_id, unit_ord), text in pair_dict.items():
-                    print(f"    (line {line_id}, ord={unit_ord}) => \"{text}\"")
-                print()
+            # Use polystrophic processing
+            barys_oxys_results = barys_accentually_responding_syllables_of_polystrophic_canticum(strophes)
+
+            barys_list = barys_oxys_results[0]
+            oxys_list = barys_oxys_results[1]
+
+            print(f"Barys matches: {len(barys_list)}")
+            print(f"Oxys matches:  {len(oxys_list)}\n")
+
+            # Detailed printing for polystrophic matches
+            if barys_list:
+                print("--- BARYS MATCHES ---")
+                for match_idx, match_set in enumerate(barys_list, start=1):
+                    print(f"  Match #{match_idx}:")
+                    for (line_id, unit_ord), text in match_set.items():
+                        print(f"    (line {line_id}, ord={unit_ord}) => \"{text}\"")
+                    print()
+
+            if oxys_list:
+                print("--- OXYS MATCHES ---")
+                for match_idx, match_set in enumerate(oxys_list, start=1):
+                    print(f"  Match #{match_idx}:")
+                    for (line_id, unit_ord), text in match_set.items():
+                        print(f"    (line {line_id}, ord={unit_ord}) => \"{text}\"")
+                    print()
+
+        else:
+            print("Polystrophic: No")
+
+            # Get the first strophe and antistrophe for non-polystrophic processing
+            strophes = tree.xpath(f'//strophe[@type="strophe" and @responsion="{responsion}"]')
+            antistrophes = tree.xpath(f'//strophe[@type="antistrophe" and @responsion="{responsion}"]')
+
+            # Process the first strophe and antistrophe pair
+            if strophes and antistrophes:
+                accent_maps = barys_accentually_responding_syllables_of_strophe_pair(strophes[0], antistrophes[0])
+            else:
+                accent_maps = [[], []]  # No valid pairs
+
+            barys_list = accent_maps[0]
+            oxys_list = accent_maps[1]
+
+            print(f"Barys matches: {len(barys_list)}")
+            print(f"Oxys matches:  {len(oxys_list)}\n")
+
+            # Detailed printing for non-polystrophic
+            if barys_list:
+                print("--- BARYS MATCHES ---")
+                for i, pair_dict in enumerate(barys_list, start=1):
+                    print(f"  Pair #{i}:")
+                    for (line_id, unit_ord), text in pair_dict.items():
+                        print(f"    (line {line_id}, ord={unit_ord}) => \"{text}\"")
+                    print()
+
+            if oxys_list:
+                print("--- OXYS MATCHES ---")
+                for i, pair_dict in enumerate(oxys_list, start=1):
+                    print(f"  Pair #{i}:")
+                    for (line_id, unit_ord), text in pair_dict.items():
+                        print(f"    (line {line_id}, ord={unit_ord}) => \"{text}\"")
+                    print()

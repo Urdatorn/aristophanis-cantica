@@ -1,0 +1,160 @@
+<grammar xmlns="http://relaxng.org/ns/structure/1.0" 
+         datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
+
+  <!-- Root Element -->
+  <start>
+    <element name="TEI">
+      <element name="text">
+        <element name="body">
+          <zeroOrMore>
+            <ref name="canticum"/>
+          </zeroOrMore>
+        </element>
+      </element>
+    </element>
+  </start>
+
+  <!-- Canticum -->
+  <define name="canticum">
+    <element name="canticum">
+      <oneOrMore>
+        <ref name="strophe"/>
+      </oneOrMore>
+    </element>
+  </define>
+
+  <!-- Strophe -->
+  <define name="strophe">
+    <element name="strophe">
+      <attribute name="type">
+        <choice>
+          <value>strophe</value>
+          <value>antistrophe</value>
+        </choice>
+      </attribute>
+      <attribute name="responsion">
+        <data type="token"/>
+      </attribute>
+      <oneOrMore>
+        <ref name="l"/>
+      </oneOrMore>
+    </element>
+  </define>
+
+  <!-- L -->
+<define name="l">
+  <element name="l">
+    <attribute name="n">
+      <data type="string"/>
+    </attribute>
+    <attribute name="metre">
+      <data type="string"/>
+    </attribute>
+    <optional>
+      <attribute name="speaker">
+        <data type="string"/>
+      </attribute>
+    </optional>
+    <optional>
+      <attribute name="problematic">
+        <value>True</value>
+      </attribute>
+    </optional>
+
+    <!-- ALLOW raw text (punctuation, spacing) between the <syll> or <conjecture> -->
+    <mixed>
+      <zeroOrMore>
+        <choice>
+          <ref name="syll"/>
+          <ref name="conjecture"/>
+          <text/>         <!-- this line is key -->
+        </choice>
+      </zeroOrMore>
+    </mixed>
+
+  </element>
+</define>
+
+  <!-- Syll -->
+  <!-- Updated to allow <macron> inside <syll> -->
+  <define name="syll">
+    <element name="syll">
+      <attribute name="weight">
+        <choice>
+          <value>light</value>
+          <value>heavy</value>
+        </choice>
+      </attribute>
+      <optional>
+        <attribute name="anceps">
+          <value>True</value>
+        </attribute>
+      </optional>
+      <optional>
+        <attribute name="brevis_in_longo">
+          <value>True</value>
+        </attribute>
+      </optional>
+      <optional>
+        <attribute name="resolution">
+          <value>True</value>
+        </attribute>
+      </optional>
+      <!-- Changed from <text/> to mixed content so we can embed <macron> -->
+      <mixed>
+        <zeroOrMore>
+          <choice>
+            <ref name="macron"/>
+            <text/>
+          </choice>
+        </zeroOrMore>
+      </mixed>
+    </element>
+  </define>
+
+  <!-- Macron -->
+  <define name="macron">
+    <element name="macron">
+      <text/>
+    </element>
+  </define>
+
+  <!-- Conjecture -->
+  <define name="conjecture">
+    <element name="conjecture">
+      <attribute name="author">
+        <data type="string"/>
+      </attribute>
+      <optional>
+        <attribute name="ref">
+          <data type="string"/>
+        </attribute>
+      </optional>
+      <optional>
+        <attribute name="manuscript">
+          <data type="string"/>
+        </attribute>
+      </optional>
+      <optional>
+        <attribute name="deleted">
+          <data type="string"/>
+        </attribute>
+      </optional>
+      <optional>
+        <attribute name="added">
+          <data type="string"/>
+        </attribute>
+      </optional>
+      <!-- Conjecture can contain <syll> or <macron> inside -->
+      <mixed>
+        <zeroOrMore>
+          <choice>
+            <ref name="syll"/>
+            <ref name="macron"/>
+          </choice>
+        </zeroOrMore>
+      </mixed>
+    </element>
+  </define>
+
+</grammar>

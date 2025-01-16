@@ -30,6 +30,12 @@ accents = {
 # 0) UTILITY FUNCTIONS
 ###############################################################################
 
+
+def polystrophic(tree, responsion):
+    strophes = tree.xpath(f'//strophe[@responsion="{responsion}"]')
+    return len(strophes) > 2
+
+
 def count_all_syllables(tree):
     """
     Returns the total count of canonical syllables across all lines in the XML tree.
@@ -77,6 +83,32 @@ def count_all_accents(tree):
                 counts[accent_type] += 1
 
     return counts
+
+
+def count_all_accents_canticum(tree, responsion):
+    """
+    Counts all occurrences of acute, grave, and circumflex accents across
+    all strophes and antistrophes in the XML tree for a specific responsion.
+    """
+    counts = {
+        'acute': 0,
+        'grave': 0,
+        'circumflex': 0
+    }
+
+    # XPath to select syllables within strophes and antistrophes for the given responsion
+    all_sylls = tree.xpath(f'//strophe[@responsion="{responsion}"]//syll | //antistrophe[@responsion="{responsion}"]//syll')
+
+    for syll in all_sylls:
+        text = syll.text or ""
+        norm_text = normalize_word(text)
+
+        for accent_type, accent_chars in accents.items():
+            if any(char in norm_text for char in accent_chars):
+                counts[accent_type] += 1
+
+    return counts
+
 
 ###############################################################################
 # 1) METRICAL RESPONSION
