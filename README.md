@@ -26,3 +26,8 @@ There are tree separate statistical analyses:
 ☐ 3rd statistic: melodic direction (rate of change) based on responsion
     ☐ melodic acceleration: a metric of the larger arc of the melody
     ☐ melodic jerk: a metric of the vivacity of the melody d3[melody]/dt3
+
+
+## Take-aways
+
+The penultimate paeon of  997 is an intersting example of melodic responsion as influencing editorial decisions. The strophe has τήνδε, and readings vary between ὄρχον (L, adoped by Wilson 2007), κλάδον (cett), ὄσχον (Brunck) and ὦσχον (Deubner, adopted by Parker 1997). Bracketing the sense, the first three readings gain extra attraction (for what its worth) because they make the acutes respond, perhaps the more convincing since the outlier is a conjecture.
