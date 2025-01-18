@@ -91,6 +91,33 @@ def order_l_attributes(xml_text):
     return l_pattern.sub(reorder_attributes, xml_text)
 
 
+def validator(text):
+    """
+    Validates the text for misplaced #, € and lonely < or >.
+
+    Args:
+        text (str): The input text to validate.
+
+    Raises:
+        ValueError: If a misplaced character is found.
+    """
+    lines = text.splitlines()
+
+    for line_number, line in enumerate(lines, start=1):
+        if '#' in line:
+            raise ValueError(f"Misplaced # at line {line_number}!")
+        if '€' in line:
+            raise ValueError(f"Misplaced € at line {line_number}!")
+
+        lt_count = line.count('<')
+        gt_count = line.count('>')
+
+        if lt_count > gt_count:
+            raise ValueError(f"Lonely < at line {line_number}!")
+        elif gt_count > lt_count:
+            raise ValueError(f"Lonely > at line {line_number}!")
+
+
 # Step 1: Compile scanned bracket patterns into <syll> tags
 processed_xml = compile_scan(xml_content)
 
@@ -99,6 +126,9 @@ processed_xml = apply_brevis_in_longo(processed_xml)
 
 # Step 3: Reorder <l> attributes to ensure correct order
 processed_xml = order_l_attributes(processed_xml)
+
+# Step 4: Validate
+validator(processed_xml)
 
 
 def prettify(xml_text):

@@ -414,6 +414,102 @@
               </l>
             </strophe>
           </canticum>
+          <canticum>
+            <strophe type="strophe" responsion="0008">
+              <l n="1008-1010" metre="5 ia ba" speaker="ΧΟ.">
+                <syll weight="heavy" anceps="True">Ζη</syll><syll weight="heavy">λῶ</syll> <syll weight="light">σε</syll> <syll weight="heavy">τῆ</syll><syll weight="heavy" anceps="True">ς εὐ</syll><syll weight="heavy">βου</syll><syll weight="light">λί</syll><syll weight="heavy">ας</syll>, <syll weight="heavy" anceps="True">μᾶλ</syll><syll weight="heavy">λον</syll> <syll weight="light">δὲ</syll> <syll weight="heavy">τῆ</syll><syll weight="heavy" anceps="True">ς εὐ</syll><syll weight="heavy">ω</syll><syll weight="light">χί</syll><syll weight="heavy">α</syll><syll weight="heavy" anceps="True">ς, ἄν</syll><syll weight="heavy">θρω</syll><syll weight="light">πε</syll>, <syll weight="heavy">τῆς</syll> <syll weight="light">πα</syll><syll weight="heavy">ρού</syll><syll weight="heavy">σης</syll>.
+              </l>
+              <l n="1011" metre="2 ia" speaker="ΔΙ.">
+                <syll weight="light" anceps="True">Τί</syll> <syll weight="heavy">δῆ</syll><syll weight="light">τ', ἐ</syll><syll weight="heavy">πει</syll><syll weight="heavy" anceps="True">δὰν</syll> <syll weight="heavy">τὰς</syll> <syll weight="light">κί</syll><syll weight="heavy">χλας</syll>
+              </l>
+              <l n="1012" metre="ia ba">
+                <syll weight="heavy" anceps="True">ὀπ</syll><syll weight="heavy">τω</syll><syll weight="light">μέ</syll><syll weight="heavy">να</syll><syll weight="light">ς ἴ</syll><syll weight="heavy">δη</syll><syll weight="light" brevis_in_longo="True">τε</syll>;
+              </l>
+              <l n="1013" metre="2 ia" speaker="ΧΟ.">
+                <syll weight="heavy" anceps="True">Οἶ</syll><syll weight="heavy">μαί</syll> <syll weight="light">σε</syll> <syll weight="heavy">καὶ</syll> <syll weight="heavy" anceps="True">τοῦ</syll><syll weight="heavy">τ' εὖ</syll> <syll weight="light">λέ</syll><syll weight="heavy">γειν</syll>.
+              </l>
+              <l n="1014" metre="ia ba" speaker="ΔΙ.">
+                <syll weight="light" anceps="True">Τὸ</syll> <syll weight="heavy">πῦ</syll><syll weight="light">ρ ὑ</syll><syll weight="heavy">ποσ</syll><syll weight="light">κά</syll><syll weight="heavy">λευ</syll><syll weight="light" brevis_in_longo="True">ε</syll>.
+              </l>
+              <l n="1015-1017" metre="5 ia ba" speaker="ΧΟ.">
+                <syll weight="heavy" anceps="True">Ἤ</syll><syll weight="heavy">κου</syll><syll weight="light">σα</syll><syll weight="heavy">ς ὡς</syll> <syll weight="light" anceps="True">μα</syll><syll weight="heavy">γει</syll><syll weight="light">ρι</syll><syll weight="heavy">κῶς</syll> <syll weight="heavy" anceps="True">κομ</syll><syll weight="heavy">ψῶς</syll> <syll weight="light">τε</syll> <syll weight="heavy">καὶ</syll> <syll weight="heavy" anceps="True">δει</syll><syll weight="heavy">πνη</syll><syll weight="light">τι</syll><syll weight="heavy">κῶ</syll><syll weight="heavy" anceps="True">ς αὑ</syll><syll weight="heavy">τῷ</syll> <syll weight="light">δι</syll><syll weight="heavy">α</syll><syll weight="light">κο</syll><syll weight="heavy">νεῖ</syll><syll weight="heavy">ται</syll>;
+              </l>
+            </strophe>
+            <strophe type="antistrophe" responsion="0008">
+              <l n="1037-1039" metre="5 ia ba" speaker="ΧΟ.">
+                <syll weight="heavy" anceps="True">Ἁ</syll><syll weight="heavy">νὴ</syll><syll weight="light">ρ ἀ</syll><syll weight="heavy">νηύ</syll><syll weight="heavy" anceps="True">ρη</syll><syll weight="heavy">κέν</syll> <syll weight="light">τι</syll> <syll weight="heavy">ταῖς</syll> <syll weight="heavy" anceps="True">σπον</syll><syll weight="heavy">δαῖ</syll><syll weight="light">σι</syll><syll weight="heavy">ν ἡ</syll><syll weight="light" anceps="True">δύ</syll>, <syll weight="heavy">κοὐ</syll><syll weight="light">κ ἔ</syll><syll weight="heavy">οι</syll><syll weight="light" anceps="True">κε</syll><syll weight="heavy">ν οὐ</syll><syll weight="light">δε</syll><syll weight="light" resolution="True">νὶ</syll> <syll weight="light" resolution="True">με</syll><syll weight="light">τα</syll><syll weight="heavy">δώ</syll><syll weight="heavy">σειν</syll>.
+              </l>
+              <l n="1040" metre="2 ia" speaker="ΔΙ.">
+                <syll weight="light" resolution="True">Κα</syll><syll weight="light" resolution="True">τά</syll><syll weight="heavy">χει</syll> <syll weight="light">σὺ</syll> <syll weight="heavy">τῆς</syll> <syll weight="heavy" anceps="True">χορ</syll><syll weight="heavy">δῆς</syll> <syll weight="light">τὸ</syll> <syll weight="light" resolution="True">μέ</syll><syll weight="light" resolution="True">λι</syll>·
+              </l>
+              <l n="1041" metre="ia ba">
+                <syll weight="heavy" anceps="True">τὰς</syll> <syll weight="heavy">ση</syll><syll weight="light">πί</syll><syll weight="heavy">ας</syll> <syll weight="light">στά</syll><syll weight="heavy">θευ</syll><syll weight="light" brevis_in_longo="True">ε</syll>.
+              </l>
+              <l n="1042" metre="2 ia" speaker="ΧΟ.">
+                <syll weight="heavy" anceps="True">Ἤ</syll><syll weight="heavy">κου</syll><syll weight="light">σα</syll><syll weight="heavy">ς ὀρ</syll><syll weight="light" anceps="True">θι</syll><syll weight="heavy">ασ</syll><syll weight="light">μά</syll><syll weight="heavy">των</syll>;
+              </l>
+              <l n="1043" metre="ia ba" speaker="ΔΙ.">
+                <syll weight="heavy" anceps="True">Ὀπ</syll><syll weight="heavy">τᾶ</syll><syll weight="light">τε</syll> <syll weight="heavy">τἀγ</syll><syll weight="light">χέ</syll><syll weight="heavy">λει</syll><syll weight="light" brevis_in_longo="True">α</syll>.
+              </l>
+              <l n="1044-1046" metre="5 ia ba" speaker="ΧΟ.">
+                <syll weight="light" anceps="True">Ἀ</syll><syll weight="heavy">ποκ</syll><syll weight="light">τε</syll><syll weight="heavy">νεῖς</syll> <syll weight="light" anceps="True">λι</syll><syll weight="heavy">μῷ</syll> '<syll weight="light">μὲ</syll> <syll weight="heavy">καὶ</syll> <syll weight="heavy" anceps="True">τοὺς</syll> <syll weight="heavy">γεί</syll><syll weight="light">το</syll><syll weight="heavy">νας</syll> <syll weight="heavy" anceps="True">κνί</syll><syll weight="heavy">σῃ</syll> <syll weight="light">τε</syll> <syll weight="heavy">καὶ</syll> <syll weight="heavy" anceps="True">φω</syll><syll weight="heavy">νῇ</syll> <syll weight="light">τοι</syll><syll weight="heavy">αῦ</syll><syll weight="light">τα</syll> <syll weight="heavy">λάσ</syll><syll weight="heavy">κων</syll>.
+              </l>
+            </strophe>
+          </canticum>
+          <canticum>
+            <strophe type="strophe" responsion="0009">
+              <l n="1150" metre="4 ch ia^">
+                <syll weight="heavy">Ἀν</syll><syll weight="light">τί</syll><syll weight="light">μα</syll><syll weight="heavy">χον</syll> <syll weight="heavy">τὸν</syll> <syll weight="light">Ψα</syll><syll weight="light">κά</syll><syll weight="heavy">δος</syll>,<conjecture author="Hall et Geldart" deleted=" <syll weight="heavy">τὸν</syll> <syll weight="heavy">ξυγ</syll><syll weight="light">γρα</syll><syll weight="heavy">φῆ</syll>"> <syll weight="heavy">ξυγ</syll><syll weight="light">γρα</syll><syll weight="light">φέ</syll><syll weight="heavy">α</syll></conjecture>, <syll weight="heavy">τὸν</syll> <syll weight="light">με</syll><syll weight="light">λέ</syll><syll weight="heavy">ων</syll> <syll weight="light">ποι</syll><syll weight="heavy">η</syll><syll weight="heavy">τήν</syll>,
+              </l>
+              <l n="1151-1153" metre="ch ia ch ia^">
+                <syll weight="heavy">ὡς</syll> <syll weight="light">μὲ</syll><syll weight="light">ν ἁ</syll><syll weight="heavy">πλῷ</syll> <syll weight="light" anceps="True">λό</syll><syll weight="heavy">γῳ</syll> <syll weight="light">κα</syll><syll weight="heavy">κῶ</syll><syll weight="heavy">ς ἐξ</syll><syll weight="light">ο</syll><syll weight="light">λέ</syll><syll weight="heavy">σει</syll><syll weight="light">ε</syll><syll weight="heavy">ν ὁ</syll> <syll weight="heavy">Ζεύς</syll>·
+              </l>
+              <l n="1154-1155" metre="4 ch ia^">
+                <syll weight="heavy">ὅς</syll> <syll weight="light">γ' ἐ</syll><syll weight="light">μὲ</syll> <syll weight="heavy">τὸν</syll> <syll weight="heavy">τλή</syll><syll weight="light">μο</syll><syll weight="light">να</syll> <syll weight="heavy">Λή</syll><syll weight="heavy">ναι</syll><syll weight="light">α</syll> <syll weight="light">χο</syll><syll weight="heavy">ρη</syll><syll weight="heavy">γῶ</syll><syll weight="light">ν ἀ</syll><syll weight="light">πέ</syll><syll weight="heavy">λυ</syll><syll weight="light">σ' ἄ</syll><syll weight="heavy">δει</syll><syll weight="heavy">πνον</syll>.
+              </l>
+              <l n="1156" metre="2 ia">
+                <syll weight="light" anceps="True">Ὃ</syll><syll weight="light" resolution="True">ν ἔ</syll><syll weight="light" resolution="True">τ' ἐ</syll><syll weight="light">πί</syll><syll weight="heavy">δοι</syll><syll weight="light" anceps="True">μι</syll> <syll weight="heavy">τευ</syll><syll weight="light">θί</syll><syll weight="heavy">δος</syll>
+              </l>
+              <l n="1157" metre="2 ia">
+                <syll weight="light" anceps="True">δε</syll><syll weight="light" resolution="True">ό</syll><syll weight="light" resolution="True">με</syll><syll weight="light">νο</syll><syll weight="heavy">ν, ἡ</syll> <syll weight="heavy" anceps="True">δ' ὠπ</syll><syll weight="heavy">τη</syll><syll weight="light">μέ</syll><syll weight="heavy">νη</syll>
+              </l>
+              <l n="1158" metre="3 ia">
+                <syll weight="heavy" anceps="True">σίζ</syll><syll weight="heavy">ου</syll><syll weight="light">σα</syll> <syll weight="light" resolution="True">πά</syll><syll weight="light" resolution="True">ρα</syll><syll weight="light" anceps="True">λο</syll><syll weight="light" resolution="True">ς ἐ</syll><syll weight="light" resolution="True">πὶ</syll> <syll weight="light">τρα</syll><syll weight="heavy">πέζ</syll><syll weight="heavy" anceps="True">ῃ</syll> <syll weight="heavy">κει</syll><syll weight="light">μέ</syll><syll weight="heavy">νη</syll>
+              </l>
+              <l n="1159" metre="ia^ ^ia ia">
+                <syll weight="light">ὀ</syll><syll weight="heavy">κέλ</syll><syll weight="heavy">λοι</syll>· <syll weight="heavy">κᾆ</syll><syll weight="light">τα</syll> <syll weight="heavy">μέλ</syll><syll weight="heavy" anceps="True">λον</syll><syll weight="heavy">τος</syll> <syll weight="light">λα</syll><syll weight="heavy">βεῖν</syll>
+              </l>
+              <l n="1160-1161" metre="ia ^ia ia^">
+                <syll weight="heavy" anceps="True">αὐ</syll><syll weight="heavy">τοῦ</syll> <syll weight="light">κύ</syll><syll weight="heavy">ω</syll><syll weight="heavy">ν ἁρ</syll><syll weight="light">πά</syll><syll weight="heavy">σα</syll><syll weight="light">σα</syll> <syll weight="heavy">φεύ</syll><syll weight="heavy">γοι</syll>.
+              </l>
+            </strophe>
+            <strophe type="antistrophe" responsion="0009">
+              <l n="1162-1164" metre="4 ch ia^">
+                <syll weight="heavy">Τοῦ</syll><syll weight="light">το</syll> <syll weight="light">μὲ</syll><syll weight="heavy">ν αὐ</syll><syll weight="heavy">τῷ</syll> <syll weight="light">κα</syll><syll weight="light">κὸ</syll><syll weight="heavy">ν ἕν</syll>, <syll weight="heavy">κᾆ</syll><syll weight="light">θ' ἕ</syll><syll weight="light">τε</syll><syll weight="heavy">ρον</syll> <syll weight="heavy">νυκ</syll><syll weight="light">τε</syll><syll weight="light">ρι</syll><syll weight="heavy">νὸν</syll> <syll weight="light">γέ</syll><syll weight="heavy">νοι</syll><syll weight="light" brevis_in_longo="True">το</syll>.
+              </l>
+              <l n="1165" metre="ch ia ch ia^">
+                <syll weight="heavy">Ἠ</syll><syll weight="light">πι</syll><syll weight="light">α</syll><syll weight="heavy">λῶν</syll> <syll weight="light" anceps="True">γὰ</syll><syll weight="heavy">ρ οἴ</syll><syll weight="light">κα</syll><syll weight="heavy">δ' ἐξ</syll> <syll weight="heavy">ἱπ</syll><syll weight="light">πα</syll><syll weight="light">σί</syll><syll weight="heavy">ας</syll> <syll weight="light">βα</syll><syll weight="heavy">δίζ</syll><syll weight="heavy">ων</syll>,
+              </l>
+              <l n="1166-1167" metre="4 ch ia^">
+                <syll weight="heavy">εἶ</syll><syll weight="light">τα</syll> <syll weight="light">πα</syll><syll weight="heavy">τάξ</syll><syll weight="heavy">ει</syll><syll weight="light">έ</syll> <syll weight="light">τι</syll><syll weight="heavy">ς αὐ</syll><syll weight="heavy">τοῦ</syll> <syll weight="light">με</syll><syll weight="light">θύ</syll><syll weight="heavy">ων</syll> <syll weight="heavy">τὴν</syll> <syll weight="light">κε</syll><syll weight="light">φα</syll><syll weight="heavy">λὴ</syll><syll weight="light">ν Ὀ</syll><syll weight="heavy">ρέσ</syll><syll weight="heavy">της</syll>
+              </l>
+              <l n="1168" metre="2 ia">
+                <syll weight="heavy" anceps="True">μαι</syll><syll weight="light" resolution="True">νό</syll><syll weight="light" resolution="True">με</syll><syll weight="light">νο</syll><syll weight="light" resolution="True">ς· ὁ</syll> <syll weight="light" resolution="True">δὲ</syll> <syll weight="light" anceps="True">λί</syll><syll weight="heavy">θον</syll> <syll weight="light">λα</syll><syll weight="heavy">βεῖν</syll>
+              </l>
+              <l n="1169" metre="2 ia">
+                <syll weight="heavy" anceps="True">βου</syll><syll weight="light" resolution="True">λό</syll><syll weight="light" resolution="True">με</syll><syll weight="light">νο</syll><syll weight="heavy">ς ἐν</syll> <syll weight="light" anceps="True">σκό</syll><syll weight="heavy">τῳ</syll> <syll weight="light">λά</syll><syll weight="heavy">βοι</syll>
+              </l>
+              <l n="1170" metre="3 ia">
+                <syll weight="heavy" anceps="True">τῇ</syll> <syll weight="heavy">χει</syll><syll weight="light">ρὶ</syll> <syll weight="light" resolution="True">πέ</syll><syll weight="light" resolution="True">λε</syll><syll weight="light" anceps="True">θο</syll><syll weight="heavy">ν ἀρ</syll><syll weight="light">τί</syll><syll weight="heavy">ως</syll> <syll weight="light" anceps="True">κε</syll><syll weight="heavy">χεσ</syll><syll weight="light">μέ</syll><syll weight="heavy">νον</syll>·
+              </l>
+              <l n="1171-1172" metre="ia^ ^ia ia">
+                <syll weight="light">ἐ</syll><syll weight="heavy">πᾴξ</syll><syll weight="heavy">ει</syll><syll weight="heavy">εν</syll> <syll weight="light">δ' ἔ</syll><syll weight="heavy">χων</syll> <syll weight="heavy" anceps="True">τὸν</syll> <syll weight="heavy">μάρ</syll><syll weight="light">μα</syll><syll weight="heavy">ρον</syll>,
+              </l>
+              <l n="1173" metre="ia ^ia ia^">
+                <syll weight="heavy" anceps="True">κἄ</syll><syll weight="heavy">πει</syll><syll weight="light">θ' ἁ</syll><syll weight="heavy">μαρ</syll><syll weight="heavy">τὼν</syll> <syll weight="light">βά</syll><syll weight="heavy">λοι</syll> <syll weight="light">Κρα</syll><syll weight="heavy">τῖ</syll><syll weight="heavy">νον</syll>.
+              </l>
+            </strophe>
+          </canticum>
         </body>
       </text>
     </TEI>
