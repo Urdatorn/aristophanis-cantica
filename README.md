@@ -20,6 +20,18 @@ There are tree separate statistical analyses:
   - a syll is ὀξύς if it has an acute and the subsequent syll is light
 - Count compatible syllables
 
+These metrics should also be run on subsets of 
+- rhythmic genres:
+  - on trochaic verses only
+  - on iambic verses only
+  - on Aeolic verses only
+- individual plays
+
+We search for statistical development
+- between the songs within a play (are the earlier or latter more responding? Linear dev?)
+- between all plays 
+- between machine generated clusters of plays!
+
 ## TODO
 
 ☐ word breaks
