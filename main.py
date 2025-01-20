@@ -1,4 +1,7 @@
+#!/usr/bin/env python3
+
 import sys
+import argparse
 from lxml import etree
 from stats import (
     accentually_responding_syllables_of_strophe_pair,
@@ -8,7 +11,7 @@ from stats import (
     count_all_accents_canticum
 )
 from stats_barys import (
-    barys_accentually_responding_syllables_of_strophe_pair, 
+    barys_accentually_responding_syllables_of_strophe_pair,
     count_all_barys_oxys,
     count_all_barys_oxys_canticum
 )
@@ -100,35 +103,26 @@ def process_barys_responsions(tree, responsion_numbers):
     return barys_total, oxys_total, barys_summaries
 
 
-def print_combined_summary(overall_counts, total_counts, barys_total, oxys_total, total_sylls, responsion_numbers):
+def print_combined_summary(overall_counts, total_counts, barys_total, oxys_total, total_syllables, responsion_numbers, infix_list):
     """
     Prints the combined summary of accentual and barys responsion statistics.
     """
-    # Format the responsion numbers as a comma-separated string
     responsion_list = ', '.join(sorted(responsion_numbers))
-
-    # Calculate totals
+    infix_list_str = ', '.join(infix_list)
     total_responsive = sum(overall_counts.values())
     total_all_accents = sum(total_counts.values())
-
-    # Calculate percentages for accentual responsion
     acute_percent = (overall_counts['acute'] / total_counts['acute'] * 100) if total_counts['acute'] > 0 else 0
     grave_percent = (overall_counts['grave'] / total_counts['grave'] * 100) if total_counts['grave'] > 0 else 0
     circum_percent = (overall_counts['circumflex'] / total_counts['circumflex'] * 100) if total_counts['circumflex'] > 0 else 0
     total_accent_percent = (total_responsive / total_all_accents * 100) if total_all_accents > 0 else 0
-
-    # Get total potential barys and oxys counts
     all_barys_oxys = count_all_barys_oxys(tree)
     total_potential_barys = all_barys_oxys['barys']
     total_potential_oxys = all_barys_oxys['oxys']
     total_potential = total_potential_barys + total_potential_oxys
-
-    # Calculate percentages for barys/oxys
     barys_percent = (barys_total / total_potential_barys * 100) if total_potential_barys > 0 else 0
     oxys_percent = (oxys_total / total_potential_oxys * 100) if total_potential_oxys > 0 else 0
     total_percent = ((barys_total + oxys_total) / total_potential * 100) if total_potential > 0 else 0
 
-    # Print header and responsion numbers
     print(r"""
                                      _             
  _ __ ___  ___ _ __   ___  _ __  ___(_) ___  _ __  
@@ -137,6 +131,7 @@ def print_combined_summary(overall_counts, total_counts, barys_total, oxys_total
 |_|  \___||___/ .__/ \___/|_| |_|___/_|\___/|_| |_|
               |_|                                  
     """)
+    print(f"Analyzed Plays: {infix_list_str}")
     print(f"Cantica: {responsion_list}\n")
 
     print("### ACCENTUAL RESPONSION: ###")
@@ -154,75 +149,41 @@ def print_combined_summary(overall_counts, total_counts, barys_total, oxys_total
 
 
 if __name__ == "__main__":
-    # Parse the XML tree
-    tree = etree.parse("responsion_acharnenses_compiled.xml")
-    
-    # Check for verbose flag
-    verbose = '-verbose' in sys.argv
-    if verbose:
-        sys.argv.remove('-verbose')  # Remove the flag to simplify argument parsing
+    # Argument parsing
+    parser = argparse.ArgumentParser(description="Analyze responsion statistics from plays.")
+    parser.add_argument("infixes", nargs="+", help="Abbreviations for the plays (e.g., 'eq', 'ach').")
+    args = parser.parse_args()
 
-    # Get specific responsion numbers or default to all
-    if len(sys.argv) > 1:
-        responsion_numbers = set(sys.argv[1:])
-    else:
-        responsion_numbers = get_all_responsion_numbers(tree)
+    # Parse XML files and accumulate stats
+    total_counts = {"acute": 0, "grave": 0, "circumflex": 0}
+    overall_counts = {"acute": 0, "grave": 0, "circumflex": 0}
+    total_barys = 0
+    total_oxys = 0
+    responsion_numbers = set()
+    infix_list = args.infixes
+    total_syllables = 0  # Initialize this variable
 
-    # Get total possible accent counts and total syllables
-    total_counts = count_all_accents(tree)
-    total_syllables = count_all_syllables(tree)
+    for infix in infix_list:
+        input_file = f"responsion_{infix}_compiled.xml"
+        tree = etree.parse(input_file)
 
-    # Process accentual responsions
-    overall_counts, responsion_summaries = process_responsions(tree, responsion_numbers)
+        responsion_nums = get_all_responsion_numbers(tree)
+        responsion_numbers.update(responsion_nums)
 
-    # Process barys/oxys responsions
-    barys_total, oxys_total, barys_summaries = process_barys_responsions(tree, responsion_numbers)
+        file_counts = count_all_accents(tree)
+        for key in total_counts:
+            total_counts[key] += file_counts[key]
+
+        file_sylls = count_all_syllables(tree)
+        total_syllables += file_sylls  # Accumulate syllable counts
+
+        file_overall, file_summaries = process_responsions(tree, responsion_nums)
+        for key in overall_counts:
+            overall_counts[key] += file_overall[key]
+
+        file_barys, file_oxys, file_barys_summaries = process_barys_responsions(tree, responsion_nums)
+        total_barys += file_barys
+        total_oxys += file_oxys
 
     # Print combined summary
-    print_combined_summary(overall_counts, total_counts, barys_total, oxys_total, total_syllables, responsion_numbers)
-
-    # Print detailed output for each responsion if verbose
-    if verbose:
-        # Sort responsion numbers numerically
-        sorted_responsion_numbers = sorted(responsion_numbers)
-
-        for responsion in sorted_responsion_numbers:
-            if responsion in responsion_summaries:
-                counts = responsion_summaries[responsion]
-                barys_data = barys_summaries[responsion]
-
-                # Get strophe-specific totals for accents
-                canticum_totals = count_all_accents_canticum(tree, responsion)
-
-                # Get strophe-specific totals for barys and oxys
-                canticum_barys_oxys = count_all_barys_oxys_canticum(tree, responsion)
-                total_canticum_barys = canticum_barys_oxys['barys']
-                total_canticum_oxys = canticum_barys_oxys['oxys']
-                total_canticum_barys_oxys = total_canticum_barys + total_canticum_oxys
-
-                # Total responsive accents for this canticum
-                total_responsive = sum(counts.values())
-                total_possible = sum(canticum_totals.values())
-                total_accent_percent = (total_responsive / total_possible * 100) if total_possible > 0 else 0
-
-                # Percentages for accents
-                acute_percent = (counts['acute'] / canticum_totals['acute'] * 100) if canticum_totals['acute'] > 0 else 0
-                grave_percent = (counts['grave'] / canticum_totals['grave'] * 100) if canticum_totals['grave'] > 0 else 0
-                circum_percent = (counts['circumflex'] / canticum_totals['circumflex'] * 100) if canticum_totals['circumflex'] > 0 else 0
-
-                # Percentages for barys/oxys
-                barys_total = barys_data['barys']
-                oxys_total = barys_data['oxys']
-                barys_percent = (barys_total / total_canticum_barys * 100) if total_canticum_barys > 0 else 0
-                oxys_percent = (oxys_total / total_canticum_oxys * 100) if total_canticum_oxys > 0 else 0
-                total_barys_oxys_percent = ((barys_total + oxys_total) / total_canticum_barys_oxys * 100) if total_canticum_barys_oxys > 0 else 0
-
-                # Print verbose details
-                print(f"\nCanticum: {responsion}")
-                print(f"Acute matches:      {counts['acute']:<5}/{canticum_totals['acute']:<5} = {acute_percent:>6.1f}%")
-                print(f"Grave matches:      {counts['grave']:<5}/{canticum_totals['grave']:<5} = {grave_percent:>6.1f}%")
-                print(f"Circumflex matches: {counts['circumflex']:<5}/{canticum_totals['circumflex']:<5} = {circum_percent:>6.1f}%")
-                print(f"Total:              {total_responsive:<5}/{total_possible:<5} = {total_accent_percent:>6.1f}%")
-                print(f"Barys matches:      {barys_total:<5}/{total_canticum_barys:<5} = {barys_percent:>6.1f}%")
-                print(f"Oxys matches:       {oxys_total:<5}/{total_canticum_oxys:<5} = {oxys_percent:>6.1f}%")
-                print(f"Total:              {barys_total + oxys_total:<5}/{total_canticum_barys_oxys:<5} = {total_barys_oxys_percent:>6.1f}%")
+    print_combined_summary(overall_counts, total_counts, total_barys, total_oxys, total_syllables, responsion_numbers, infix_list)
