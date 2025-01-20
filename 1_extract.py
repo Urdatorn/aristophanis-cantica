@@ -1,3 +1,5 @@
+import sys
+import argparse
 from lxml import etree
 import re
 
@@ -16,10 +18,12 @@ cantica = [
     [(1264, 1273), (1290, 1299)]
 ]
 
-responsion_counter = 10
-
+responsion_prefix = "eq"
+responsion_counter = 1
 xml_file = "tlg/tlg0019002.xml"
 output_file = "responsion_eq_raw.xml"
+author = "Aristophanes"
+title = "Equites"
 
 ################
 ################
@@ -104,6 +108,11 @@ for element in tree.xpath("//body//l"):
 
 # 7) Create the root elements (without namespace prefixes)
 output_root = etree.Element("TEI")
+tei_header = etree.SubElement(output_root, "teiHeader")
+file_desc = etree.SubElement(tei_header, "fileDesc")
+title_stmt = etree.SubElement(file_desc, "titleStmt")
+etree.SubElement(title_stmt, "title").text = title
+etree.SubElement(title_stmt, "author").text = author
 text_element = etree.SubElement(output_root, "text")
 body_element = etree.SubElement(text_element, "body")
 
@@ -122,7 +131,7 @@ mismatch_log = []
 # 8) Build strophe + multiple antistrophes for each canticum
 for canticum in cantica:
     canticum_element = etree.SubElement(body_element, "canticum")
-    responsion_str = f"{responsion_counter:04d}"
+    responsion_str = f"{responsion_prefix}{responsion_counter:02d}"
 
     strophe_range = canticum[0]
     antistrophes = canticum[1:]

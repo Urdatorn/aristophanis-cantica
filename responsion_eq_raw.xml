@@ -1,9 +1,17 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <TEI>
+  <teiHeader>
+    <fileDesc>
+      <titleStmt>
+        <title>Equites</title>
+        <author>Aristophanes</author>
+      </titleStmt>
+    </fileDesc>
+  </teiHeader>
   <text>
     <body>
       <canticum>
-        <strophe type="strophe" responsion="0010">
+        <strophe type="strophe" responsion="eq01">
           <l n="303-304" metre="" speaker="ΧΟ.">Ὦ μιαρὲ καὶ βδελυρὲ κρᾶκτα, τοῦ σοῦ θράσους </l>
           <l n="305" metre="">πᾶσα μὲν γῆ πλέα, πᾶσα δ' ἐκκλησία, </l>
           <l n="306-307" metre="">καὶ τέλη καὶ γραφαὶ καὶ δικαστήρι', ὦ </l>
@@ -12,7 +20,7 @@
           <l n="311-312" metre="">ὅστις ἡμῶν τὰς Ἀθήνας ἐκκεκώφωκας βοῶν </l>
           <l n="313" metre="">κἀπὸ τῶν πετρῶν ἄνωθεν τοὺς φόρους θυννοσκοπῶν. </l>
         </strophe>
-        <strophe type="antistrophe" responsion="0010">
+        <strophe type="antistrophe" responsion="eq01">
           <l n="382-383" metre="" speaker="ΧΟ.">Ἦν ἄρα πυρός &lt;γ'&gt; ἕτερα θερμότερα καὶ λόγων </l>
           <l n="384-385" metre="">ἐν πόλει τῶν ἀναιδῶν ἀναιδέστεροι· </l>
           <l n="385-386" metre="">καὶ τὸ πρᾶγμ' ἦν ἄρ' οὐ φαῦλον ὧδ' &lt;οὐδ' ἐλαφρόν.&gt; </l>
@@ -23,7 +31,7 @@
         </strophe>
       </canticum>
       <canticum>
-        <strophe type="strophe" responsion="0011">
+        <strophe type="strophe" responsion="eq02">
           <l n="324" metre="" speaker="ΧΟ.">Ἆρα δῆτ' οὐκ ἀπ' ἀρχῆς ἐδήλους ἀναί- </l>
           <l n="325" metre="">δειαν, ἥπερ μόνη προστατεῖ ῥητόρων; </l>
           <l n="326" metre="">Ἧι σὺ πιστεύων ἀμέλγει τῶν ξένων τοὺς καρπίμους, </l>
@@ -36,7 +44,7 @@
           <l n="333" metre="">Ἀλλ' ὦ τραφεὶς ὅθενπέρ εἰσιν ἄνδρες οἵπερ εἰσίν, </l>
           <l n="334" metre="">νῦν δεῖξον ὡς οὐδὲν λέγει τὸ σωφρόνως τραφῆναι. </l>
         </strophe>
-        <strophe type="antistrophe" responsion="0011">
+        <strophe type="antistrophe" responsion="eq02">
           <l n="397-398" metre="" speaker="ΧΟ.">Ὡς δὲ πρὸς πᾶν ἀναιδεύεται κοὐ μεθί- </l>
           <l n="398-399" metre="">στησι τοῦ χρώματος τοῦ παρεστηκότος. </l>
           <l n="400" metre="">Εἴ σε μὴ μισῶ, γενοίμην ἐν Κρατίνου κῴδιον </l>
@@ -51,7 +59,7 @@
         </strophe>
       </canticum>
       <canticum>
-        <strophe type="strophe" responsion="0012">
+        <strophe type="strophe" responsion="eq03">
           <l n="551" metre="">Ἵππι' ἄναξ Πόσειδον, ᾧ </l>
           <l n="552" metre="">χαλκοκρότων ἵππων κτύπος </l>
           <l n="553" metre="">καὶ χρεμετισμὸς ἁνδάνει </l>
@@ -67,7 +75,7 @@
           <l n="563" metre="">τῶν ἄλλων τε θεῶν Ἀθη-</l>
           <l n="564" metre="">ναίοις πρὸς τὸ παρεστός. </l>
         </strophe>
-        <strophe type="antistrophe" responsion="0012">
+        <strophe type="antistrophe" responsion="eq03">
           <l n="581" metre="">Ὦ πολιοῦχε Παλλάς, ὦ </l>
           <l n="582" metre="">τῆς ἱερωτάτης ἁπα-</l>
           <l n="583" metre="">σῶν πολέμῳ τε καὶ ποη-</l>
@@ -85,7 +93,7 @@
         </strophe>
       </canticum>
       <canticum>
-        <strophe type="strophe" responsion="0013">
+        <strophe type="strophe" responsion="eq04">
           <l n="616" metre="" speaker="ΧΟ.">Νῦν ἄρ' ἄξιον πᾶσίν ἐστιν ὀλολῦξαι. </l>
           <l n="617" metre="">Ὦ καλὰ λέγων, πολὺ δ' ἀμείνον' ἔτι τῶν λόγων </l>
           <l n="618" metre="">ἐργασάμεν' εἴθ' ἐπέλ-</l>
@@ -96,7 +104,7 @@
           <l n="623" metre="">τιστε, θαρρήσας λέγ', ὡς ἅ παντες
  ἡδόμεσθά σοι. </l>
         </strophe>
-        <strophe type="antistrophe" responsion="0013">
+        <strophe type="antistrophe" responsion="eq04">
           <l n="683" metre="" speaker="ΧΟ.">Πάντα τοι πέπραγας οἷα χρὴ τὸν εὐτυχοῦντα· </l>
           <l n="684" metre="">ηὗρε δ' ὁ πανοῦργος ἕτερον πολὺ πανουργίαις </l>
           <l n="685" metre="">μείζοσι κεκασμένον </l>
@@ -109,14 +117,14 @@
         </strophe>
       </canticum>
       <canticum>
-        <strophe type="strophe" responsion="0014">
+        <strophe type="strophe" responsion="eq05">
           <l n="756" metre="" speaker="ΧΟ.">Νῦν δή σε πάντα δεῖ κάλων ἐξιέναι σεαυτοῦ, </l>
           <l n="757" metre="">καὶ λῆμα θούριον φορεῖν καὶ λόγους ἀφύκτους, </l>
           <l n="758" metre="">ὅτοισι τόνδ' ὑπερβαλεῖ. Ποικίλος γὰρ ἁνὴρ </l>
           <l n="759" metre="">κἀκ τῶν ἀμηχάνων πόρους εὐμήχανος πορίζειν. </l>
           <l n="760" metre="">Πρὸς ταῦθ' ὅπως ἔξει πολὺς καὶ λαμπρὸς εἰς τὸν ἄνδρα. </l>
         </strophe>
-        <strophe type="antistrophe" responsion="0014">
+        <strophe type="antistrophe" responsion="eq05">
           <l n="836" metre="" speaker="ΧΟ.">Ὦ πᾶσιν ἀνθρώποις φανεὶς μέγιστον ὠφέλημα, </l>
           <l n="837" metre="">ζηλῶ σε τῆς εὐγλωττίας. Εἰ γὰρ ὧδ' ἐποίσεις, </l>
           <l n="838" metre="">μέγιστος Ἑλλήνων ἔσει, καὶ μόνος καθέξεις </l>
@@ -125,7 +133,7 @@
         </strophe>
       </canticum>
       <canticum>
-        <strophe type="strophe" responsion="0015">
+        <strophe type="strophe" responsion="eq06">
           <l n="973" metre="" speaker="ΧΟ.">Ἥδιστον φάος ἡμέρας </l>
           <l n="974" metre="">ἔσται τοῖς &lt;τε&gt; παροῦσι καὶ </l>
           <l n="975" metre="">τοῖσιν &lt;εἰς&gt;αφικνουμένοις, </l>
@@ -139,7 +147,7 @@
           <l n="983" metre="">στην σκεύει δύο χρησίμω, δοῖδυξ οὐδὲ τορύνη. </l>
           <l n="984" metre="">Ἀλλὰ καὶ τόδ' ἔγωγε θαυ- </l>
         </strophe>
-        <strophe type="antistrophe" responsion="0015">
+        <strophe type="antistrophe" responsion="eq06">
           <l n="985" metre="">μάζω τῆς ὑομουσίας </l>
           <l n="986-987" metre="">αὐτοῦ· φασὶ γὰρ αὐτὸν οἱ </l>
           <l n="988" metre="">παῖδες οἳ ξυνεφοίτων, </l>
@@ -154,7 +162,7 @@
         </strophe>
       </canticum>
       <canticum>
-        <strophe type="strophe" responsion="0016">
+        <strophe type="strophe" responsion="eq07">
           <l n="1111" metre="" speaker="ΧΟ.">Ὦ Δῆμε, καλήν γ' ἔχεις </l>
           <l n="1112" metre="">ἀρχήν, ὅτε πάντες ἄν- </l>
           <l n="1113" metre="">θρωποι δεδίασί σ' ὥς-</l>
@@ -166,7 +174,7 @@
           <l n="1119" metre="">κέχηνας· ὁ νοῦς δέ σου </l>
           <l n="1120" metre="">παρὼν ἀποδημεῖ. </l>
         </strophe>
-        <strophe type="antistrophe" responsion="0016">
+        <strophe type="antistrophe" responsion="eq07">
           <l n="1121" metre="" speaker="ΔΗ.">Νοῦς οὐκ ἔνι ταῖς κόμαις </l>
           <l n="1122" metre="">ὑμῶν, ὅτε μ' οὐ φρονεῖν </l>
           <l n="1123" metre="">νομίζετ'· ἐγὼ δ' ἑκὼν </l>
@@ -178,7 +186,7 @@
           <l n="1129" metre="">τοῦτον δ', ὅταν ᾖ πλέως, </l>
           <l n="1130" metre="">ἄρας ἐπάταξα. </l>
         </strophe>
-        <strophe type="antistrophe" responsion="0016">
+        <strophe type="antistrophe" responsion="eq07">
           <l n="1131" metre="" speaker="ΧΟ.">Οὕτω μὲν ἂν εὖ ποιοῖς, </l>
           <l n="1132" metre="">εἴ σοι πυκνότης ἔνεστ' </l>
           <l n="1133" metre="">ἐν τῷ τρόπῳ, ὡς λέγεις, </l>
@@ -190,7 +198,7 @@
           <l n="1139" metre="">τούτων ὃς ἂν ᾖ παχύς, </l>
           <l n="1140" metre="">θύσας ἐπιδειπνεῖς. </l>
         </strophe>
-        <strophe type="antistrophe" responsion="0016">
+        <strophe type="antistrophe" responsion="eq07">
           <l n="1141" metre="" speaker="ΔΗ.">Σκέψασθε δέ μ', εἰ σοφῶς </l>
           <l n="1142" metre="">αὐτοὺς περιέρχομαι </l>
           <l n="1143" metre="">τοὺς οἰομένους φρονεῖν </l>
@@ -204,7 +212,7 @@
         </strophe>
       </canticum>
       <canticum>
-        <strophe type="strophe" responsion="0017">
+        <strophe type="strophe" responsion="eq08">
           <l n="1264" metre="" speaker="ΧΟ.">Τί κάλλιον ἀρχομένοι- </l>
           <l n="1265" metre="">σιν ἢ καταπαυομένοισιν </l>
           <l n="1266" metre="">ἢ θοᾶν ἵππων ἐλατῆρας ἀείδειν </l>
@@ -216,7 +224,7 @@
           <l n="1272" metre="">σᾶς ἁπτόμενος φαρέτρας </l>
           <l n="1273" metre="">Πυθῶνι δίᾳ &lt;μὴ&gt; κακῶς πένεσθαι. </l>
         </strophe>
-        <strophe type="antistrophe" responsion="0017">
+        <strophe type="antistrophe" responsion="eq08">
           <l n="1290" metre="">Ἦ πολλάκις ἐννυχίαι- </l>
           <l n="1291" metre="">σι φροντίσι συγγεγένημαι, </l>
           <l n="1292" metre="">καὶ διεζήτηχ' ὁπόθεν ποτὲ φαύλως </l>
