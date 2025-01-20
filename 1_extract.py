@@ -16,7 +16,7 @@ cantica = [
     [(1264, 1273), (1290, 1299)]
 ]
 
-responsion_counter = 1
+responsion_counter = 10
 
 xml_file = "tlg/tlg0019002.xml"
 output_file = "responsion_eq_raw.xml"
