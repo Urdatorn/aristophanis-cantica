@@ -48,6 +48,22 @@ def remove_skipped_lines(xml_text):
     )
 
 
+def remove_skipped_parts(xml_text):
+    """
+    Remove content enclosed in <skip>...</skip> tags while preserving the rest of the line.
+    
+    Args:
+        xml_text (str): The input XML text.
+
+    Returns:
+        str: The XML text with skipped parts removed.
+    """
+    # Use a regex pattern to match <skip>...</skip> and remove the content
+    skip_pattern = re.compile(r"<skip>.*?</skip>", re.DOTALL)
+
+    return skip_pattern.sub("", xml_text)
+
+
 def compile_scan(xml_text):
     """Compile bracket patterns inside <l> elements into <syll> tags."""
     l_pattern = re.compile(r"(<l[^>]*>)(.*?)(</l>)", re.DOTALL)
@@ -135,11 +151,11 @@ def validator(text):
             raise ValueError(f"Lonely > at line {line_number}!")
 
 
-# Prettification logic removed to retain exact line breaks
-# Prettification was the primary cause of additional newlines
-
 # Step 1: Remove skipped lines
 processed_xml = remove_skipped_lines(xml_content)
+
+# Step 1.5: Remove skipped parts of lines
+processed_xml = remove_skipped_parts(processed_xml)
 
 # Step 2: Compile scanned bracket patterns into <syll> tags
 processed_xml = compile_scan(processed_xml)
