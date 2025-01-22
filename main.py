@@ -1,21 +1,16 @@
 #!/usr/bin/env python3
 
-import sys
 import argparse
 from lxml import etree
 from stats import (
     accentually_responding_syllables_of_strophe_pair,
-    accents,
     count_all_syllables,
     count_all_accents,
-    count_all_accents_canticum
 )
 from stats_barys import (
     barys_accentually_responding_syllables_of_strophe_pair,
     count_all_barys_oxys,
-    count_all_barys_oxys_canticum
 )
-from grc_utils import normalize_word
 
 
 def get_all_responsion_numbers(tree):

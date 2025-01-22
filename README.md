@@ -1,5 +1,25 @@
 # Aristophanis Canticorum Omniorum Responsio Accentuum
 
+# Progess
+
+## Arist. Antistrophic Cantica
+
+Cantica med responsion: 
+☑︎ Ach.: 10 (1 polystr.)
+☑︎ Eq.: 8, alla körer! (1 polystr. m. 4)
+☐ Nu.: 6
+☐ V.: 8
+☐ Pax: 6 (1 polystr.)
+☐ Av.: 10
+☐ Lys.: 8 (1 polystr.)
+☐ Th.: 4
+☐ Ra.: 11 (2 polystr.)
+☐ Ec.: 6 
+☐ Pl.: 2 
+
+Summa: 79
+Varav polystrofiska: 6 (≈ 7.6%)
+
 ## Work flow
 1. Extract the cantica from the Diogenes XMLs
 2. Manually mark 
@@ -31,6 +51,10 @@ We search for statistical development
 - between the songs within a play (are the earlier or latter more responding? Linear dev?)
 - between all plays 
 - between machine generated clusters of plays!
+
+We also need to show
+- the degree of dependence between word-end distribution and accent distribution and
+- how oftten word-end responsion and accentual responsion come together 
 
 ## TODO
 

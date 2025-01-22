@@ -113,16 +113,17 @@ def count_all_accents_canticum(tree, responsion):
 ###############################################################################
 # 1) METRICAL RESPONSION
 ###############################################################################
+
+
 def canonical_sylls(xml_line):
     """
     Transforms a scanned line into an abstract metre representation.
 
-    Returns a list of 'weights' for the line, with the follwing rules:
-      - Resolution: two consecutive syllables both with resolution="True" count as one 'heavy'.
-      - Anceps: a syll with anceps="True" becomes 'anceps', ignoring weight.
-      - Brevis in longo: A light syllable is treated as 'heavy' if it is:
-        1) the last syllable of the line, and
-        2) it does NOT have resolution="True".
+    Returns a list of 'weights' for the line, with the following rules:
+      - Contraction: A heavy syllable with contraction="True" counts as two 'light'.
+      - Resolution: Two consecutive syllables both with resolution="True" count as one 'heavy'.
+      - Anceps: A syllable with anceps="True" becomes 'anceps', ignoring weight.
+      - Brevis in longo: A syllable with brevis_in_longo="True" is treated as 'heavy'.
       - Otherwise, use 'heavy' or 'light' from the <syll weight="..."> attribute.
     """
     syllables = xml_line.findall('.//syll')
@@ -133,6 +134,8 @@ def canonical_sylls(xml_line):
         current = syllables[i]
         is_anceps = current.get('anceps') == 'True'
         is_res = current.get('resolution') == 'True'
+        is_contraction = current.get('contraction') == 'True'
+        is_brevis_in_longo = current.get('brevis_in_longo') == 'True'
         current_weight = current.get('weight', '')
 
         # (a) Two consecutive resolution => treat as one 'heavy'
@@ -147,13 +150,20 @@ def canonical_sylls(xml_line):
             i += 1
             continue
 
-        # (c) brevis_in_longo logic: last syllable, light, and not resolution
-        is_last_syllable = (i == len(syllables) - 1)
-        if is_last_syllable and current_weight == 'light' and not is_res:
-            result.append('heavy')
-        else:
-            result.append(current_weight if current_weight in ('heavy', 'light') else 'light')
+        # (c) Contraction logic: heavy with contraction="True" => 'light', 'light'
+        if is_contraction and current_weight == 'heavy':
+            result.extend(['light', 'light'])
+            i += 1
+            continue
 
+        # (d) brevis_in_longo logic: brevis_in_longo="True" => 'heavy'
+        if is_brevis_in_longo:
+            result.append('heavy')
+            i += 1
+            continue
+
+        # (e) Default behavior: use 'weight' if valid, otherwise 'light'
+        result.append(current_weight if current_weight in ('heavy', 'light') else 'light')
         i += 1
 
     return result
@@ -417,10 +427,10 @@ def accentually_responding_syllables_of_strophe_pair(strophe, antistrophe):
 
 
 if __name__ == "__main__":
-    tree = etree.parse("responsion_acharnenses_compiled.xml")
+    tree = etree.parse("responsion_nu_compiled.xml")
 
     # Specify the responsion numbers to process
-    responsion_numbers = {"0001", "0002", "0003"}
+    responsion_numbers = {"nu01"}
 
     # Print ASCII logo at the start
     print(r"""

@@ -172,8 +172,8 @@ def metre_strophe_with_accents(strophe, antistrophe):
 
 from lxml import etree
 
-def visualize_responsion(responsion):
-    tree = etree.parse("responsion_acharnenses_compiled.xml")
+def visualize_responsion(responsion, xml):
+    tree = etree.parse(xml)
 
     strophes = tree.xpath(f'//strophe[@type="strophe" and @responsion="{responsion}"]')
     antistrophes = tree.xpath(f'//strophe[@type="antistrophe" and @responsion="{responsion}"]')
@@ -207,5 +207,6 @@ if __name__ == "__main__":
         print("Usage: python visualize.py <responsion_number>")
         sys.exit(1)
 
+    input_file = "responsion_nu_compiled.xml"
     responsion_number = sys.argv[1]
-    visualize_responsion(responsion_number)
+    visualize_responsion(responsion_number, xml=input_file)
