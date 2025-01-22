@@ -8,26 +8,53 @@ import re
 ################
 
 cantica = [
-    [(303, 313), (382, 390)],
-    [(322, 334), (397, 408)],
-    [(551, 564), (581, 594)],
-    [(616, 623), (683, 690)],
-    [(756, 760), (836, 840)],
-    [(973, 984), (985, 996)],
-    [(1111, 1120), (1121, 1130), (1131, 1140), (1141, 1150)],
-    [(1264, 1273), (1290, 1299)]
+    [(275, 290), (298, 313)],
+    [(563, 574), (595, 606)],
+    [(700, 706), (804, 810)],
+    [(949, 958), (1024, 1033)],
+    [(1303, 1310), (1311, 1320)],
+    [(1345, 1350), (1391, 1396)]
 ]
 
-responsion_prefix = "eq"
+responsion_prefix = "nu"
 responsion_counter = 1
-xml_file = "tlg/tlg0019002.xml"
-output_file = "responsion_eq_raw.xml"
+xml_file = "tlg/tlg0019003.xml"
+output_file = f"responsion_{responsion_prefix}_raw.xml"
 author = "Aristophanes"
-title = "Equites"
+title = "Nubes"
 
 ################
 ################
 ################
+
+
+def is_in_range(line_number, start, end):
+    """
+    Check if a line number (potentially alphanumeric) is in a given range.
+
+    Args:
+        line_number (str): The `n` attribute value (e.g., "41a").
+        start (int): The start of the range.
+        end (int): The end of the range.
+
+    Returns:
+        bool: True if the numeric part of `line_number` is in the range, False otherwise.
+    """
+    try:
+        # Extract numeric part of the line number using regex
+        numeric_part = re.match(r'\d+', line_number)
+        if numeric_part:
+            numeric_value = int(numeric_part.group())
+            return start <= numeric_value <= end
+        return False
+    except (ValueError, AttributeError):
+        # Handle cases where line_number is invalid
+        return False
+
+
+#################
+### MAIN CODE ###
+#################
 
 tree = etree.parse(xml_file)
 
@@ -116,14 +143,6 @@ etree.SubElement(title_stmt, "author").text = author
 text_element = etree.SubElement(output_root, "text")
 body_element = etree.SubElement(text_element, "body")
 
-# Helper function to check if a line number is in a given range (handles spans)
-def is_in_range(line_number, start, end):
-    if '-' in line_number:
-        n_start, n_end = map(int, line_number.split('-'))
-        return (n_start >= start and n_start <= end) or (n_end >= start and n_end <= end)
-    else:
-        n = int(line_number)
-        return start <= n <= end
 
 line_counts = {}
 mismatch_log = []
