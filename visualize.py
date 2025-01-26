@@ -1,3 +1,4 @@
+import re
 import sys
 from lxml import etree
 from stats import (
@@ -188,8 +189,25 @@ def visualize_responsion(responsion, xml):
     RESET = '\033[0m'
 
     def color_accents(text):
-        # Replace ^ and ´ with colored versions, resetting the color after each character
-        return text.replace('^', f"{RED}^{RESET}").replace("'", f"{GREEN}'{RESET}")
+        """
+        Color '^' and "'" characters ONLY on metre lines that match patterns like:
+        "<digits>[a-zA-Z]?:" or "<digits>[a-zA-Z]?-<digits>[a-zA-Z]?:"
+        This ensures the restored text (which does not begin that way) remains uncolored.
+        """
+        # ANSI color codes
+        RED = '\033[31m'
+        GREEN = '\033[32m'
+        RESET = '\033[0m'
+        
+        lines = text.split('\n')
+        colored_lines = []
+        for line in lines:
+            # Check if this line is a 'metre line' based on the updated pattern
+            if re.match(r'^\d+[a-zA-Z]?(?:-\d+[a-zA-Z]?)?:', line.strip()):
+                # Apply color replacements only here
+                line = line.replace('^', f"{RED}^{RESET}").replace("'", f"{GREEN}'{RESET}")
+            colored_lines.append(line)
+        return '\n'.join(colored_lines)
 
     for strophe, antistrophe in zip(strophes, antistrophes):
         print(f"\nResponsion: {responsion}")
@@ -207,6 +225,6 @@ if __name__ == "__main__":
         print("Usage: python visualize.py <responsion_number>")
         sys.exit(1)
 
-    input_file = "responsion_nu_compiled.xml"
+    input_file = "responsion_v_compiled.xml"
     responsion_number = sys.argv[1]
     visualize_responsion(responsion_number, xml=input_file)
