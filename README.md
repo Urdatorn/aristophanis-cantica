@@ -59,10 +59,14 @@ We also need to show
 
 ## TODO
 
+☐ scan some recitative as baseline, both since Conser does not provide a baseline of barys, and because it would be more fitting to use comic recitative 
+
 ☐ word breaks
 ☐ 3rd statistic: melodic direction (rate of change) based on responsion
     ☐ melodic acceleration: a metric of the larger arc of the melody
     ☐ melodic jerk: a metric of the vivacity of the melody d3[melody]/dt3
+
+
 
 
 ## Take-aways
