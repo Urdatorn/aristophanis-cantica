@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import re
 import os
 import argparse
 import sys
@@ -299,7 +300,7 @@ if __name__ == "__main__":
 
             else:
                 responsion = arg
-                infix = arg[:2]
+                infix = re.match(r'^[a-zA-Z]+', arg).group(0)
                 input_file = f"responsion_{infix}_compiled.xml"
                 if os.path.exists(input_file):
                     if infix in ALLOWED_INFIXES and infix not in infix_list:
