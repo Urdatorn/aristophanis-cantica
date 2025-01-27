@@ -23,11 +23,6 @@ class SignificanceTester:
         """
         Perform a binomial test to compare the observed proportion (successes/trials)
         to the reference proportion.
-
-        :param successes: Number of observed 'successes'.
-        :param trials: Total number of trials.
-        :param alternative: 'two-sided', 'greater', or 'less' (for the test).
-        :return: p-value (float) from the binomial test.
         """
         result = binomtest(
             k=successes,
@@ -37,14 +32,10 @@ class SignificanceTester:
         )
         return result.pvalue
 
-    def is_above_05(self, successes, trials, alternative='two-sided'):
+    def is_below_05(self, successes, trials, alternative='two-sided'):
         """
-        Check if the p-value is strictly above 0.05.
-
-        :param successes: Number of observed 'successes'.
-        :param trials: Total number of trials.
-        :param alternative: 'two-sided', 'greater', or 'less'.
-        :return: True if the p-value > 0.05, else False.
+        Check whether the null hypothesis should be rejected, 
+        i.e. whether the probability the result is due to chance is less than 5%.
         """
         p_value = self.test_significance(successes, trials, alternative)
-        return p_value > 0.05
+        return p_value < 0.05

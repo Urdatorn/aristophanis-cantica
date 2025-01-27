@@ -61,40 +61,12 @@ def count_all_syllables(tree):
     return total_count
 
 
-def count_all_accents(tree):
-    """
-    Counts all occurrences of acute, grave, and circumflex accents across all
-    strophes and antistrophes in the entire XML tree.
-    """
-    counts = {
-        'acute': 0,
-        'grave': 0,
-        'circumflex': 0
-    }
-
-    all_sylls = tree.xpath('//strophe//syll | //antistrophe//syll')
-
-    for syll in all_sylls:
-        text = syll.text or ""
-        norm_text = normalize_word(text)
-
-        for accent_type, accent_chars in accents.items():
-            if any(char in norm_text for char in accent_chars):
-                counts[accent_type] += 1
-
-    return counts
-
-
 def count_all_accents_canticum(tree, responsion):
     """
     Counts all occurrences of acute, grave, and circumflex accents across
-    all strophes and antistrophes in the XML tree for a specific responsion.
+    all strophes and antistrophes in the XML tree for a specific canticum.
     """
-    counts = {
-        'acute': 0,
-        'grave': 0,
-        'circumflex': 0
-    }
+    counts = {'acute': 0, 'grave': 0, 'circumflex': 0}
 
     # XPath to select syllables within strophes and antistrophes for the given responsion
     all_sylls = tree.xpath(f'//strophe[@responsion="{responsion}"]//syll | //antistrophe[@responsion="{responsion}"]//syll')
@@ -108,6 +80,26 @@ def count_all_accents_canticum(tree, responsion):
                 counts[accent_type] += 1
 
     return counts
+
+
+def count_all_accents(tree):
+    """
+    Counts all occurrences of acute, grave, and circumflex accents across all
+    strophes and antistrophes in the entire XML tree by summing results
+    from count_all_accents_canticum for all cantica.
+    """
+    total_counts = {'acute': 0, 'grave': 0, 'circumflex': 0}
+
+    # Get all unique responsion IDs in the tree
+    responsion_ids = {strophe.get('responsion') for strophe in tree.xpath('//strophe[@responsion]')}
+
+    # Accumulate counts from each responsion
+    for responsion in responsion_ids:
+        canticum_counts = count_all_accents_canticum(tree, responsion)
+        for accent_type, count in canticum_counts.items():
+            total_counts[accent_type] += count
+
+    return total_counts
 
 
 ###############################################################################
@@ -401,7 +393,10 @@ def accentually_responding_syllables_of_strophe_pair(strophe, antistrophe):
 
     Returns False if mismatch in responsion or line counts.
     """
-    if strophe.get('responsion') != antistrophe.get('responsion'):
+    strophe_id = strophe.get('responsion')
+    antistrophe_id = strophe.get('responsion')
+
+    if strophe_id != antistrophe_id:
         return False
 
     s_lines = strophe.findall('l')
@@ -413,7 +408,7 @@ def accentually_responding_syllables_of_strophe_pair(strophe, antistrophe):
 
     for s_line, a_line in zip(s_lines, a_lines):
         if not metrically_responding_lines(s_line, a_line):
-            print(f"Lines {s_line.get('n')} and {a_line.get('n')} do not metrically respond.")
+            print(f"Lines {s_line.get('n')} and {a_line.get('n')} in {strophe_id} do not metrically respond.")
             return False
 
         line_accent_lists = accentually_responding_syllables_of_line_pair(s_line, a_line)
