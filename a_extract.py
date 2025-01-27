@@ -16,12 +16,12 @@ cantica = [
     [(1127, 1139), (1159, 1171)]
 ]
 
-responsion_prefix = "pax"
+responsion_prefix = "av"
 responsion_counter = 1
-xml_file = "tlg/tlg0019005.xml"
+xml_file = "source/06av.xml"
 output_file = f"responsion_{responsion_prefix}_raw.xml"
 author = "Aristophanes"
-title = "Pax"
+title = "Aves"
 
 ################
 ################

@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import os
 import argparse
 from lxml import etree
 from stats import (
@@ -11,6 +12,21 @@ from stats_barys import (
     barys_accentually_responding_syllables_of_strophe_pair,
     count_all_barys_oxys,
 )
+
+# Ordered list of allowed play infixes
+ALLOWED_INFIXES = [
+    "ach",
+    "eq",
+    "nu",
+    "v",
+    "pax",
+    "av",
+    "lys",
+    "th",
+    "ra",
+    "ec",
+    "pl"
+]
 
 
 def get_all_responsion_numbers(tree):
@@ -49,7 +65,6 @@ def process_responsions(tree, responsion_numbers):
 
         for strophe, antistrophe in zip(strophes, antistrophes):
             accent_maps = accentually_responding_syllables_of_strophe_pair(strophe, antistrophe)
-
             if accent_maps:
                 counts['acute'] += len(accent_maps[0])
                 counts['grave'] += len(accent_maps[1])
@@ -98,22 +113,37 @@ def process_barys_responsions(tree, responsion_numbers):
     return barys_total, oxys_total, barys_summaries
 
 
-def print_combined_summary(overall_counts, total_counts, barys_total, oxys_total, total_syllables, responsion_numbers, infix_list):
+def print_combined_summary(
+    overall_counts,
+    total_counts,
+    barys_total,
+    oxys_total,
+    total_syllables,
+    responsion_numbers,
+    infix_list,
+    tree
+):
     """
-    Prints the combined summary of accentual and barys responsion statistics.
+    Prints the combined summary of accentual and barys responsion statistics,
+    including the set of plays analyzed in the correct order.
     """
+    # Reorder the plays in infix_list according to ALLOWED_INFIXES
+    ordered_infix_list = [inf for inf in ALLOWED_INFIXES if inf in infix_list]
+
     responsion_list = ', '.join(sorted(responsion_numbers))
-    infix_list_str = ', '.join(infix_list)
+    infix_list_str = ', '.join(ordered_infix_list)
     total_responsive = sum(overall_counts.values())
     total_all_accents = sum(total_counts.values())
     acute_percent = (overall_counts['acute'] / total_counts['acute'] * 100) if total_counts['acute'] > 0 else 0
     grave_percent = (overall_counts['grave'] / total_counts['grave'] * 100) if total_counts['grave'] > 0 else 0
     circum_percent = (overall_counts['circumflex'] / total_counts['circumflex'] * 100) if total_counts['circumflex'] > 0 else 0
     total_accent_percent = (total_responsive / total_all_accents * 100) if total_all_accents > 0 else 0
+
     all_barys_oxys = count_all_barys_oxys(tree)
     total_potential_barys = all_barys_oxys['barys']
     total_potential_oxys = all_barys_oxys['oxys']
     total_potential = total_potential_barys + total_potential_oxys
+
     barys_percent = (barys_total / total_potential_barys * 100) if total_potential_barys > 0 else 0
     oxys_percent = (oxys_total / total_potential_oxys * 100) if total_potential_oxys > 0 else 0
     total_percent = ((barys_total + oxys_total) / total_potential * 100) if total_potential > 0 else 0
@@ -144,41 +174,120 @@ def print_combined_summary(overall_counts, total_counts, barys_total, oxys_total
 
 
 if __name__ == "__main__":
-    # Argument parsing
     parser = argparse.ArgumentParser(description="Analyze responsion statistics from plays.")
-    parser.add_argument("infixes", nargs="+", help="Abbreviations for the plays (e.g., 'eq', 'ach').")
+    parser.add_argument(
+        "args",
+        nargs="*",
+        help="Play infixes (e.g., 'eq', 'ach') or responsion attributes (e.g., 'v01')."
+    )
     args = parser.parse_args()
 
-    # Parse XML files and accumulate stats
     total_counts = {"acute": 0, "grave": 0, "circumflex": 0}
     overall_counts = {"acute": 0, "grave": 0, "circumflex": 0}
     total_barys = 0
     total_oxys = 0
     responsion_numbers = set()
-    infix_list = args.infixes
-    total_syllables = 0  # Initialize this variable
+    infix_list = []
+    total_syllables = 0
+    tree = None  # Will reuse/overwrite with each parse
 
-    for infix in infix_list:
-        input_file = f"responsion_{infix}_compiled.xml"
-        tree = etree.parse(input_file)
+    # If no arguments are provided, try to parse the compiled XMLs for all infixes in ALLOWED_INFIXES:
+    if len(args.args) == 0:
+        for infix in ALLOWED_INFIXES:
+            xml_file = f"responsion_{infix}_compiled.xml"
+            if os.path.exists(xml_file):
+                infix_list.append(infix)
+                tree = etree.parse(xml_file)
 
-        responsion_nums = get_all_responsion_numbers(tree)
-        responsion_numbers.update(responsion_nums)
+                # Collect responsion numbers
+                responsion_nums = get_all_responsion_numbers(tree)
+                responsion_numbers.update(responsion_nums)
 
-        file_counts = count_all_accents(tree)
-        for key in total_counts:
-            total_counts[key] += file_counts[key]
+                # Syllable and accent counts
+                file_counts = count_all_accents(tree)
+                for key in total_counts:
+                    total_counts[key] += file_counts[key]
 
-        file_sylls = count_all_syllables(tree)
-        total_syllables += file_sylls  # Accumulate syllable counts
+                file_sylls = count_all_syllables(tree)
+                total_syllables += file_sylls
 
-        file_overall, file_summaries = process_responsions(tree, responsion_nums)
-        for key in overall_counts:
-            overall_counts[key] += file_overall[key]
+                # Accentual responsion details
+                file_overall, file_summaries = process_responsions(tree, responsion_nums)
+                for key in overall_counts:
+                    overall_counts[key] += file_overall[key]
 
-        file_barys, file_oxys, file_barys_summaries = process_barys_responsions(tree, responsion_nums)
-        total_barys += file_barys
-        total_oxys += file_oxys
+                # Barys/oxys responsion details
+                file_barys, file_oxys, file_barys_summaries = process_barys_responsions(tree, responsion_nums)
+                total_barys += file_barys
+                total_oxys += file_oxys
 
-    # Print combined summary
-    print_combined_summary(overall_counts, total_counts, total_barys, total_oxys, total_syllables, responsion_numbers, infix_list)
+    else:
+        # If arguments are provided, parse them in the order they were given.
+        # But still we only end up printing them in the ALLOWED_INFIXES order at summary-time.
+        for arg in args.args:
+            if arg in ALLOWED_INFIXES:
+                # It's a play infix
+                if arg not in infix_list:
+                    infix_list.append(arg)
+                input_file = f"responsion_{arg}_compiled.xml"
+                tree = etree.parse(input_file)
+
+                responsion_nums = get_all_responsion_numbers(tree)
+                responsion_numbers.update(responsion_nums)
+
+                file_counts = count_all_accents(tree)
+                for key in total_counts:
+                    total_counts[key] += file_counts[key]
+
+                file_sylls = count_all_syllables(tree)
+                total_syllables += file_sylls
+
+                file_overall, file_summaries = process_responsions(tree, responsion_nums)
+                for key in overall_counts:
+                    overall_counts[key] += file_overall[key]
+
+                file_barys, file_oxys, file_barys_summaries = process_barys_responsions(tree, responsion_nums)
+                total_barys += file_barys
+                total_oxys += file_oxys
+
+            else:
+                # Treat as a responsion ID (e.g., "v01")
+                responsion = arg
+                infix = arg[:2]  # first two chars to guess the play
+                input_file = f"responsion_{infix}_compiled.xml"
+                # If that infix is in ALLOWED_INFIXES, add it to infix_list if not present
+                if infix in ALLOWED_INFIXES and infix not in infix_list:
+                    infix_list.append(infix)
+
+                tree = etree.parse(input_file)
+                responsion_numbers.add(responsion)
+
+                file_counts = count_all_accents(tree)
+                for key in total_counts:
+                    total_counts[key] += file_counts[key]
+
+                file_sylls = count_all_syllables(tree)
+                total_syllables += file_sylls
+
+                file_overall, file_summaries = process_responsions(tree, {responsion})
+                for key in overall_counts:
+                    overall_counts[key] += file_overall[key]
+
+                file_barys, file_oxys, file_barys_summaries = process_barys_responsions(tree, {responsion})
+                total_barys += file_barys
+                total_oxys += file_oxys
+
+    # Print combined summary if we have at least one file processed.
+    if tree is not None:
+        print_combined_summary(
+            overall_counts,
+            total_counts,
+            total_barys,
+            total_oxys,
+            total_syllables,
+            responsion_numbers,
+            infix_list,
+            tree
+        )
+    else:
+        print("No valid XML plays found. Provide arguments or ensure XML files exist in the current directory.")
