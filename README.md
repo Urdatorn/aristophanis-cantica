@@ -7,7 +7,7 @@
 Cantica med responsion: 
 ☑︎ Ach.: 10 (1 polystr.)
 ☑︎ Eq.: 8, alla körer! (1 polystr. m. 4)
-☐ Nu.: 6
+☑︎ Nu.: 6
 ☐ V.: 8
 ☐ Pax: 6 (1 polystr.)
 ☐ Av.: 10
@@ -51,6 +51,7 @@ We search for statistical development
 - between the songs within a play (are the earlier or latter more responding? Linear dev?)
 - between all plays 
 - between machine generated clusters of plays!
+- inside a song, e.g. if as in V. 526 (νῦν δὴ...) the opening 7 cola have no responsion while the last 6 all have. For such a corrupt text, that can also be a possible indicator of reliability
 
 We also need to show
 - the degree of dependence between word-end distribution and accent distribution and
