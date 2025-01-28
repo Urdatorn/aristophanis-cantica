@@ -105,7 +105,7 @@ def order_l_attributes(xml_text):
 
 
 def validator(text):
-    """Validate for misplaced characters or unbalanced tags."""
+    """Validate for misplaced characters, unbalanced tags, and empty <l> elements."""
     lines = text.splitlines()
     for line_number, line in enumerate(lines, start=1):
         if '#' in line:
@@ -118,6 +118,9 @@ def validator(text):
             raise ValueError(f"Lonely < at line {line_number}!")
         elif gt_count > lt_count:
             raise ValueError(f"Lonely > at line {line_number}!")
+        # Check for empty <l> elements
+        if re.match(r"<l[^>]*>\s*</l>", line):
+            raise ValueError(f"Empty <l> element at line {line_number}!")
 
 
 def process_file(input_file, output_file):

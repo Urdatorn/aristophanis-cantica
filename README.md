@@ -8,7 +8,7 @@ Cantica med responsion:
 ☑︎ Ach.: 10 (1 polystr.)
 ☑︎ Eq.: 8, alla körer! (1 polystr. m. 4)
 ☑︎ Nu.: 6
-☐ V.: 8
+☑︎ V.: 8
 ☐ Pax: 6 (1 polystr.)
 ☐ Av.: 10
 ☐ Lys.: 8 (1 polystr.)
@@ -57,14 +57,11 @@ We also need to show
 - the degree of dependence between word-end distribution and accent distribution and
 - how oftten word-end responsion and accentual responsion come together 
 
-## TODO
+## URGENT TODOS!!
 
+☐ add "compatible syllables" stats
 ☐ scan some recitative as baseline, both since Conser does not provide a baseline of barys, and because it would be more fitting to use comic recitative 
-
-☐ word breaks
-☐ 3rd statistic: melodic direction (rate of change) based on responsion
-    ☐ melodic acceleration: a metric of the larger arc of the melody
-    ☐ melodic jerk: a metric of the vivacity of the melody d3[melody]/dt3
+☐ show word breaks in visualization 
 
 
 

@@ -2,7 +2,7 @@
 """
 significance.py
 
-A utility module for comparing an observed proportion against 9.7% using a binomial test.
+A utility module for comparing an observed proportion against a set baseline using a binomial test.
 """
 
 from scipy.stats import binomtest

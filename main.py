@@ -6,19 +6,22 @@ import argparse
 import sys
 from lxml import etree
 
-import concurrent.futures  # <-- for parallelizing significance tests
+import concurrent.futures
 
 # Updated import from significance.py
 from significance import SignificanceTester
 
+# ADD IMPORTS for single-canticum counting
 from stats import (
     accentually_responding_syllables_of_strophe_pair,
     count_all_syllables,
     count_all_accents,
+    count_all_accents_canticum  # <-- import for single canticum totals
 )
 from stats_barys import (
     barys_accentually_responding_syllables_of_strophe_pair,
     count_all_barys_oxys,
+    count_all_barys_oxys_canticum  # <-- import for single canticum totals
 )
 
 ALLOWED_INFIXES = [
@@ -45,6 +48,10 @@ def get_all_responsion_numbers(tree):
 
 
 def process_responsions(tree, responsion_numbers):
+    """
+    For each canticum in responsion_numbers, find how many accentually matching syllables
+    (acute, grave, circumflex) appear in each strophe-antistrophe pair.
+    """
     overall_counts = {'acute': 0, 'grave': 0, 'circumflex': 0}
     responsion_summaries = {}
 
@@ -75,6 +82,10 @@ def process_responsions(tree, responsion_numbers):
 
 
 def process_barys_responsions(tree, responsion_numbers):
+    """
+    For each canticum in responsion_numbers, find how many barys/oxys matches appear
+    in each strophe-antistrophe pair.
+    """
     barys_total = 0
     oxys_total = 0
     barys_summaries = {}
@@ -224,6 +235,9 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
 
+    # We maintain separate structures for:
+    #  - total_counts: sums of all (acute, grave, circumflex)
+    #  - overall_counts: sums of matches found across strophe-antistrophe pairs
     total_counts = {"acute": 0, "grave": 0, "circumflex": 0}
     overall_counts = {"acute": 0, "grave": 0, "circumflex": 0}
     total_barys = 0
@@ -243,7 +257,12 @@ if __name__ == "__main__":
             global_summaries[r_id]['grave']      += accent_dict['grave']
             global_summaries[r_id]['circumflex'] += accent_dict['circumflex']
 
+
+    # ------------------------------------------------------------------------
+    # Decide how many arguments we have and whether they are infixes or specific canticum labels
+    # ------------------------------------------------------------------------
     if len(args.args) == 0:
+        # If no arguments, we process ALL allowed infixes in the current directory
         for infix in ALLOWED_INFIXES:
             xml_file = f"responsion_{infix}_compiled.xml"
             if os.path.exists(xml_file):
@@ -253,24 +272,30 @@ if __name__ == "__main__":
                 responsion_nums = get_all_responsion_numbers(tree)
                 responsion_numbers.update(responsion_nums)
 
+                # Count total accent occurrences for the entire file
                 file_counts = count_all_accents(tree)
                 for key in total_counts:
                     total_counts[key] += file_counts[key]
 
+                # Count total syllables for the entire file
                 file_sylls = count_all_syllables(tree)
                 total_syllables += file_sylls
 
+                # Count accentual responsion matches
                 file_overall, file_summaries = process_responsions(tree, responsion_nums)
                 for key in overall_counts:
                     overall_counts[key] += file_overall[key]
                 merge_summaries(resp_summaries, file_summaries)
 
-                file_barys, file_oxys, file_barys_summaries = process_barys_responsions(tree, responsion_nums)
+                # Count barys/oxys responsion matches
+                file_barys, file_oxys, _ = process_barys_responsions(tree, responsion_nums)
                 total_barys += file_barys
                 total_oxys  += file_oxys
 
     else:
+        # If we do have arguments, handle them
         for arg in args.args:
+            # If the arg is an infix in ALLOWED_INFIXES (e.g. "v")
             if arg in ALLOWED_INFIXES:
                 if arg not in infix_list:
                     infix_list.append(arg)
@@ -280,6 +305,7 @@ if __name__ == "__main__":
                     responsion_nums = get_all_responsion_numbers(tree)
                     responsion_numbers.update(responsion_nums)
 
+                    # We count the entire file's total accent occurrences
                     file_counts = count_all_accents(tree)
                     for key in total_counts:
                         total_counts[key] += file_counts[key]
@@ -292,40 +318,65 @@ if __name__ == "__main__":
                         overall_counts[key] += file_overall[key]
                     merge_summaries(resp_summaries, file_summaries)
 
-                    file_barys, file_oxys, file_barys_summaries = process_barys_responsions(tree, responsion_nums)
+                    file_barys, file_oxys, _ = process_barys_responsions(tree, responsion_nums)
                     total_barys += file_barys
                     total_oxys  += file_oxys
+
                 else:
                     print(f"File not found: {input_file}", file=sys.stderr)
 
             else:
+                # Arg is presumably a canticum (e.g. "v01"), so parse out its infix
                 responsion = arg
-                infix = re.match(r'^[a-zA-Z]+', arg).group(0)
+                # We assume the infix is the alphabetical part of the string
+                match = re.match(r'^([a-zA-Z]+)', arg)
+                if not match:
+                    print(f"Can't parse infix from argument '{arg}'", file=sys.stderr)
+                    continue
+                infix = match.group(1)
+
                 input_file = f"responsion_{infix}_compiled.xml"
                 if os.path.exists(input_file):
+                    # Keep track of the infix
                     if infix in ALLOWED_INFIXES and infix not in infix_list:
                         infix_list.append(infix)
+
                     tree = etree.parse(input_file)
                     responsion_numbers.add(responsion)
 
-                    file_counts = count_all_accents(tree)
+                    # Now we want to compute the total accent counts and total barys/oxys
+                    # only for *this* canticum, so we use count_all_accents_canticum, etc.
+                    c_counts = count_all_accents_canticum(tree, responsion)
                     for key in total_counts:
-                        total_counts[key] += file_counts[key]
+                        total_counts[key] += c_counts[key]
 
-                    file_sylls = count_all_syllables(tree)
-                    total_syllables += file_sylls
+                    # If you also maintain a total syllable count per canticum, you could do:
+                    # total_syllables_canticum = count_all_syllables_canticum(...)
+                    # For now, reusing the overall file syllable count might not be correct.
+                    # If you have a canticum-specific syllable function, plug it in here:
+                    #
+                    # total_syllables_canticum = count_all_syllables_canticum(tree, responsion)
+                    # total_syllables += total_syllables_canticum
+                    #
+                    # If you do NOT have a specialized function, you can do partial logic yourself.
+                    # Let's skip it for now or just do:
+                    # total_syllables += total_syllables_canticum  # if the function is available.
 
+                    # Now we get the matches
                     file_overall, file_summaries = process_responsions(tree, {responsion})
                     for key in overall_counts:
                         overall_counts[key] += file_overall[key]
                     merge_summaries(resp_summaries, file_summaries)
 
-                    file_barys, file_oxys, file_barys_summaries = process_barys_responsions(tree, {responsion})
-                    total_barys += file_barys
-                    total_oxys  += file_oxys
+                    # Barys/oxys for only that canticum
+                    c_barys_dict = count_all_barys_oxys_canticum(tree, responsion)
+                    total_barys += c_barys_dict['barys']
+                    total_oxys  += c_barys_dict['oxys']
+
                 else:
                     print(f"File not found for {arg}, skipping...", file=sys.stderr)
 
+    # Finally, print out summary if we have at least one valid file parsed
     if tree is not None:
         print_combined_summary(
             overall_counts,

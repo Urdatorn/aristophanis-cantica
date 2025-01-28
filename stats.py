@@ -341,7 +341,10 @@ def accentually_responding_syllables_of_line_pair(strophe_line, antistrophe_line
       - single vs double => same logic, reversed
 
     """
+    strophe_id = strophe_line.get('responsion')
+    
     if not metrically_responding_lines(strophe_line, antistrophe_line):
+        print(f"accentually_responding_syllables_of_line_pair: Lines {strophe_line.get('n')} and {antistrophe_line.get('n')} in {strophe_id} do not metrically respond.")
         return False
 
     units1 = build_units_for_accent(strophe_line)

@@ -29,7 +29,6 @@ from grc_utils import normalize_word
 # Adjust these imports based on your actual code organization and exports in stats.py
 from stats import (
     polystrophic,
-    canonical_sylls,                # same metrical logic
     metrically_responding_lines,    # same line-to-line matching
     build_units_for_accent,         # same 'unit' building logic
     is_heavy,                       # same helper
