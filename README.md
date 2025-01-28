@@ -59,6 +59,8 @@ We also need to show
 
 ## URGENT TODOS!!
 
+☐ fix accent count only counting one strophe sometimes
+☐ polystrophic songs
 ☐ add "compatible syllables" stats
 ☐ scan some recitative as baseline, both since Conser does not provide a baseline of barys, and because it would be more fitting to use comic recitative 
 ☐ show word breaks in visualization 

@@ -173,12 +173,41 @@ def metrically_responding_lines(strophe_line, antistrophe_line):
     c2 = canonical_sylls(antistrophe_line)
 
     if len(c1) != len(c2):
+        print(f"metrically_responding_lines: Line {strophe_line.get('n')} and {antistrophe_line.get('n')} have different syllable counts.")
         return False
 
     for s1, s2 in zip(c1, c2):
         if s1 == 'anceps' or s2 == 'anceps':
             continue
         if s1 != s2:
+            return False
+
+    return True
+
+
+def metrically_responding_lines_polystrophic(*strophes):
+    """
+    Returns True if all the input strophes metrically respond to each other.
+    Considers:
+      - Consecutive resolution="True" => 'heavy'.
+      - 'anceps' matches anything.
+      - Light syllable with brevis_in_longo="True" is treated as 'heavy'.
+    """
+    # Extract canonical syllables for each strophe line
+    strophe_lines = [canonical_sylls(strophe) for strophe in strophes]
+
+    # Check that all lines have the same number of syllables
+    line_lengths = [len(line) for line in strophe_lines]
+    if len(set(line_lengths)) != 1:
+        strophe_ids = ", ".join(strophe.get("n", "unknown") for strophe in strophes)
+        print(f"metrically_responding_strophes: Strophes {strophe_ids} have differing syllable counts.")
+        return False
+
+    # Compare syllables at each position across all strophes
+    for syllables in zip(*strophe_lines):  # Transpose the syllable matrix
+        if any(s == 'anceps' for s in syllables):  # 'anceps' matches anything
+            continue
+        if len(set(syllables)) != 1:  # Check if all syllables are identical
             return False
 
     return True
@@ -266,6 +295,20 @@ def do_single_vs_single(u1, u2, accent_lists):
             })
 
 
+def do_single_vs_single_polystrophic(units, accent_lists):
+    """
+    Check for accentual matches among single syllables across multiple strophes.
+    We do check for all accent categories (acute, grave, circumflex).
+    """
+    texts = [(u['line_n'], u['unit_ord'], u['syll'].text or "") for u in units]
+    normalized = [(n, ord_, normalize_word(text)) for n, ord_, text in texts]
+
+    for i, (accent_name, accent_chars) in enumerate(accents.items()):
+        # Check if all syllables in this unit set have the same accent
+        if all(any(ch in accent_chars for ch in norm) for _, _, norm in normalized):
+            accent_lists[i].append({(n, ord_): text for n, ord_, text in texts})
+
+
 def do_double_vs_double(u1, u2, accent_lists):
     """
     Special resolution vs resolution logic (both are 'double').
@@ -302,6 +345,29 @@ def do_double_vs_double(u1, u2, accent_lists):
         })
 
 
+def do_double_vs_double_polystrophic(units, accent_lists):
+    """
+    Check for accentual matches among double syllables across multiple strophes.
+    Matches for acute accents if:
+      - All first sub-syllables have acute
+      - OR all second sub-syllables have acute
+    """
+    first_acutes = all(has_acute(u['syll1']) for u in units)
+    second_acutes = all(has_acute(u['syll2']) for u in units)
+
+    # Case (a): All first sub-syllables have acute
+    if first_acutes:
+        accent_lists[0].append({
+            (u['line_n'], u['unit_ord']): u['syll1'].text or "" for u in units
+        })
+
+    # Case (b): All second sub-syllables have acute
+    if second_acutes:
+        accent_lists[0].append({
+            (u['line_n'], u['unit_ord']): u['syll2'].text or "" for u in units
+        })
+
+
 def do_double_vs_single(u_double, u_single, accent_lists):
     """
     Rule: "They respond if and only if the second syll in the pair 
@@ -325,6 +391,34 @@ def do_double_vs_single(u_double, u_single, accent_lists):
             (u_double['line_n'], u_double['unit_ord']): d2.text or "",
             (u_single['line_n'], u_single['unit_ord']): s_syll.text or ""
         })
+
+
+def do_mixed_single_double_polystrophic(units, accent_lists):
+    """
+    Handle accentual matches when some units are 'single' and others are 'double'.
+    Rule: Respond if:
+      - The single syllable is 'heavy'
+      - The double's second sub-syllable has an acute
+      - The single syllable has an acute
+    """
+    single_units = [u for u in units if u['type'] == 'single']
+    double_units = [u for u in units if u['type'] == 'double']
+
+    # Ensure all singles are heavy and have acute
+    if not all(is_heavy(u['syll']) and has_acute(u['syll']) for u in single_units):
+        return
+
+    # Ensure all doubles have acute on the second sub-syllable
+    if not all(has_acute(u['syll2']) for u in double_units):
+        return
+
+    # If conditions are satisfied, record matches
+    for u in single_units:
+        for d in double_units:
+            accent_lists[0].append({
+                (d['line_n'], d['unit_ord']): d['syll2'].text or "",
+                (u['line_n'], u['unit_ord']): u['syll'].text or ""
+            })
 
 
 def accentually_responding_syllables_of_line_pair(strophe_line, antistrophe_line):
@@ -380,6 +474,68 @@ def accentually_responding_syllables_of_line_pair(strophe_line, antistrophe_line
     return accent_lists
 
 
+def accentually_responding_syllables_of_lines_polystrophic(*strophe_lines):
+    """
+    Returns a triple-list [ [dict, ...], [dict, ...], [dict, ...] ]
+    for [acute_matches, grave_matches, circumflex_matches], 
+    across an arbitrary number of strophe lines.
+
+    If lines are not metrically responding => return False.
+
+    We only consider units that share the same ordinal index:
+      - single vs single => normal check for all accents
+      - double vs double => special rule for acute
+      - double vs single => special rule for acute
+      - single vs double => same logic, reversed
+    """
+    strophe_ids = [line.get('responsion') for line in strophe_lines]
+    line_numbers = [line.get('n') for line in strophe_lines]
+
+    # Check for metric responsion
+    if not metrically_responding_lines_polystrophic(*strophe_lines):
+        print(
+            f"accentually_responding_syllables_of_lines_polystrophic: "
+            f"Lines {line_numbers} in {strophe_ids} do not metrically respond."
+        )
+        return False
+
+    # Build accent units for all input lines
+    units_list = [build_units_for_accent(line) for line in strophe_lines]
+
+    # Ensure all lines have the same number of units
+    if not all(len(units) == len(units_list[0]) for units in units_list):
+        print(
+            f"accentually_responding_syllables_of_lines_polystrophic: "
+            f"Lines {line_numbers} in {strophe_ids} have mismatched unit counts."
+        )
+        return False
+
+    accent_lists = [[], [], []]  # [acutes, graves, circumflexes]
+
+    # Compare units at the same ordinal index across all lines
+    for units in zip(*units_list):
+        ordinals = {u['unit_ord'] for u in units}
+        if len(ordinals) > 1:
+            # Skip if units don't share the same ordinal index
+            continue
+
+        # Handle specific pairings
+        types = [u['type'] for u in units]
+        if all(t == 'single' for t in types):
+            # All lines have single syllables at this index
+            do_single_vs_single_polystrophic(units, accent_lists)
+
+        elif all(t == 'double' for t in types):
+            # All lines have double syllables at this index
+            do_double_vs_double_polystrophic(units, accent_lists)
+
+        else:
+            # Mixed single/double cases
+            do_mixed_single_double_polystrophic(units, accent_lists)
+
+    return accent_lists
+
+
 def accentually_responding_syllables_of_strophe_pair(strophe, antistrophe):
     """
     Takes a <strophe type="strophe" responsion="XXXX"> and
@@ -422,99 +578,3 @@ def accentually_responding_syllables_of_strophe_pair(strophe, antistrophe):
             combined_accent_lists[i].extend(line_accent_lists[i])
 
     return combined_accent_lists
-
-
-if __name__ == "__main__":
-    tree = etree.parse("responsion_nu_compiled.xml")
-
-    # Specify the responsion numbers to process
-    responsion_numbers = {"nu01"}
-
-    # Print ASCII logo at the start
-    print(r"""
-                                     _             
- _ __ ___  ___ _ __   ___  _ __  ___(_) ___  _ __  
-| '__/ _ \/ __| '_ \ / _ \| '_ \/ __| |/ _ \| '_ \ 
-| | |  __/\__ \ |_) | (_) | | | \__ \ | (_) | | | |
-|_|  \___||___/ .__/ \___/|_| |_|___/_|\___/|_| |_|
-              |_|                                  
-    """)
-
-    # Initialize counters for overall summary
-    overall_counts = {
-        'acute': 0,
-        'grave': 0,
-        'circumflex': 0
-    }
-
-    # Store individual responsion results
-    responsion_summaries = {}
-
-    # Collect and process all strophes and antistrophes matching the responsion numbers
-    for responsion in responsion_numbers:
-        strophes = tree.xpath(f'//strophe[@type="strophe" and @responsion="{responsion}"]')
-        antistrophes = tree.xpath(f'//strophe[@type="antistrophe" and @responsion="{responsion}"]')
-
-        # Ensure we only process matching pairs
-        if len(strophes) != len(antistrophes):
-            print(f"Mismatch in line count for responsion {responsion}: "
-                  f"{len(strophes)} strophes, {len(antistrophes)} antistrophes.\n")
-            continue
-
-        # Initialize responsion-specific counts
-        counts = {
-            'acute': 0,
-            'grave': 0,
-            'circumflex': 0
-        }
-
-        for strophe, antistrophe in zip(strophes, antistrophes):
-            accent_maps = accentually_responding_syllables_of_strophe_pair(strophe, antistrophe)
-
-            if accent_maps:
-                counts['acute'] += len(accent_maps[0])
-                counts['grave'] += len(accent_maps[1])
-                counts['circumflex'] += len(accent_maps[2])
-
-        # Store summary for the current responsion
-        responsion_summaries[responsion] = counts
-
-        # Accumulate totals for overall summary
-        overall_counts['acute'] += counts['acute']
-        overall_counts['grave'] += counts['grave']
-        overall_counts['circumflex'] += counts['circumflex']
-
-    # Print summary section
-    print("### SUMMARY: ###")
-    responsion_range = '-'.join(sorted(responsion_numbers))
-    print(f"Responsion: {responsion_range}")
-    print(f"Acute matches:      {overall_counts['acute']}")
-    print(f"Grave matches:      {overall_counts['grave']}")
-    print(f"Circumflex matches: {overall_counts['circumflex']}")
-    print("################\n")
-
-    # Proceed with detailed printouts for each responsion (original logic preserved)
-    for responsion, counts in responsion_summaries.items():
-        strophes = tree.xpath(f'//strophe[@type="strophe" and @responsion="{responsion}"]')
-        antistrophes = tree.xpath(f'//strophe[@type="antistrophe" and @responsion="{responsion}"]')
-
-        print(f"\nResponsion: {responsion}")
-        print(f"Acute matches:      {counts['acute']}")
-        print(f"Grave matches:      {counts['grave']}")
-        print(f"Circumflex matches: {counts['circumflex']}")
-        print("\nDetailed accent pairs (prettified):\n")
-
-        for strophe, antistrophe in zip(strophes, antistrophes):
-            accent_maps = accentually_responding_syllables_of_strophe_pair(strophe, antistrophe)
-            
-            if accent_maps:
-                labels = ["ACUTE", "GRAVE", "CIRCUMFLEX"]
-                for i, label in enumerate(labels):
-                    print(f"--- {label} MATCHES ({len(accent_maps[i])}) ---")
-                    for idx, pair_dict in enumerate(accent_maps[i], start=1):
-                        print(f"  Pair #{idx}:")
-                        for (line_id, unit_ord), text in pair_dict.items():
-                            print(f"    ({line_id}, ordinal={unit_ord}) => \"{text}\"")
-                        print()
-            else:
-                print(f"No accentual responsion found for responsion {responsion}.")
