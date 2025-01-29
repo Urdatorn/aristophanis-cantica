@@ -46,8 +46,8 @@ It extends `stats.py` with updated **barys and oxys detection rules** and handle
 
 """
 
+import argparse
 from lxml import etree
-from itertools import combinations
 
 from grc_utils import normalize_word
 from stats import (
@@ -157,8 +157,10 @@ def count_all_barys_oxys_canticum(tree, responsion):
 
 
 # ------------------------------------------------------------------------
-# 2) NEW BARYS/OXYS LOGIC
+# BARYS RESPONSION
 # ------------------------------------------------------------------------
+
+
 def has_circumflex(syll):
     """
     Returns True if the given syll element has a circumflex accent.
@@ -200,9 +202,11 @@ def barys_responsion(syll1, syll2, prev_syll1=None, prev_syll2=None):
     return False
 
 
-##############################################################################
-# 2a) OXYS LOGIC: updated criterion
-##############################################################################
+# ------------------------------------------------------------------------
+# OXYS RESPONSION
+# ------------------------------------------------------------------------
+
+
 def next_syll_is_light_or_none(curr_syll, all_sylls):
     """
     Returns True if 'curr_syll' is the last in its line
@@ -242,8 +246,10 @@ def oxys_responsion_single_syllables(s_syll, a_syll, all_sylls_1, all_sylls_2):
 
 
 # ------------------------------------------------------------------------
-# 3) HELPER FOR PRINTING BARYS / OXYS TEXT
+# HELPER FOR PRINTING BARYS / OXYS TEXT
 # ------------------------------------------------------------------------
+
+
 def get_barys_print_text(curr_syll, prev_syll):
     """
     For barys: if curr_syll has a circumflex, we just return it.
@@ -273,118 +279,9 @@ def get_oxys_print_text(curr_syll, next_syll):
     next_text = next_syll.text or ""
     return curr_text + next_text
 
-# ------------------------------------------------------------------------
-# 4) SINGLE-LINE HELPER FUNCS
-# ------------------------------------------------------------------------
-def do_barys_single_vs_single(u1, u2, barys_list, oxys_list, all_sylls_1, all_sylls_2):
-    """
-    Compare strophe single vs antistrophe single for barys or oxys matches.
-    If barys => if not purely circumflex, prepend the previous syll text.
-    If oxys => if next syll exists, append it.
-    """
-    s_syll = u1['syll']
-    a_syll = u2['syll']
-
-    def get_prev(syll, all_sylls):
-        try:
-            idx = all_sylls.index(syll)
-            if idx > 0:
-                return all_sylls[idx - 1]
-        except ValueError:
-            pass
-        return None
-
-    def get_next(syll, all_sylls):
-        try:
-            idx = all_sylls.index(syll)
-            if idx < len(all_sylls) - 1:
-                return all_sylls[idx + 1]
-        except ValueError:
-            pass
-        return None
-
-    prev_s_syll = get_prev(s_syll, all_sylls_1)
-    prev_a_syll = get_prev(a_syll, all_sylls_2)
-
-    # Barys check
-    if barys_responsion(s_syll, a_syll, prev_s_syll, prev_a_syll):
-        strophe_text = get_barys_print_text(s_syll, prev_s_syll)
-        anti_text    = get_barys_print_text(a_syll, prev_a_syll)
-
-        barys_list.append({
-            (u1['line_n'], u1['unit_ord']): strophe_text,
-            (u2['line_n'], u2['unit_ord']): anti_text
-        })
-
-    # Oxys check => use updated rule + print next syll text if present
-    elif oxys_responsion_single_syllables(s_syll, a_syll, all_sylls_1, all_sylls_2):
-        next_s_syll = get_next(s_syll, all_sylls_1)
-        next_a_syll = get_next(a_syll, all_sylls_2)
-
-        # build the "expanded" text
-        strophe_text = get_oxys_print_text(s_syll, next_s_syll)
-        anti_text    = get_oxys_print_text(a_syll, next_a_syll)
-
-        oxys_list.append({
-            (u1['line_n'], u1['unit_ord']): strophe_text,
-            (u2['line_n'], u2['unit_ord']): anti_text
-        })
-
-
-def do_barys_double_vs_double(u1, u2, barys_list, oxys_list):
-    """
-    Compare resolution pair vs resolution pair for barys or oxys.
-    We'll specifically check the 2nd sub-syllable in each pair with the 1st as 'prev'.
-
-    We do not fully implement the "append next syll text" here, 
-    but you can replicate the pattern if you want sub-syllable wise.
-    """
-    s1 = u1['syll1']
-    s2 = u1['syll2']
-    a1 = u2['syll1']
-    a2 = u2['syll2']
-
-    # Barys
-    if barys_responsion(s2, a2, prev_syll1=s1, prev_syll2=a1):
-        strophe_text = get_barys_print_text(s2, s1)
-        anti_text    = get_barys_print_text(a2, a1)
-
-        barys_list.append({
-            (u1['line_n'], u1['unit_ord']): strophe_text,
-            (u2['line_n'], u2['unit_ord']): anti_text
-        })
-
-    # If you want "oxys" for double sub-syllables, you'd do something similar here:
-    # elif <some condition>:
-    #    pass
-
-
-def do_barys_double_vs_single(u_double, u_single, barys_list, oxys_list):
-    """
-    Compare a double in strophe vs a single in antistrophe, or vice versa.
-    We'll check the 2nd sub-syllable in the double for barys/oxys.
-    For printing, we haven't added the next-syll logic, but you can adapt similarly if wanted.
-    """
-    d1 = u_double['syll1']
-    d2 = u_double['syll2']
-    s_syll = u_single['syll']
-
-    if barys_responsion(d2, s_syll, prev_syll1=d1, prev_syll2=None):
-        strophe_text = get_barys_print_text(d2, d1)
-        anti_text    = s_syll.text or ""
-
-        barys_list.append({
-            (u_double['line_n'], u_double['unit_ord']): strophe_text,
-            (u_single['line_n'], u_single['unit_ord']): anti_text
-        })
-
-    # For oxys, you can do a partial approach if desired
-    # elif <some condition>:
-    #     pass
-
 
 # ------------------------------------------------------------------------
-# 5) PER-LINE FUNCTION
+# PER-LINE FUNCTION
 # ------------------------------------------------------------------------
 
 
@@ -458,7 +355,7 @@ def barys_accentually_responding_syllables_of_lines(*lines):
 
 
 # ------------------------------------------------------------------------
-# 6) PER-STROPHE FUNCTION
+# PER-STROPHE FUNCTION
 # ------------------------------------------------------------------------
 
 
@@ -508,9 +405,18 @@ def barys_accentually_responding_syllables_of_strophes_polystrophic(*strophes):
 # MAIN
 # ------------------------------------------------------------------------
 
+
 if __name__ == "__main__":
+
+    # Parse command-line arguments
+    parser = argparse.ArgumentParser(description="Analyze responsion statistics for a play.")
+    parser.add_argument("infix", help="Infix of the play file (e.g., 'ach' for 'responsion_ach_compiled.xml').")
+    args = parser.parse_args()
+
+    input_file = f"responsion_{args.infix}_compiled.xml"
+
     # Parse the XML tree
-    tree = etree.parse("responsion_ach_compiled.xml")
+    tree = etree.parse(input_file)
 
     # Get all unique responsion numbers
     responsion_numbers = set(
