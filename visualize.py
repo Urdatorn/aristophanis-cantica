@@ -221,10 +221,15 @@ def visualize_responsion(responsion, xml):
 
 
 if __name__ == "__main__":
-    if len(sys.argv) != 2:
-        print("Usage: python visualize.py <responsion_number>")
-        sys.exit(1)
-
-    input_file = "responsion_v_compiled.xml"
-    responsion_number = sys.argv[1]
-    visualize_responsion(responsion_number, xml=input_file)
+    
+    pattern = r"^[A-Za-z]+"  # Match letters only
+    match = re.match(pattern, sys.argv[1])
+    
+    if match:
+        infix = match.group()  # Extract matched text
+        input_file = f"responsion_{infix}_compiled.xml"
+        
+        responsion_number = sys.argv[1]
+        visualize_responsion(responsion_number, xml=input_file)
+    else:
+        print(f"Error: Could not extract an infix from '{sys.argv[1]}'", file=sys.stderr)
