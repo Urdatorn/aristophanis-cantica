@@ -52,7 +52,7 @@ from itertools import combinations
 from grc_utils import normalize_word
 from stats import (
     polystrophic,
-    metrically_responding_lines,    # same line-to-line matching
+    metrically_responding_lines_polystrophic,
     build_units_for_accent,         # same 'unit' building logic
     is_heavy,                       # same helper
     has_acute,                      # same helper
@@ -386,74 +386,116 @@ def do_barys_double_vs_single(u_double, u_single, barys_list, oxys_list):
 # ------------------------------------------------------------------------
 # 5) PER-LINE FUNCTION
 # ------------------------------------------------------------------------
-def barys_accentually_responding_syllables_of_line_pair(strophe_line, antistrophe_line):
+
+
+def barys_accentually_responding_syllables_of_lines(*lines):
     """
-    Returns [barys_list, oxys_list] if they are metrically responding, else False.
+    Processes barys and oxys responsion for any number of metrically responding lines.
+
+    Parameters:
+    *lines: Variable number of <l> elements (lines).
+
+    Returns:
+    list: [barys_list, oxys_list], or False if mismatch.
     """
-    if not metrically_responding_lines(strophe_line, antistrophe_line):
+    if not metrically_responding_lines_polystrophic(*lines):
+        print(f"Lines {[line.get('n') for line in lines]} do not metrically respond.")
         return False
 
-    units1 = build_units_for_accent(strophe_line)
-    units2 = build_units_for_accent(antistrophe_line)
+    # Build accent units for each line
+    all_units = []
+    for line in lines:
+        line_units = build_units_for_accent(line)
+        for unit in line_units:
+            unit['line'] = line  # Attach the `line` key
+        all_units.append(line_units)
 
-    if len(units1) != len(units2):
+    # Ensure all lines have the same number of units
+    unit_counts = [len(units) for units in all_units]
+    if len(set(unit_counts)) > 1:
+        print(f"Unit count mismatch across lines {[line.get('n') for line in lines]}.")
         return False
-
-    all_sylls_1 = strophe_line.findall('.//syll')
-    all_sylls_2 = antistrophe_line.findall('.//syll')
 
     barys_list = []
-    oxys_list  = []
+    oxys_list = []
 
-    for u1, u2 in zip(units1, units2):
-        if u1['unit_ord'] != u2['unit_ord']:
-            continue
+    # Process units at each index across all lines
+    for unit_idx in range(unit_counts[0]):
+        units = [units_list[unit_idx] for units_list in all_units]
 
-        # single vs single
-        if u1['type'] == 'single' and u2['type'] == 'single':
-            do_barys_single_vs_single(u1, u2, barys_list, oxys_list, all_sylls_1, all_sylls_2)
+        # Get full syllable lists for each line
+        all_syll_lists = [unit['line'].findall('.//syll') for unit in units]
 
-        # double vs double
-        elif u1['type'] == 'double' and u2['type'] == 'double':
-            do_barys_double_vs_double(u1, u2, barys_list, oxys_list)
+        # Retrieve syllables, previous syllables, and next syllables
+        sylls = [u['syll'] if u['type'] == 'single' else u['syll2'] for u in units]
+        prev_sylls = []
+        next_sylls = []
 
-        # double vs single
-        elif u1['type'] == 'double' and u2['type'] == 'single':
-            do_barys_double_vs_single(u1, u2, barys_list, oxys_list)
+        for u, syll_list, syll in zip(units, all_syll_lists, sylls):
+            try:
+                idx = syll_list.index(syll)
+                prev_sylls.append(syll_list[idx - 1] if idx > 0 else None)
+                next_sylls.append(syll_list[idx + 1] if idx < len(syll_list) - 1 else None)
+            except ValueError:
+                prev_sylls.append(None)
+                next_sylls.append(None)
 
-        # single vs double
-        elif u1['type'] == 'single' and u2['type'] == 'double':
-            do_barys_double_vs_single(u2, u1, barys_list, oxys_list)
+        # Check for barys responsion
+        if all(barys_responsion(syll, sylls[0], prev_syll, prev_sylls[0]) for syll, prev_syll in zip(sylls, prev_sylls)):
+            barys_list.append({
+                (u['line_n'], u['unit_ord']): get_barys_print_text(syll, prev_syll)
+                for u, syll, prev_syll in zip(units, sylls, prev_sylls)
+            })
+
+        # Check for oxys responsion
+        if all(oxys_responsion_single_syllables(syll, sylls[0], u['line'].findall('.//syll'), units[0]['line'].findall('.//syll')) for syll, u in zip(sylls, units)):
+            oxys_list.append({
+                (u['line_n'], u['unit_ord']): get_oxys_print_text(syll, next_syll)
+                for u, syll, next_syll in zip(units, sylls, next_sylls)
+            })
 
     return [barys_list, oxys_list]
+
 
 # ------------------------------------------------------------------------
 # 6) PER-STROPHE FUNCTION
 # ------------------------------------------------------------------------
-def barys_accentually_responding_syllables_of_strophe_pair(strophe, antistrophe):
+
+
+def barys_accentually_responding_syllables_of_strophes_polystrophic(*strophes):
     """
-    For each matching pair of <l> lines, gather barys/oxys matches, 
-    returning [ [barys], [oxys] ] or False if mismatch.
+    Processes barys and oxys responsion for any number of strophes.
+
+    Parameters:
+    *strophes: Variable number of <strophe> elements.
+
+    Returns:
+    list: [barys_list, oxys_list], or False if mismatch.
     """
-    if strophe.get('responsion') != antistrophe.get('responsion'):
+    # Ensure all strophes share the same responsion
+    responsions = {strophe.get('responsion') for strophe in strophes}
+    if len(responsions) != 1:
+        print(f"Strophes have mismatched responsions: {responsions}")
         return False
 
-    s_lines = strophe.findall('l')
-    a_lines = antistrophe.findall('l')
+    # Extract lines from each strophe
+    strophe_lines = [strophe.findall('l') for strophe in strophes]
 
-    if len(s_lines) != len(a_lines):
+    # Ensure all strophes have the same number of lines
+    line_counts = [len(lines) for lines in strophe_lines]
+    if len(set(line_counts)) > 1:
+        print(f"Line count mismatch across strophes: {line_counts}")
         return False
 
     combined_barys = []
-    combined_oxys  = []
+    combined_oxys = []
 
-    for s_line, a_line in zip(s_lines, a_lines):
-        if not metrically_responding_lines(s_line, a_line):
-            print(f"Lines {s_line.get('n')} and {a_line.get('n')} do not metrically respond.")
-            return False
-
-        line_barys_oxys = barys_accentually_responding_syllables_of_line_pair(s_line, a_line)
+    # Process each line group across all strophes
+    for line_group in zip(*strophe_lines):  # Transpose the line matrix
+        # Evaluate responsion for the current line group
+        line_barys_oxys = barys_accentually_responding_syllables_of_lines(*line_group)
         if line_barys_oxys is False:
+            print(f"Lines {[line.get('n') for line in line_group]} do not metrically respond.")
             return False
 
         combined_barys.extend(line_barys_oxys[0])
@@ -463,71 +505,8 @@ def barys_accentually_responding_syllables_of_strophe_pair(strophe, antistrophe)
 
 
 # ------------------------------------------------------------------------
-# 6) PER-CANTICUM FUNCTION (FOR POLYSTROPHIC CANTICA)
-# ------------------------------------------------------------------------
-
-
-def barys_accentually_responding_syllables_of_polystrophic_canticum(canticum_strophes):
-    """
-    Computes barys and oxys matches for a polystrophic canticum by considering
-    all pairwise combinations of the strophes and aggregating matches into n-tuples.
-
-    Parameters:
-    canticum_strophes (list): List of strophes in the canticum.
-
-    Returns:
-    list: A list of barys matches and a list of oxys matches, where each match
-          includes one entry from each strophe.
-    """
-    # Initialize matches
-    n = len(canticum_strophes)
-    aggregated_barys = {}
-    aggregated_oxys = {}
-
-    # Generate all combinations of strophe pairs (n choose 2)
-    strophe_combinations = combinations(canticum_strophes, 2)
-
-    for strophe1, strophe2 in strophe_combinations:
-        # Compute barys and oxys for the current pair
-        pair_results = barys_accentually_responding_syllables_of_strophe_pair(strophe1, strophe2)
-        if not pair_results:
-            continue  # Skip non-responding pairs
-
-        pair_barys, pair_oxys = pair_results
-
-        # For each barys match in this pair, aggregate into an n-tuple
-        for match in pair_barys:
-            key = tuple(sorted(match.keys()))  # Identify the match by its syllable keys
-            if key not in aggregated_barys:
-                aggregated_barys[key] = set()
-            aggregated_barys[key].update(match.items())
-
-        # For each oxys match in this pair, aggregate into an n-tuple
-        for match in pair_oxys:
-            key = tuple(sorted(match.keys()))  # Identify the match by its syllable keys
-            if key not in aggregated_oxys:
-                aggregated_oxys[key] = set()
-            aggregated_oxys[key].update(match.items())
-
-    # Filter out partial matches to ensure only full n-tuples are included
-    barys_n_tuples = [
-        {key: value for key, value in match}
-        for match in aggregated_barys.values()
-        if len(match) == n
-    ]
-    oxys_n_tuples = [
-        {key: value for key, value in match}
-        for match in aggregated_oxys.values()
-        if len(match) == n
-    ]
-
-    return barys_n_tuples, oxys_n_tuples
-
-
-# ------------------------------------------------------------------------
 # MAIN
 # ------------------------------------------------------------------------
-
 
 if __name__ == "__main__":
     # Parse the XML tree
@@ -548,13 +527,16 @@ if __name__ == "__main__":
             print("Polystrophic: Yes")
 
             # Get all strophes for the responsion
-            strophes = tree.xpath(f'//strophe[@type="strophe" and @responsion="{responsion}"]')
+            strophes = tree.xpath(f'//strophe[@responsion="{responsion}"]')
 
-            # Use polystrophic processing
-            barys_oxys_results = barys_accentually_responding_syllables_of_polystrophic_canticum(strophes)
+            # Use updated polystrophic processing
+            barys_oxys_results = barys_accentually_responding_syllables_of_strophes_polystrophic(*strophes)
 
-            barys_list = barys_oxys_results[0]
-            oxys_list = barys_oxys_results[1]
+            if not barys_oxys_results:
+                print("No valid barys/oxys matches found.\n")
+                continue  # Skip to next responsion if no results
+
+            barys_list, oxys_list = barys_oxys_results
 
             print(f"Barys matches: {len(barys_list)}")
             print(f"Oxys matches:  {len(oxys_list)}\n")
@@ -585,12 +567,15 @@ if __name__ == "__main__":
 
             # Process the first strophe and antistrophe pair
             if strophes and antistrophes:
-                accent_maps = barys_accentually_responding_syllables_of_strophe_pair(strophes[0], antistrophes[0])
+                barys_oxys_results = barys_accentually_responding_syllables_of_strophes_polystrophic(strophes[0], antistrophes[0])
             else:
-                accent_maps = [[], []]  # No valid pairs
+                barys_oxys_results = [[], []]  # No valid pairs
 
-            barys_list = accent_maps[0]
-            oxys_list = accent_maps[1]
+            if not barys_oxys_results:
+                print("No valid barys/oxys matches found.\n")
+                continue  # Skip to next responsion if no results
+
+            barys_list, oxys_list = barys_oxys_results
 
             print(f"Barys matches: {len(barys_list)}")
             print(f"Oxys matches:  {len(oxys_list)}\n")
