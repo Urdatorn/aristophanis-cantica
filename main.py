@@ -18,7 +18,7 @@ from stats import (
     count_all_accents_canticum
 )
 from stats_barys import (
-    barys_accentually_responding_syllables_of_polystrophic_canticum,
+    barys_accentually_responding_syllables_of_lines,
     count_all_barys_oxys,
     count_all_barys_oxys_canticum
 )
@@ -81,10 +81,27 @@ def process_barys_responsions(tree, responsion_numbers):
             print(f"Insufficient strophes for responsion {responsion}.\n")
             continue
 
-        barys_maps, oxys_maps = barys_accentually_responding_syllables_of_polystrophic_canticum(strophes)
+        # Extract corresponding lines from each strophe
+        strophe_lines = [strophe.findall('l') for strophe in strophes]
 
-        barys_count = len(barys_maps)
-        oxys_count = len(oxys_maps)
+        # Ensure all strophes have the same number of lines
+        num_lines = len(strophe_lines[0])
+        if any(len(lines) != num_lines for lines in strophe_lines):
+            print(f"Mismatch in line counts for responsion {responsion}.")
+            continue
+
+        # Initialize lists for barys/oxys results
+        all_barys_maps = []
+        all_oxys_maps = []
+
+        # Process each set of corresponding lines
+        for line_group in zip(*strophe_lines):
+            barys_maps, oxys_maps = barys_accentually_responding_syllables_of_lines(*line_group)
+            all_barys_maps.extend(barys_maps)
+            all_oxys_maps.extend(oxys_maps)
+
+        barys_count = len(all_barys_maps)
+        oxys_count = len(all_oxys_maps)
 
         barys_summaries[responsion] = {'barys': barys_count, 'oxys': oxys_count}
         barys_total += barys_count
