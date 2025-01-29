@@ -171,8 +171,6 @@ def metre_strophe_with_accents(strophe, antistrophe):
     return "\n".join(lines_output)
 
 
-from lxml import etree
-
 def visualize_responsion(responsion, xml):
     tree = etree.parse(xml)
 
@@ -188,25 +186,27 @@ def visualize_responsion(responsion, xml):
     GREEN = '\033[32m'
     RESET = '\033[0m'
 
+    colored_char_count = 0  # Counter for colored characters
+
     def color_accents(text):
         """
-        Color '^' and "'" characters ONLY on metre lines that match patterns like:
-        "<digits>[a-zA-Z]?:" or "<digits>[a-zA-Z]?-<digits>[a-zA-Z]?:"
-        This ensures the restored text (which does not begin that way) remains uncolored.
+        Color '^' and "'" characters ONLY on metre lines that match specific patterns.
+        Also, count how many characters got colored.
         """
-        # ANSI color codes
-        RED = '\033[31m'
-        GREEN = '\033[32m'
-        RESET = '\033[0m'
-        
+        nonlocal colored_char_count
         lines = text.split('\n')
         colored_lines = []
+
         for line in lines:
-            # Check if this line is a 'metre line' based on the updated pattern
             if re.match(r'^\d+[a-zA-Z]?(?:-\d+[a-zA-Z]?)?:', line.strip()):
-                # Apply color replacements only here
+                # Count the number of characters being wrapped in ANSI codes
+                colored_char_count += line.count('^') + line.count("'")
+
+                # Apply color replacements
                 line = line.replace('^', f"{RED}^{RESET}").replace("'", f"{GREEN}'{RESET}")
+
             colored_lines.append(line)
+
         return '\n'.join(colored_lines)
 
     for strophe, antistrophe in zip(strophes, antistrophes):
@@ -219,9 +219,11 @@ def visualize_responsion(responsion, xml):
         antistrophe_text = metre_strophe_with_accents(antistrophe, strophe)
         print(color_accents(antistrophe_text))
 
+    # Print how many characters were actually colored
+    print(f"\nTotal responding accents colored: \033[36m{colored_char_count}\033[0m")
+
 
 if __name__ == "__main__":
-    
     pattern = r"^[A-Za-z]+"  # Match letters only
     match = re.match(pattern, sys.argv[1])
     
