@@ -11,17 +11,16 @@ import concurrent.futures
 # Updated import from significance.py
 from significance import SignificanceTester
 
-# ADD IMPORTS for single-canticum counting
 from stats import (
-    accentually_responding_syllables_of_strophe_pair,
+    accentually_responding_syllables_of_strophes_polystrophic,
     count_all_syllables,
     count_all_accents,
-    count_all_accents_canticum  # <-- import for single canticum totals
+    count_all_accents_canticum
 )
 from stats_barys import (
-    barys_accentually_responding_syllables_of_strophe_pair,
+    barys_accentually_responding_syllables_of_polystrophic_canticum,
     count_all_barys_oxys,
-    count_all_barys_oxys_canticum  # <-- import for single canticum totals
+    count_all_barys_oxys_canticum
 )
 
 ALLOWED_INFIXES = [
@@ -48,71 +47,48 @@ def get_all_responsion_numbers(tree):
 
 
 def process_responsions(tree, responsion_numbers):
-    """
-    For each canticum in responsion_numbers, find how many accentually matching syllables
-    (acute, grave, circumflex) appear in each strophe-antistrophe pair.
-    """
     overall_counts = {'acute': 0, 'grave': 0, 'circumflex': 0}
     responsion_summaries = {}
 
     for responsion in responsion_numbers:
-        strophes = tree.xpath(f'//strophe[@type="strophe" and @responsion="{responsion}"]')
-        antistrophes = tree.xpath(f'//strophe[@type="antistrophe" and @responsion="{responsion}"]')
+        strophes = tree.xpath(f'//strophe[@responsion="{responsion}"]')
 
-        if len(strophes) != len(antistrophes):
-            print(f"Mismatch in line count for responsion {responsion}: "
-                  f"{len(strophes)} strophes, {len(antistrophes)} antistrophes.\n")
+        if len(strophes) < 2:
+            print(f"Insufficient strophes for responsion {responsion}.\n")
             continue
 
-        counts = {'acute': 0, 'grave': 0, 'circumflex': 0}
-        for strophe, antistrophe in zip(strophes, antistrophes):
-            accent_maps = accentually_responding_syllables_of_strophe_pair(strophe, antistrophe)
-            if accent_maps:
-                counts['acute']      += len(accent_maps[0])
-                counts['grave']      += len(accent_maps[1])
-                counts['circumflex'] += len(accent_maps[2])
+        accent_maps = accentually_responding_syllables_of_strophes_polystrophic(*strophes)
 
+        counts = {'acute': len(accent_maps[0]), 'grave': len(accent_maps[1]), 'circumflex': len(accent_maps[2])}
         responsion_summaries[responsion] = counts
 
-        overall_counts['acute']      += counts['acute']
-        overall_counts['grave']      += counts['grave']
+        overall_counts['acute'] += counts['acute']
+        overall_counts['grave'] += counts['grave']
         overall_counts['circumflex'] += counts['circumflex']
 
     return overall_counts, responsion_summaries
 
 
 def process_barys_responsions(tree, responsion_numbers):
-    """
-    For each canticum in responsion_numbers, find how many barys/oxys matches appear
-    in each strophe-antistrophe pair.
-    """
     barys_total = 0
     oxys_total = 0
     barys_summaries = {}
 
     for responsion in responsion_numbers:
-        strophes = tree.xpath(f'//strophe[@type="strophe" and @responsion="{responsion}"]')
-        antistrophes = tree.xpath(f'//strophe[@type="antistrophe" and @responsion="{responsion}"]')
+        strophes = tree.xpath(f'//strophe[@responsion="{responsion}"]')
 
-        if len(strophes) != len(antistrophes):
-            print(f"Mismatch in line count for responsion {responsion}: "
-                  f"{len(strophes)} strophes, {len(antistrophes)} antistrophes.\n")
+        if len(strophes) < 2:
+            print(f"Insufficient strophes for responsion {responsion}.\n")
             continue
 
-        barys_count = 0
-        oxys_count = 0
-        for strophe, antistrophe in zip(strophes, antistrophes):
-            barys_maps = barys_accentually_responding_syllables_of_strophe_pair(strophe, antistrophe)
-            if barys_maps:
-                barys_count += len(barys_maps[0])
-                oxys_count  += len(barys_maps[1])
+        barys_maps, oxys_maps = barys_accentually_responding_syllables_of_polystrophic_canticum(strophes)
 
-        barys_summaries[responsion] = {
-            'barys': barys_count,
-            'oxys':  oxys_count
-        }
+        barys_count = len(barys_maps)
+        oxys_count = len(oxys_maps)
+
+        barys_summaries[responsion] = {'barys': barys_count, 'oxys': oxys_count}
         barys_total += barys_count
-        oxys_total  += oxys_count
+        oxys_total += oxys_count
 
     return barys_total, oxys_total, barys_summaries
 
@@ -337,32 +313,17 @@ if __name__ == "__main__":
 
                 input_file = f"responsion_{infix}_compiled.xml"
                 if os.path.exists(input_file):
-                    # Keep track of the infix
+                    
                     if infix in ALLOWED_INFIXES and infix not in infix_list:
                         infix_list.append(infix)
 
                     tree = etree.parse(input_file)
                     responsion_numbers.add(responsion)
 
-                    # Now we want to compute the total accent counts and total barys/oxys
-                    # only for *this* canticum, so we use count_all_accents_canticum, etc.
                     c_counts = count_all_accents_canticum(tree, responsion)
                     for key in total_counts:
                         total_counts[key] += c_counts[key]
 
-                    # If you also maintain a total syllable count per canticum, you could do:
-                    # total_syllables_canticum = count_all_syllables_canticum(...)
-                    # For now, reusing the overall file syllable count might not be correct.
-                    # If you have a canticum-specific syllable function, plug it in here:
-                    #
-                    # total_syllables_canticum = count_all_syllables_canticum(tree, responsion)
-                    # total_syllables += total_syllables_canticum
-                    #
-                    # If you do NOT have a specialized function, you can do partial logic yourself.
-                    # Let's skip it for now or just do:
-                    # total_syllables += total_syllables_canticum  # if the function is available.
-
-                    # Now we get the matches
                     file_overall, file_summaries = process_responsions(tree, {responsion})
                     for key in overall_counts:
                         overall_counts[key] += file_overall[key]
@@ -370,6 +331,7 @@ if __name__ == "__main__":
 
                     # Barys/oxys for only that canticum
                     c_barys_dict = count_all_barys_oxys_canticum(tree, responsion)
+                    print(f"Found {c_barys_dict['barys']} barys and {c_barys_dict['oxys']} oxys for {arg}.")
                     total_barys += c_barys_dict['barys']
                     total_oxys  += c_barys_dict['oxys']
 

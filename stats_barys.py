@@ -3,30 +3,53 @@
 """
 stats_barys.py
 
-A variant of stats.py that implements barys/oxys accentual responsion,
-and prints combined text if:
- - barys is from heavy+acute logic (prepend previous syllable),
- - oxys is from the new rule (append next syllable's text).
+This script analyzes **barys/oxys accentual responsion** in **strophic poetry**, specifically in Ancient Greek cantica.
+It extends `stats.py` with updated **barys and oxys detection rules** and handles both **single responsion** and **polystrophic responsion**.
 
-Updated oxys criteria for single vs single:
-   Two single syllables respond "oxys" iff:
-    1) both have acute
-    2) each is either the last syll in its line OR followed by a light syllable
-Weight of the oxys syllable is irrelevant.
+------------------------------
+## **Logic Flow**
+------------------------------
 
-Also, for printing we now combine the matched syllable's text with
-the NEXT syllable's text if present, e.g. "ἄξ" + "ε" => "ἄξε".
+1) **XML Parsing & Data Extraction**
+   - Parses a TEI-XML formatted **responsion_ach_compiled.xml**.
+   - Extracts **syllables** and their attributes (accent, weight, position).
+   - Groups **lines** into **strophes** and **antistrophes** based on responsion structure.
+
+2) **Barys and Oxys Detection**
+   - **Barys:** A syllable qualifies if:
+     - It has a **circumflex accent**, OR
+     - It is **heavy** and its **preceding syllable has an acute**.
+   - **Oxys:** Two single syllables respond "oxys" if:
+     - Both have an **acute accent**, AND
+     - Each is **either the last syllable** in its line OR **followed by a light syllable**.
+
+3) **Line-based Responsion Processing**
+   - Checks if **two lines metrically respond**.
+   - Extracts **units of accent comparison** (single or resolution-pair).
+   - **Matches syllables** between corresponding positions in the two lines.
+   - Stores **barys and oxys matches**.
+
+4) **Strophe-based Responsion Processing**
+   - Groups **corresponding lines** in **strophe-antistrophe pairs**.
+   - Applies line-based responsion logic to **each line pair**.
+   - Aggregates **barys and oxys matches** across the strophe.
+
+5) **Polystrophic Responsion Handling**
+   - Handles **multiple strophes** in **polystrophic cantica**.
+   - Uses **pairwise comparisons** across strophes.
+   - Aggregates **only complete n-tuples**, ensuring all strophes participate in each match.
+
+6) **Output Formatting**
+   - Prints **total counts** of barys/oxys matches for each canticum.
+   - Lists **each match with its exact syllable position and text**.
+   - **Polystrophic matches** are formatted separately with **n-tuple alignment**.
+
 """
 
 from lxml import etree
 from itertools import combinations
 
 from grc_utils import normalize_word
-
-# ------------------------------------------------------------------------
-# 1) IMPORT WHAT'S UNCHANGED FROM stats.py
-# ------------------------------------------------------------------------
-# Adjust these imports based on your actual code organization and exports in stats.py
 from stats import (
     polystrophic,
     metrically_responding_lines,    # same line-to-line matching
@@ -508,7 +531,7 @@ def barys_accentually_responding_syllables_of_polystrophic_canticum(canticum_str
 
 if __name__ == "__main__":
     # Parse the XML tree
-    tree = etree.parse("responsion_acharnenses_compiled.xml")
+    tree = etree.parse("responsion_ach_compiled.xml")
 
     # Get all unique responsion numbers
     responsion_numbers = set(
