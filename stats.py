@@ -112,7 +112,7 @@ def canonical_sylls(xml_line):
     Transforms a scanned line into an abstract metre representation.
 
     Returns a list of 'weights' for the line, with the following rules:
-      - Contraction: A heavy syllable with contraction="True" counts as two 'light'.
+      - Contraction: For simplicity's sake I'm treating contr. as an inverse resolution with no special logic
       - Resolution: Two consecutive syllables both with resolution="True" count as one 'heavy'.
       - Anceps: A syllable with anceps="True" becomes 'anceps', ignoring weight.
       - Brevis in longo: A syllable with brevis_in_longo="True" is treated as 'heavy'.
@@ -126,7 +126,6 @@ def canonical_sylls(xml_line):
         current = syllables[i]
         is_anceps = current.get('anceps') == 'True'
         is_res = current.get('resolution') == 'True'
-        is_contraction = current.get('contraction') == 'True'
         is_brevis_in_longo = current.get('brevis_in_longo') == 'True'
         current_weight = current.get('weight', '')
 
@@ -139,12 +138,6 @@ def canonical_sylls(xml_line):
         # (b) If anceps => 'anceps'
         if is_anceps:
             result.append('anceps')
-            i += 1
-            continue
-
-        # (c) Contraction logic: heavy with contraction="True" => 'light', 'light'
-        if is_contraction and current_weight == 'heavy':
-            result.extend(['light', 'light'])
             i += 1
             continue
 
@@ -200,7 +193,8 @@ def metrically_responding_lines_polystrophic(*strophes):
     line_lengths = [len(line) for line in strophe_lines]
     if len(set(line_lengths)) != 1:
         strophe_ids = ", ".join(strophe.get("n", "unknown") for strophe in strophes)
-        print(f"metrically_responding_strophes: Strophes {strophe_ids} have differing syllable counts.")
+        print(f"metrically_responding_lines_polystrophic: Strophes {strophe_ids} have differing syllable counts.")
+        print(f"Line lengths: {line_lengths}")
         return False
 
     # Compare syllables at each position across all strophes
