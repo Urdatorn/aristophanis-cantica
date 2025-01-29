@@ -137,7 +137,14 @@ def print_combined_summary(
     total_accent_percent = (total_responsive / total_all_accents * 100) if total_all_accents > 0 else 0
 
     # Barys/Oxys calculations
-    all_barys_oxys = count_all_barys_oxys(tree)
+    if len(responsion_numbers) == 1:
+        # Single canticum case: use only this canticum's total Barys/Oxys
+        responsion = next(iter(responsion_numbers))
+        all_barys_oxys = count_all_barys_oxys_canticum(tree, responsion)
+    else:
+        # Full play case: use total Barys/Oxys in the entire play
+        all_barys_oxys = count_all_barys_oxys(tree)
+
     total_potential_barys = all_barys_oxys['barys']
     total_potential_oxys = all_barys_oxys['oxys']
     total_potential = total_potential_barys + total_potential_oxys
@@ -280,10 +287,15 @@ if __name__ == "__main__":
                     overall_counts[key] += file_overall[key]
                 merge_summaries(resp_summaries, file_summaries)
 
-                # Count barys/oxys responsion matches
-                file_barys, file_oxys, _ = process_barys_responsions(tree, responsion_nums)
-                total_barys += file_barys
-                total_oxys  += file_oxys
+                if len(responsion_numbers) == 1:
+                    # Single canticum case: process only this responsion
+                    responsion = next(iter(responsion_numbers))
+                    total_barys, total_oxys, _ = process_barys_responsions(tree, {responsion})
+                else:
+                    # Multiple cantica case: process all responsions normally
+                    file_barys, file_oxys, _ = process_barys_responsions(tree, responsion_numbers)
+                    total_barys += file_barys
+                    total_oxys  += file_oxys
 
     else:
         # If we do have arguments, handle them
@@ -347,10 +359,18 @@ if __name__ == "__main__":
                     merge_summaries(resp_summaries, file_summaries)
 
                     # Barys/oxys for only that canticum
+                    # Get total barys/oxys accents in the canticum (denominator)
                     c_barys_dict = count_all_barys_oxys_canticum(tree, responsion)
-                    print(f"Found {c_barys_dict['barys']} barys and {c_barys_dict['oxys']} oxys for {arg}.")
-                    total_barys += c_barys_dict['barys']
-                    total_oxys  += c_barys_dict['oxys']
+                    total_potential_barys = c_barys_dict['barys']
+                    total_potential_oxys = c_barys_dict['oxys']
+
+                    # Get actual barys/oxys responsions (numerator)
+                    file_barys, file_oxys, _ = process_barys_responsions(tree, {responsion})
+                    total_barys = file_barys  # Correct numerator: actual responsions found
+                    total_oxys = file_oxys    # Correct numerator: actual responsions found
+
+                    print(f"Found {total_barys} barys responsions and {total_oxys} oxys responsions for {arg}.")
+                    print(f"Total potential: {total_potential_barys} barys and {total_potential_oxys} oxys.")
 
                 else:
                     print(f"File not found for {arg}, skipping...", file=sys.stderr)
