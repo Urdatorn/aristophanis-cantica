@@ -2,6 +2,8 @@ import xml.etree.ElementTree as ET
 
 from visualize import restore_text
 from vowels import vowel
+from clitics import is_enclitic, is_proclitic
+from stats import accents
 
 line = '<l n="204" metre="4 tr^" speaker="ΧΟ."><syll weight="heavy">Τῇ</syll><syll weight="light">δε</syll> <syll weight="heavy">πᾶ</syll><syll weight="light" anceps="True">ς ἕ</syll><syll weight="heavy">που</syll>, <syll weight="light">δί</syll><syll weight="heavy">ω</syll><syll weight="light" anceps="True">κε</syll> <syll weight="heavy">καὶ</syll> <syll weight="light">τὸ</syll><syll weight="heavy">ν ἄν</syll><syll weight="light" anceps="True">δρα</syll> <syll weight="heavy">πυν</syll><syll weight="light">θά</syll><syll weight="heavy">νου</syll> </l>'
 root = ET.fromstring(line)
@@ -96,3 +98,59 @@ if words_xml == ['<syll weight="heavy">Τῇ</syll><syll weight="light">δε</sy
 test = '<syll weight="light" anceps="True">ς ἕ</syll>'
 test_xml = ET.fromstring(test)
 print(space_before(test_xml)) # False
+
+
+def get_contours(l_element):
+        """Iterates through a list of Syllables objects and creates a list of melodic contours."""
+
+        contours = []
+        pre_accent = True
+        last_contour = ''
+
+        syllables = [child for child in l_element if child.tag == "syll"]
+        for i, s in enumerate(syllables):
+            contour = ''
+            next_syll = syllables[i + 1] if i + 1 < len(syllables) else None
+
+            # Check for word-end in middle of resolved syllable [CHECK]
+            is_res = s.get('resolution') == 'True'
+            if is_res and ' ' in s.text:
+                pre_accent = True
+            
+            # Check for ENCLITICS (excluding τοῦ), and correct previous syllable [CHECK]
+            if s.text and is_enclitic(s.text) and not is_proclitic(s.text):
+                if contours and contours[-1] == 'N':
+                    contours[-1] = last_contour
+                    pre_accent = False
+
+            # MAIN ACCENT followed by characteristic fall [CHECK]
+            if s.text and any(ch in accents['acute'] or ch in accents['circumflex'] for ch in s.text):
+                if pre_accent:
+                    contour = 'DN-A'
+                    pre_accent = False
+                else:  # unless a second accent caused by an enclitic
+                    contour = 'DN'
+            # BEFORE ACCENT, the melody rises
+            elif pre_accent:
+                contour = 'UP'
+            # AFTER ACCENT, the melody falls
+            elif not pre_accent:
+                contour = 'DN'
+
+            # WORD END can be followed by any note [CHECK]
+            word_end = space_after(s) or (s.tail and " " in s.tail) or (next_syll is not None and space_before(next_syll))
+            if word_end:
+                last_contour = contour  # copy contour in case of subsequent enclitic
+                contour = 'N'
+                pre_accent = True
+
+            # Except PROCLITICS and GRAVES followed by a very small rise or a repetition
+            if (s.text and is_proclitic(s.text)) or any(ch in accents['grave'] for ch in s.text):
+                contour = 'UP-G'
+
+            contours.append(contour)
+
+        return contours
+
+contours = get_contours(root)
+print(contours)

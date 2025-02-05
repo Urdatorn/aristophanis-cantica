@@ -633,10 +633,10 @@ def accentually_responding_syllables_of_strophes_polystrophic(*strophes):
 
 
 if __name__ == "__main__":
-    tree = etree.parse("responsion_nu_compiled.xml")
+    tree = etree.parse("responsion_ach_compiled.xml")
 
     # Specify the responsion numbers to process
-    responsion_numbers = {"nu01"}
+    responsion_numbers = {"ach01"}
 
     # Print ASCII logo at the start
     print(r"""

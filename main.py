@@ -13,6 +13,7 @@ from significance import SignificanceTester
 
 from stats import (
     accentually_responding_syllables_of_strophes_polystrophic,
+    accentually_responding_syllables_of_lines_polystrophic,
     count_all_syllables,
     count_all_accents,
     count_all_accents_canticum
@@ -47,21 +48,45 @@ def get_all_responsion_numbers(tree):
 
 
 def process_responsions(tree, responsion_numbers):
+    """
+    Processes all responsions in the given XML tree, counting accentually responding syllables 
+    across all corresponding lines in strophes and antistrophes.
+
+    Parameters:
+    - tree: The parsed XML tree.
+    - responsion_numbers: A set of responsion identifiers to process.
+
+    Returns:
+    - overall_counts: Dictionary with total counts of responding acutes, graves, and circumflexes.
+    - responsion_summaries: Detailed dictionary of accentual responsion counts per responsion.
+    """
     overall_counts = {'acute': 0, 'grave': 0, 'circumflex': 0}
     responsion_summaries = {}
 
     for responsion in responsion_numbers:
-        strophes = tree.xpath(f'//strophe[@responsion="{responsion}"]')
+        # Fetch all strophes and antistrophes with this responsion number
+        strophes = tree.xpath(f'//strophe[@responsion="{responsion}"] | //antistrophe[@responsion="{responsion}"]')
 
         if len(strophes) < 2:
-            print(f"Insufficient strophes for responsion {responsion}.\n")
+            print(f"process_responsions: Insufficient strophes for responsion {responsion}.\n")
             continue
 
+        # Process strophes using the correct function
         accent_maps = accentually_responding_syllables_of_strophes_polystrophic(*strophes)
 
-        counts = {'acute': len(accent_maps[0]), 'grave': len(accent_maps[1]), 'circumflex': len(accent_maps[2])}
+        if accent_maps is False:
+            continue  # Skip if something went wrong
+
+        # Correctly sum all matched accent occurrences
+        counts = {
+            'acute': sum(len(d) for d in accent_maps[0]),
+            'grave': sum(len(d) for d in accent_maps[1]),
+            'circumflex': sum(len(d) for d in accent_maps[2])
+        }
+
         responsion_summaries[responsion] = counts
 
+        # Update overall counts
         overall_counts['acute'] += counts['acute']
         overall_counts['grave'] += counts['grave']
         overall_counts['circumflex'] += counts['circumflex']
@@ -75,10 +100,10 @@ def process_barys_responsions(tree, responsion_numbers):
     barys_summaries = {}
 
     for responsion in responsion_numbers:
-        strophes = tree.xpath(f'//strophe[@responsion="{responsion}"]')
+        strophes = tree.xpath(f'//strophe[@responsion="{responsion}"] | //antistrophe[@responsion="{responsion}"]')
 
         if len(strophes) < 2:
-            print(f"Insufficient strophes for responsion {responsion}.\n")
+            print(f"process_barys_responsions: Insufficient strophes for responsion {responsion}.\n")
             continue
 
         # Extract corresponding lines from each strophe
@@ -115,7 +140,6 @@ def print_combined_summary(
     total_counts,
     barys_total,
     oxys_total,
-    total_syllables,
     responsion_numbers,
     infix_list,
     tree,
@@ -244,7 +268,6 @@ if __name__ == "__main__":
     total_oxys = 0
     responsion_numbers = set()
     infix_list = []
-    total_syllables = 0
     tree = None
 
     resp_summaries = {}
@@ -279,7 +302,6 @@ if __name__ == "__main__":
 
                 # Count total syllables for the entire file
                 file_sylls = count_all_syllables(tree)
-                total_syllables += file_sylls
 
                 # Count accentual responsion matches
                 file_overall, file_summaries = process_responsions(tree, responsion_nums)
@@ -316,7 +338,6 @@ if __name__ == "__main__":
                         total_counts[key] += file_counts[key]
 
                     file_sylls = count_all_syllables(tree)
-                    total_syllables += file_sylls
 
                     file_overall, file_summaries = process_responsions(tree, responsion_nums)
                     for key in overall_counts:
@@ -382,7 +403,6 @@ if __name__ == "__main__":
             total_counts,
             total_barys,
             total_oxys,
-            total_syllables,
             responsion_numbers,
             infix_list,
             tree,
