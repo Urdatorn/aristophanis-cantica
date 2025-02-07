@@ -65,7 +65,11 @@ We also need to show
 ☐ scan some recitative as baseline, both since Conser does not provide a baseline of barys, and because it would be more fitting to use comic recitative 
 ☐ show word breaks in visualization 
 
+## Upgrades to Conser's compatibility stats
 
+- Support for manually scanned source
+- Support for > 2 strophes, incl comp. percentages for each position
+- 
 
 
 ## Take-aways
