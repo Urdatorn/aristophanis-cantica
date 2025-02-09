@@ -386,82 +386,75 @@ def contour_line(*xml_lines):
     return combined_contours
         
 
-
-strophe = '<l n="204" metre="4 tr^" speaker="ΧΟ."><syll weight="heavy">Τῇ</syll><syll weight="light">δε</syll> <syll weight="heavy">πᾶ</syll><syll weight="light" anceps="True">ς ἕ</syll><syll weight="heavy">που</syll>, <syll weight="light">δί</syll><syll weight="heavy">ω</syll><syll weight="light" anceps="True">κε</syll> <syll weight="heavy">καὶ</syll> <syll weight="light">τὸ</syll><syll weight="heavy">ν ἄν</syll><syll weight="light" anceps="True">δρα</syll> <syll weight="heavy">πυν</syll><syll weight="light">θά</syll><syll weight="heavy">νου</syll> </l>'
-antistrophe = '''<l n="219" metre="4 tr^"><syll weight="heavy">Νῦν</syll> <syll weight="light">δ' ἐ</syll><syll weight="heavy">πει</syll><syll weight="heavy" anceps="True">δὴ</syll> <syll weight="heavy">στερ</syll><syll weight="light">ρὸ</syll><syll weight="heavy">ν ἤ</syll><syll weight="heavy" anceps="True">δη</syll> <syll weight="heavy">τοὐ</syll><syll weight="light">μὸ</syll><syll weight="heavy">ν ἀν</syll><syll weight="heavy" anceps="True">τικ</syll><syll weight="heavy">νή</syll><syll weight="light">μι</syll><syll weight="heavy">ον</syll> </l>'''
-root_strophe = ET.fromstring(line)
-root_antistrophe = ET.fromstring(antistrophe)
-grouped_contours = all_contours_line(root_strophe, root_antistrophe)
-print()
-print(f'GROUPED CONTOURS:') 
-print() 
-print(f'{grouped_contours}')
-for i, contours in enumerate(grouped_contours):
-    print(f'{i + 1}: {contours}')
-
-combined_contours = contour_line(root_strophe, root_antistrophe)
-print()
-print(f'COMBINED CONTOURS:')
-print()
-for i, contour in enumerate(combined_contours):
-    print(f'{i + 1}: {contour}')
-
-
 ###############################################################################
 # 5) THE STATS
 ###############################################################################
 
 
-def match_status (self):
-        """Categorizes the relationship of the syllable contours in different 
-        responding stanzas in the following scheme:
-            CIRC:All have a circumflex
-            M1 : All have a post-accentual fall (acute/circumflex)
-            M2 : Post-accentual fall and downward motion
-            M3 : All rising or all falling
-            M4 : Compatible via a word break (see note below)
-            C1 : Post-accentual fall paired with UP or UP-G
-            C2 : UP and DN
-            C3 : UP-G and DN
-        Note: BUILT TO ANALYZE STANZA PAIRS, rather than Pindar, etc.  If multiple 
-        stanzas were being analyzed together, it would be better to distinguish
-        the percentage of stanzas that agree at a level, rather than just a binary.
-        
-        :return str status: a code indicating the level of alignment.
-        """
-        if self._match_status:
-            return self._match_status
-        status = ''
-        contours = self.all_contours
-        #Check for matches:
-        if all(a == 'C' for a in self.all_accents):
-            status = 'CIRC'
-        elif all(c == 'DN-A' for c in contours):
-            status = 'M1'
-        elif all(c in ['DN-A', 'DN'] for c in contours):
-            status = 'M2'
-        elif all(c in ['UP', 'UP-G'] for c in contours):
-            status = 'M3'
-        elif all(c == 'DN' for c in contours):
-            status = 'M3'
-        elif all(c in ['DN-A', 'DN', 'N'] for c in contours):
-            status = 'M4'
-        elif all(c in ['UP', 'UP-G', 'N'] for c in contours):
-            status = 'M4'
-        elif all(c == 'N' for c in contours):
-            status = 'M4'
+def match_status_syll(all_contours_at_position: list, all_accents_at_position: list) -> str:
+    """Categorizes the relationship of the syllable contours in different 
+    responding stanzas in the following scheme, where M = match and C = conflict:
+        CIRC:All have a circumflex
+        M1 : All have a post-accentual fall (acute/circumflex)
+        M2 : Post-accentual fall and downward motion
+        M3 : All rising or all falling
+        M4 : Compatible via a word break (see note below)
+        C1 : Post-accentual fall paired with UP or UP-G
+        C2 : UP and DN
+        C3 : UP-G and DN
+    Note: BUILT TO ANALYZE STANZA PAIRS, rather than Pindar, etc.  If multiple 
+    stanzas were being analyzed together, it would be better to distinguish
+    the percentage of stanzas that agree at a level, rather than just a binary.
+    
+    :return str status: a code indicating the level of alignment.
+    """
+    status = ''
+    contours = all_contours_at_position
+    accents = all_accents_at_position
+    #Check for matches:
+    if all(accent == 'C' for accent in accents):
+        status = 'CIRC'
+    elif all(c == 'DN-A' for c in contours):
+        status = 'M1'
+    elif all(c in ['DN-A', 'DN'] for c in contours):
+        status = 'M2'
+    elif all(c in ['UP', 'UP-G'] for c in contours):
+        status = 'M3'
+    elif all(c == 'DN' for c in contours):
+        status = 'M3'
+    elif all(c in ['DN-A', 'DN', 'N'] for c in contours):
+        status = 'M4'
+    elif all(c in ['UP', 'UP-G', 'N'] for c in contours):
+        status = 'M4'
+    elif all(c == 'N' for c in contours):
+        status = 'M4'
+    else:
+        #Check for and sort conflicts:
+        if 'DN-A' in contours:
+            status = 'C1'
+        elif 'UP' in contours:
+            status = 'C2'
+        elif 'UP-G' in contours:
+            status = 'C3'
         else:
-            #Check for and sort conflicts:
-            if 'DN-A' in contours:
-                status = 'C1'
-            elif 'UP' in contours:
-                status = 'C2'
-            elif 'UP-G' in contours:
-                status = 'C3'
-            else:
-                assert False, 'Missing Stat Category for syl {}'.format(self.number)
-        self._match_status = status
-        return status
+            print(f'Missing Stat Category for syl {contours[0]}')
+    return status
+
+
+def match_status_line(*xml_lines) -> list:
+    '''
+    Checks contour match or contradiction of each position in the lines of an arbitrarily polystrophic canticum.
+    '''
+    grouped_contours = all_contours_line(*xml_lines)
+    grouped_accents = all_accents_at_position(*xml_lines)
+
+    contour_match_status = []
+
+    for contours, accents in zip(grouped_contours, grouped_accents):
+        position_status = match_status_syll(contours, accents)
+        contour_match_status.append(position_status)
+
+    return contour_match_status
 
 
 def is_match (self):
@@ -472,3 +465,34 @@ def is_repeat (self):
 
 def is_clash (self):
     return self.match_status == 'C1'
+
+
+if __name__ == '__main__':
+    strophe = '<l n="204" metre="4 tr^" speaker="ΧΟ."><syll weight="heavy">Τῇ</syll><syll weight="light">δε</syll> <syll weight="heavy">πᾶ</syll><syll weight="light" anceps="True">ς ἕ</syll><syll weight="heavy">που</syll>, <syll weight="light">δί</syll><syll weight="heavy">ω</syll><syll weight="light" anceps="True">κε</syll> <syll weight="heavy">καὶ</syll> <syll weight="light">τὸ</syll><syll weight="heavy">ν ἄν</syll><syll weight="light" anceps="True">δρα</syll> <syll weight="heavy">πυν</syll><syll weight="light">θά</syll><syll weight="heavy">νου</syll> </l>'
+    antistrophe = '''<l n="219" metre="4 tr^"><syll weight="heavy">Νῦν</syll> <syll weight="light">δ' ἐ</syll><syll weight="heavy">πει</syll><syll weight="heavy" anceps="True">δὴ</syll> <syll weight="heavy">στερ</syll><syll weight="light">ρὸ</syll><syll weight="heavy">ν ἤ</syll><syll weight="heavy" anceps="True">δη</syll> <syll weight="heavy">τοὐ</syll><syll weight="light">μὸ</syll><syll weight="heavy">ν ἀν</syll><syll weight="heavy" anceps="True">τικ</syll><syll weight="heavy">νή</syll><syll weight="light">μι</syll><syll weight="heavy">ον</syll> </l>'''
+    root_strophe = ET.fromstring(line)
+    root_antistrophe = ET.fromstring(antistrophe)
+    grouped_contours = all_contours_line(root_strophe, root_antistrophe)
+    print()
+    print(f'GROUPED CONTOURS:') 
+    print() 
+    print(f'{grouped_contours}')
+    for i, contours in enumerate(grouped_contours):
+        print(f'{i + 1}: {contours}')
+
+    combined_contours = contour_line(root_strophe, root_antistrophe)
+    print()
+    print(f'COMBINED CONTOURS:')
+    print()
+
+    zipped = zip(grouped_contours, combined_contours)
+    for i, contours in enumerate(zipped):
+        print(f'{i + 1}: {contours[0]} => {contours[1]}')
+
+    match_status = match_status_line(root_strophe, root_antistrophe)
+    print()
+    print(f'MATCH STATUS:')
+    print()
+    zipped = zip(combined_contours, match_status)
+    for i, status in enumerate(zipped):
+        print(f'{i + 1}: {status[0]} => {status[1]}')

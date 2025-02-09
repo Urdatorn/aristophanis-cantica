@@ -64,6 +64,7 @@ We also need to show
 ☐ add "compatible syllables" stats
 ☐ scan some recitative as baseline, both since Conser does not provide a baseline of barys, and because it would be more fitting to use comic recitative 
 ☐ show word breaks in visualization 
+- might be good to add option to remove "precisely repeating rephrains" from stats; cf. Conser's diss. p. 374.
 
 ## Upgrades to Conser's compatibility stats
 
