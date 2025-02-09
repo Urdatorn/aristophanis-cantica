@@ -38,6 +38,7 @@ def space_before(syll):
             return i > 0 and text[i - 1] == " "
     return False
 
+
 def space_after(syll):
     """Returns True if there is a space after the last vowel in the syllable's text."""
     text = syll.text if syll.text else ""
@@ -48,6 +49,76 @@ def space_after(syll):
             last_vowel_index = i  # Keep track of the last vowel position
 
     return last_vowel_index != -1 and last_vowel_index < len(text) - 1 and text[last_vowel_index + 1] == " "
+
+
+def all_accents_line(xml_line):
+    """
+    Iterates through an <l> of <syll> elements and creates a list of accents.
+    """
+    accents_line = []
+    for i, s in enumerate(xml_line):
+        if not s.text:
+            accents_line.append(None)
+            continue
+        if any(ch in accents['acute'] for ch in s.text):
+            accents_line.append('A')
+        if any(ch in accents['circumflex'] for ch in s.text):
+            accents_line.append('C')
+        if any(ch in accents['grave'] for ch in s.text):
+            accents_line.append('G')
+        else:
+            accents_line.append(None)
+    return accents_line
+
+#print(f'{len(all_accents_line(root))} ACCENTS: {all_accents_line(root)}') 
+
+def all_accents_line_polystrophic(*xml_lines):
+    """
+    Takes multiple <l> elements and returns a list of accent lists, one for each line.
+    """
+    return [all_accents_line(line) for line in xml_lines]
+
+
+def all_accents_at_position(*xml_lines):
+    """
+    Takes multiple XML <l> elements, applies all_accents_line to each, and returns
+    lists where each inner list contains the accents for a given syllabic position
+    across all lines, while merging resolved syllables.
+    """
+    if not metrically_responding_lines_polystrophic(*xml_lines):
+        raise ValueError("Lines do not metrically respond.")
+
+    # Get accents for each line
+    accents_per_line = [all_accents_line(line) for line in xml_lines]
+    
+    # Get syllables with resolution merging
+    merged_syllables_per_line = []
+    for line in xml_lines:
+        syllables = [child for child in line if child.tag == "syll"]
+        merged_syllables = []
+        i = 0
+        while i < len(syllables):
+            current = syllables[i]
+            is_res = current.get("resolution") == "True"
+
+            if is_res and i + 1 < len(syllables) and syllables[i + 1].get("resolution") == "True":
+                # Merge two consecutive resolved syllables into a sublist
+                merged_syllables.append([current, syllables[i + 1]])
+                i += 2
+            else:
+                merged_syllables.append(current)
+                i += 1
+        merged_syllables_per_line.append(merged_syllables)
+
+    # Verify equal lengths after merging
+    num_positions = len(merged_syllables_per_line[0])
+    if any(len(ms) != num_positions for ms in merged_syllables_per_line):
+        raise ValueError("Mismatch in syllable counts across lines after merging resolution.")
+
+    # Group accents by position
+    grouped_accents = list(map(list, zip(*accents_per_line)))
+
+    return grouped_accents
 
 
 ###############################################################################
@@ -113,11 +184,11 @@ else:
 
 
 ###############################################################################
-# 3) LINE CONTOUR ANALYSIS
+# 3) SINGLE LINE CONTOUR ANALYSIS
 ###############################################################################
 
 
-def get_contours(l_element):
+def get_contours_line(l_element):
         """
         Adapted from a method in class_stanza
         Iterates through an <l> of <syll> elements and creates a list of melodic contours.
@@ -179,7 +250,7 @@ def get_contours(l_element):
 
 
 the_text = restore_text(root)
-contours = get_contours(root)
+contours = get_contours_line(root)
 
 arrow_dict = {        
                       'N'     : 'x',
@@ -194,15 +265,15 @@ arrow_dict = {
                      }
 
 arrows = [arrow_dict[contour] for contour in contours]
-print(f'{the_text} => {contours} => {arrows}')
+#print(f'{the_text} => {contours} => {arrows}')
 
 
 ###############################################################################
-# 4) STANZA CONTOUR COMPARISON
+# 4) POLYSTROPHIC LINE CONTOURS COMPARISON
 ###############################################################################
 
 
-def all_contours(*xml_lines):
+def all_contours_line(*xml_lines):
     """
     Intermediary between get_contours(l_element) and contour().
 
@@ -225,7 +296,7 @@ def all_contours(*xml_lines):
     if not metrically_responding_lines_polystrophic(*xml_lines):
         raise ValueError("Lines do not metrically respond.")
 
-    contours_per_line = [get_contours(line) for line in xml_lines]
+    contours_per_line = [get_contours_line(line) for line in xml_lines]
 
     merged_syllables_per_line = []
     for line in xml_lines:
@@ -257,55 +328,70 @@ def all_contours(*xml_lines):
     return grouped_contours
 
 
-def contour (self):
+def contour_syll(all_contours_at_position: list, all_accents_at_position: list) -> str:
     '''
-    Adapted from a method in Conser's class_syllable.
-    
-    Comparing the contours of a certain position in a polystrophic canticum.
+    Polystrophic adaptation of a method in Conser's class_syllable.
+
+    Comparing the contours of a certain position in an arbitrarily polystrophic canticum.
     '''
-    if self._contour:
-        return self._contour
-    contours = self.all_contours
     combined = ''
-    if all(a == 'C' for a in self.all_accents):
+    if all(accent == 'C' for accent in all_accents_at_position): # CASE 1
     #if all(a == 'C' for a in self.all_accents) or (
     #        'C' in self.all_accents and self.prosody in ['⏕', '⏔']):
     
             # In order to make this work, I need to limit to resolutions 
             # with accent on first syllable.
     
-        if 'DN-A' in contours:
+        if 'DN-A' in all_contours_at_position:
             combined = 'CIRC-DN'
         else:
             combined = 'CIRC-X'
-    elif 'DN-A' in contours:
-        if all(c == 'DN-A' for c in contours):
+    elif 'DN-A' in all_contours_at_position: # CASE 2
+        if all(contour == 'DN-A' for contour in all_contours_at_position):
             combined = 'DN-A'
-        elif 'UP-G' in contours or 'UP' in contours:
+        elif {'UP-G', 'UP'} & set(all_contours_at_position):
             combined = '=-A'
         else:
             combined = 'DN'
-    elif 'DN' in contours:
-        if 'UP-G' in contours or 'UP' in contours:
+    elif 'DN' in all_contours_at_position: # CASE 3
+        if {'UP-G', 'UP'} & set(all_contours_at_position):
             combined = '='
         else:
             combined = 'DN'
-    elif 'UP-G' in contours:
+    elif 'UP-G' in all_contours_at_position: # CASE 4
         combined = 'UP-G'
-    elif 'UP' in contours:
+    elif 'UP' in all_contours_at_position: # CASE 5
         combined = 'UP'
     else:
         combined = 'N'
-    self._contour = combined
+    
     return combined
 
+
+def contour_line(*xml_lines):
+    '''
+    Polystrophic adaptation of a method in Conser's class_syllable (here for a whole line instead of one syllable).
+
+    Comparing the contours of a certain position in an arbitrarily polystrophic canticum.
+    '''
+    grouped_contours = all_contours_line(*xml_lines)
+    grouped_accents = all_accents_at_position(*xml_lines)
+
+    combined_contours = []
+
+    for contours, accents in zip(grouped_contours, grouped_accents):
+        combined = contour_syll(contours, accents)
+        combined_contours.append(combined)
+
+    return combined_contours
+        
 
 
 strophe = '<l n="204" metre="4 tr^" speaker="ΧΟ."><syll weight="heavy">Τῇ</syll><syll weight="light">δε</syll> <syll weight="heavy">πᾶ</syll><syll weight="light" anceps="True">ς ἕ</syll><syll weight="heavy">που</syll>, <syll weight="light">δί</syll><syll weight="heavy">ω</syll><syll weight="light" anceps="True">κε</syll> <syll weight="heavy">καὶ</syll> <syll weight="light">τὸ</syll><syll weight="heavy">ν ἄν</syll><syll weight="light" anceps="True">δρα</syll> <syll weight="heavy">πυν</syll><syll weight="light">θά</syll><syll weight="heavy">νου</syll> </l>'
 antistrophe = '''<l n="219" metre="4 tr^"><syll weight="heavy">Νῦν</syll> <syll weight="light">δ' ἐ</syll><syll weight="heavy">πει</syll><syll weight="heavy" anceps="True">δὴ</syll> <syll weight="heavy">στερ</syll><syll weight="light">ρὸ</syll><syll weight="heavy">ν ἤ</syll><syll weight="heavy" anceps="True">δη</syll> <syll weight="heavy">τοὐ</syll><syll weight="light">μὸ</syll><syll weight="heavy">ν ἀν</syll><syll weight="heavy" anceps="True">τικ</syll><syll weight="heavy">νή</syll><syll weight="light">μι</syll><syll weight="heavy">ον</syll> </l>'''
 root_strophe = ET.fromstring(line)
 root_antistrophe = ET.fromstring(antistrophe)
-grouped_contours = all_contours(root_strophe, root_antistrophe)
+grouped_contours = all_contours_line(root_strophe, root_antistrophe)
 print()
 print(f'GROUPED CONTOURS:') 
 print() 
@@ -313,10 +399,17 @@ print(f'{grouped_contours}')
 for i, contours in enumerate(grouped_contours):
     print(f'{i + 1}: {contours}')
 
+combined_contours = contour_line(root_strophe, root_antistrophe)
+print()
+print(f'COMBINED CONTOURS:')
+print()
+for i, contour in enumerate(combined_contours):
+    print(f'{i + 1}: {contour}')
 
 
-
-
+###############################################################################
+# 5) THE STATS
+###############################################################################
 
 
 def match_status (self):
