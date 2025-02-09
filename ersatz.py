@@ -457,14 +457,47 @@ def match_status_line(*xml_lines) -> list:
     return contour_match_status
 
 
-def is_match (self):
-    return self.match_status in ['M1', 'CIRC']
+def evaluation_line(contour_line, match_status_line) -> list:
+    '''
+    Merge of is_match, is_repeat, and is_clash from Conser's class_SylGroup,
+    with support for all match codes, e.g M2, M3, etc.
+    '''
+    evaluation = []
+    contours_and_matches = zip(contour_line, match_status_line)
+    for contour, match in contours_and_matches:
+        if match in ['M1', 'M2', 'M3', 'M4', 'CIRC']:
+            evaluation.append('MATCH')
+        elif contour in ['=', '=-A']:
+            evaluation.append('REPEAT')
+        elif match in ['C1', 'C2', 'C3']:
+            evaluation.append('CLASH')
+        else:
+            evaluation.append('UNKNOWN')
+    return evaluation
 
-def is_repeat (self):
-    return self.contour in ['=', '=-A']
 
-def is_clash (self):
-    return self.match_status == 'C1'
+def present_contour_evaluation_line(*xml_lines):
+    contour = contour_line(*xml_lines)
+    match_status = match_status_line(*xml_lines)
+    evaluation = evaluation_line(contour, match_status)
+    
+    # Convert XML elements to their text content
+    string_lines = []
+    for line in xml_lines:
+        sylls = [syll.text for syll in line if syll.tag == 'syll']
+        string_lines.append(sylls)
+    
+    # Group syllables by position
+    position_texts = list(zip(*string_lines))
+    
+    # Print each position with its evaluation
+    for i, (position, eval) in enumerate(zip(position_texts, evaluation)):
+        print(f'{i + 1}: {position} => {eval}')
+
+#    for i, (contours, accents, match_status, eval) in enumerate(zip(grouped_contours, grouped_accents, grouped_match_status, evaluation)):
+#        print(f'{i + 1}: {contours} => {accents} => {match_status} => {eval}')
+        
+
 
 
 if __name__ == '__main__':
@@ -496,3 +529,9 @@ if __name__ == '__main__':
     zipped = zip(combined_contours, match_status)
     for i, status in enumerate(zipped):
         print(f'{i + 1}: {status[0]} => {status[1]}')
+
+    evaluation = evaluation_line(combined_contours, match_status)
+    print()
+    print(f'EVALUATION:')
+    print()
+    present_contour_evaluation_line(root_strophe, root_antistrophe)
