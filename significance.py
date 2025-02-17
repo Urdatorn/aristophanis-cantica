@@ -39,3 +39,25 @@ class SignificanceTester:
         """
         p_value = self.test_significance(successes, trials, alternative)
         return p_value < 0.05
+    
+
+if __name__ == '__main__':
+    # Initialize tester with default reference proportion (9.7%)
+    tester = SignificanceTester()
+    
+    # For proportion test, assume 100 trials for demonstration
+    #n_trials = 1445
+    #n_successes = 428
+    n_trials = 566
+    n_successes = 58
+    percent = n_successes / n_trials * 100
+    
+    p_value = tester.test_significance(n_successes, n_trials)
+    is_significant = tester.is_below_05(n_successes, n_trials)
+    
+    print(f"Testing {percent:.2f}% against reference {tester.reference_proportion*100}%")
+    print(f"p-value: {p_value:.10f}")
+    print(f"Statistically significant: {is_significant}")
+    print(f"{'Reject' if is_significant else 'Cannot reject'} null hypothesis")
+
+    

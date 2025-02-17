@@ -1,21 +1,19 @@
 # Aristophanis Canticorum Omniorum Responsio Accentuum
 
-# Progess
-
-## Arist. Antistrophic Cantica
+## Antistrophic Cantica
 
 Cantica med responsion: 
-☑︎ Ach.: 10 (1 polystr.)
-☑︎ Eq.: 8, alla körer! (1 polystr. m. 4)
-☑︎ Nu.: 6
-☑︎ V.: 8
-☐ Pax: 6 (1 polystr.)
-☐ Av.: 10
-☐ Lys.: 8 (1 polystr.)
-☐ Th.: 4
-☐ Ra.: 11 (2 polystr.)
-☐ Ec.: 6 
-☐ Pl.: 2 
+- ☑︎ Ach.: 10 (1 polystr.)
+- ☑︎ Eq.: 8, alla körer! (1 polystr. m. 4)
+- ☑︎ Nu.: 6
+- ☑︎ V.: 8
+- ☐ Pax: 6 (1 polystr.)
+- ☐ Av.: 10
+- ☐ Lys.: 8 (1 polystr.)
+- ☐ Th.: 4
+- ☐ Ra.: 11 (2 polystr.)
+- ☐ Ec.: 6 
+- ☐ Pl.: 2 
 
 Summa: 79
 Varav polystrofiska: 6 (≈ 7.6%)
@@ -55,7 +53,7 @@ We search for statistical development
 
 We also need to show
 - the degree of dependence between word-end distribution and accent distribution and
-- how oftten word-end responsion and accentual responsion come together 
+- how often word-end responsion and accentual responsion come together 
 
 ## URGENT TODOS!!
 
@@ -76,3 +74,5 @@ We also need to show
 ## Take-aways
 
 The penultimate paeon of  997 is an intersting example of melodic responsion as influencing editorial decisions. The strophe has τήνδε, and readings vary between ὄρχον (L, adoped by Wilson 2007), κλάδον (cett), ὄσχον (Brunck) and ὦσχον (Deubner, adopted by Parker 1997). Bracketing the sense, the first three readings gain extra attraction (for what its worth) because they make the acutes respond, perhaps the more convincing since the outlier is a conjecture.
+
+# Results

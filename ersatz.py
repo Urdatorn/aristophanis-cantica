@@ -6,6 +6,18 @@ The port includes:
     - machine scanned source to manually scanned sources
     - support for polystrophic songs
 
+How we compute compatibility of XML lines:
+    STEP 1 Get "intra-line" contours for each line *token*, i.e. contours based on accents and word-breaks.
+        - get_contours_line
+    STEP 2 Get "inter-line" contours (still) for each line *type*, i.e. contours based on the contours of several responding lines.
+        - all_contours_at_position
+    STEP 3 Get detailed match status for each line *type*, i.e. the match type or clash type of the contours in different responding lines.
+        - match_status_line
+    STEP 4 Summarize match status as simple MATCH, CLASH, or REPEAT for each line *token*.
+
+
+*xml_lines => 
+
 @author: Albin Thörn Cleland, Lunds universitet, albin.thorn_cleland@klass.lu.se
 @license: MIT
 '''
@@ -220,8 +232,6 @@ def get_contours_line(l_element):
 
             # MAIN ACCENT followed by characteristic fall [CHECK]
             if s.text and any(ch in accents['acute'] or ch in accents['circumflex'] for ch in s.text):
-                if any(ch in accents['circumflex'] for ch in s.text):
-                    print(f'CIRCUMFLEX: {s.text}')
                 if pre_accent:
                     contour = 'DN-A'
                     pre_accent = False
@@ -294,7 +304,7 @@ def all_contours_line(*xml_lines):
     """
 
     if not metrically_responding_lines_polystrophic(*xml_lines):
-        raise ValueError("Lines do not metrically respond.")
+        raise ValueError(f"Lines {[line.get('n', 'unknown') for line in xml_lines]} do not metrically respond.")
 
     contours_per_line = [get_contours_line(line) for line in xml_lines]
 
@@ -319,8 +329,12 @@ def all_contours_line(*xml_lines):
 
     # Ensure all lines have the same number of syllables after merging resolution
     num_syllables = len(merged_syllables_per_line[0])
-    if any(len(ms) != num_syllables for ms in merged_syllables_per_line):
-        raise ValueError("Mismatch in syllable counts across lines after merging resolution.")
+    mismatched_lines = []
+    for i, ms in enumerate(merged_syllables_per_line):
+        if len(ms) != num_syllables:
+            mismatched_lines.append(xml_lines[i].get('n', 'unknown'))
+    if mismatched_lines:
+        raise ValueError(f"Mismatch in syllable counts across lines {mismatched_lines} after merging resolution.")
 
     # Transpose the lists: group contours by syllable position
     grouped_contours = list(map(list, zip(*contours_per_line)))
@@ -493,11 +507,57 @@ def present_contour_evaluation_line(*xml_lines):
     # Print each position with its evaluation
     for i, (position, eval) in enumerate(zip(position_texts, evaluation)):
         print(f'{i + 1}: {position} => {eval}')
-
-#    for i, (contours, accents, match_status, eval) in enumerate(zip(grouped_contours, grouped_accents, grouped_match_status, evaluation)):
-#        print(f'{i + 1}: {contours} => {accents} => {match_status} => {eval}')
         
 
+def simple_comp_stats_canticum(xml_file_path, canticum_ID):
+    """
+    Calculate percentage of clashes vs other evaluations in corresponding line pairs.
+    Returns formatted percentage string.
+    """
+    tree = etree.parse(xml_file_path)
+    root = tree.getroot()
+
+    # Get strophes with matching canticum ID
+    strophes = []
+    antistrophes = []
+    
+    # Extract strophes and antistrophes
+    for strophe in root.xpath(f'//strophe[@responsion="{canticum_ID}"]'):
+        if strophe.get('type') == 'strophe':
+            strophes = strophe.findall('l')
+        elif strophe.get('type') == 'antistrophe':
+            antistrophes = strophe.findall('l')
+
+    all_evaluations = []
+    
+    # Process each pair of corresponding lines
+    for str_line, ant_line in zip(strophes, antistrophes):
+        print(f'\nProcessing \033[32m{restore_text(str_line)}\33[0m and \33[33m{restore_text(ant_line)}\33[0m')
+        contours = contour_line(str_line, ant_line)
+        print(f'Contour line: {contours}')
+        match_status = match_status_line(str_line, ant_line)
+        print(f'Match status: {match_status}')
+        evaluation = evaluation_line(contours, match_status)
+        print(f'Eval: {evaluation}')
+        all_evaluations.extend(evaluation)
+
+    if not all_evaluations:
+        return "0.00%"
+
+    clash_count = all_evaluations.count('CLASH')
+    other_count = len(all_evaluations) - clash_count
+    total_count = len(all_evaluations)
+
+    # Calculate (CLASH - others) / total
+    ratio = (clash_count - other_count) / total_count
+    percentage = ratio * 100
+
+    return f"{percentage:.1f}%"
+
+
+###############################################################################
+# MAIN
+###############################################################################
 
 
 if __name__ == '__main__':
@@ -535,3 +595,9 @@ if __name__ == '__main__':
     print(f'EVALUATION:')
     print()
     present_contour_evaluation_line(root_strophe, root_antistrophe)
+
+    xml_file_path = "responsion_ach_compiled_test.xml"
+    canticum_ID = "ach01"
+    result = simple_comp_stats_canticum(xml_file_path, canticum_ID)
+    print(f'\nRemember: analysis indicates direction of interval just \033[35mafter\033[0m the present position!')
+    print(f"Clash percentage for canticum {canticum_ID}: {result}")
