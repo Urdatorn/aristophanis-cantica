@@ -1,8 +1,43 @@
 '''Extracted from Anna Conser's Greek_Prosody.class_word.py'''
 
 import re
-from Greek_Prosody.characters import PUNCTUATION
-from Greek_Prosody.accents import get_accent
+import unicodedata
+
+################################################
+# ACCENTS
+################################################
+
+ACUTE = u'\u0301'
+GRAVE = u'\u0300'
+CIRCUMFLEX = u'\u0342'
+
+ACCENTS = [ACUTE, GRAVE, CIRCUMFLEX]
+
+ACCENT_DICT = {ACUTE: 'A',
+               GRAVE: 'G',
+               CIRCUMFLEX: 'C',
+               None: '-'
+               }
+
+def remove_accents (text):
+    split_chs = unicodedata.normalize("NFD", text)
+    accentless = ''
+    for ch in split_chs:
+        if ch not in ACCENTS:
+            accentless += ch
+    return accentless
+
+def get_accent (syllable):
+    chs = unicodedata.normalize("NFD", syllable)
+    for a in ACCENTS:
+            if a in chs:
+                return a
+
+################################################
+# CLITICS
+################################################
+
+PUNCTUATION = ".,;·:'<>[]{}()=+\u037e\u0387\u00B7⟨⟩†—"
 
 NORMAL_ENCLITICS = ['μου', 'μοι', 'με', 'μευ', 'σου', 'σοι', 'σε',
              'οὑ', 'οἱ', 'ἑ', 'σευ', 'σεο', 'τοι', 'νιν',                #pronouns
@@ -74,6 +109,10 @@ def _clean (text):
     """Removes whitespace and punctuation from edges of a string.  Punctuation
     does not include apostrophes marking elision."""
     return text.strip().strip(PUNCTUATION)
+
+################################################
+# THE TWO MAIN FUNCTIONS
+################################################
 
 def is_enclitic (word):
     """Checks whether a word is one of the Greek enclitics. For forms with an 
