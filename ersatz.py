@@ -24,11 +24,10 @@ How we compute compatibility of XML lines:
 
 import xml.etree.ElementTree as ET
 from lxml import etree
-import re
 
 from visualize import restore_text
-from vowels import vowel
-from clitics import is_enclitic, is_proclitic
+from grc_utils import vowel
+from grc_utils import is_enclitic, is_proclitic
 from stats import accents, metrically_responding_lines_polystrophic
 
 

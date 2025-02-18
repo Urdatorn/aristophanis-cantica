@@ -8,7 +8,6 @@ from stats import (
     count_all_syllables,
     has_acute
 )
-from vowels import vowel
 
 def extract_strophe_accent_positions(strophe_line, antistrophe_line):
     accent_map = accentually_responding_syllables_of_line_pair(strophe_line, antistrophe_line)

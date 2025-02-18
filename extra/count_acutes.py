@@ -1,5 +1,5 @@
 from lxml import etree
-from vowels import (
+from grc_utils import (
     UPPER_SMOOTH_ACUTE, UPPER_ROUGH_ACUTE, LOWER_ACUTE,
     LOWER_SMOOTH_ACUTE, LOWER_ROUGH_ACUTE, LOWER_DIAERESIS_ACUTE
 )
