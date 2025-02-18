@@ -1,5 +1,13 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <TEI>
+  <teiHeader>
+    <fileDesc>
+      <titleStmt>
+        <title>Acharnenses</title>
+        <author>Aristophanes</author>
+      </titleStmt>
+    </fileDesc>
+  </teiHeader>
   <text>
     <body>
       <canticum>
