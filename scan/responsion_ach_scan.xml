@@ -2,7 +2,7 @@
 <TEI>
   <text>
     <body>
-      <canticum>
+      <canticum genre="cretic">
         <strophe type="strophe" responsion="ach01">
           <l n="204" metre="4 tr^" speaker="ΧΟ.">[Τῇ]{δε} [πᾶ]{#ς ἕ}[που], {δί}[ω]{#κε} [καὶ] {τὸ}[ν ἄν]{#δρα} [πυν]{θά}[νου] </l>
           <l n="205" metre="4 tr^">[τῶν] {ὁ}[δοι]{#πό}[ρων] {ἁ}[πάν][#των]· [τῇ] {πό}[λει] {#γὰρ} [ἄξ]{ι}[ον] </l>

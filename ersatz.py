@@ -387,7 +387,7 @@ def evaluation_line(contour_line, match_status_line) -> list:
             evaluation.append('MATCH')
         elif contour in ['=', '=-A']:
             evaluation.append('REPEAT')
-        elif match in ['C1', 'C2', 'C3']:
+        elif match in ['C1', 'C2', 'C3']: # will never enter this loop, because every clash has a repeat contour (=)
             evaluation.append('CLASH')
         else:
             evaluation.append('UNKNOWN')
@@ -433,12 +433,17 @@ def simple_comp_stats_canticum(xml_file_path, canticum_ID):
             antistrophes = strophe.findall('l')
 
     all_evaluations = []
+
+    print(f'\n\033[1mAnalyzing canticum \033[35m{canticum_ID}\033[0m')
     
     # Process each pair of corresponding lines
     for str_line, ant_line in zip(strophes, antistrophes):
         print(f'\nProcessing \033[32m{restore_text(str_line)}\33[0m and \33[33m{restore_text(ant_line)}\33[0m')
         contours = contour_line(str_line, ant_line)
-        print(f'Contour line: {contours}')
+        arrows = []
+        for contour in contours:
+            arrows.append(arrow_dict[contour])
+        print(f'Contour line: {contours} \n=> {arrows}')
         match_status = match_status_line(str_line, ant_line)
         print(f'Match status: {match_status}')
         evaluation = evaluation_line(contours, match_status)
@@ -448,15 +453,24 @@ def simple_comp_stats_canticum(xml_file_path, canticum_ID):
     if not all_evaluations:
         return "0.00%"
 
-    clash_count = all_evaluations.count('CLASH')
-    other_count = len(all_evaluations) - clash_count
+    match_count = all_evaluations.count('MATCH')
+    repeat_count = all_evaluations.count('REPEAT')
     total_count = len(all_evaluations)
+    compatibility = (match_count / total_count) * 100
+    repetition = 100 - compatibility
 
-    # Calculate (CLASH - others) / total
-    ratio = (clash_count - other_count) / total_count
-    percentage = ratio * 100
-
-    return f"{percentage:.1f}%"
+    
+    print()
+    print('############################################')
+    print(f'\033[1mComp stats for canticum \033[35m{canticum_ID}\033[0m')
+    print('############################################')
+    print()
+    print(f'Match count: {match_count}')
+    print(f'Repeat count: {repeat_count}')
+    print(f"Compatibility: \033[32m{compatibility:.2f}%\033[0m")
+    print(f"Repetition: \033[31m{repetition:.2f}%\033[0m")
+        
+    return f"{compatibility:.2f}%"
 
 
 ###############################################################################
@@ -464,7 +478,7 @@ def simple_comp_stats_canticum(xml_file_path, canticum_ID):
 ###############################################################################
 
 
-if __name__ == '__main__':
+def print_test_line():
     strophe = '<l n="204" metre="4 tr^" speaker="ΧΟ."><syll weight="heavy">Τῇ</syll><syll weight="light">δε</syll> <syll weight="heavy">πᾶ</syll><syll weight="light" anceps="True">ς ἕ</syll><syll weight="heavy">που</syll>, <syll weight="light">δί</syll><syll weight="heavy">ω</syll><syll weight="light" anceps="True">κε</syll> <syll weight="heavy">καὶ</syll> <syll weight="light">τὸ</syll><syll weight="heavy">ν ἄν</syll><syll weight="light" anceps="True">δρα</syll> <syll weight="heavy">πυν</syll><syll weight="light">θά</syll><syll weight="heavy">νου</syll> </l>'
     antistrophe = '''<l n="219" metre="4 tr^"><syll weight="heavy">Νῦν</syll> <syll weight="light">δ' ἐ</syll><syll weight="heavy">πει</syll><syll weight="heavy" anceps="True">δὴ</syll> <syll weight="heavy">στερ</syll><syll weight="light">ρὸ</syll><syll weight="heavy">ν ἤ</syll><syll weight="heavy" anceps="True">δη</syll> <syll weight="heavy">τοὐ</syll><syll weight="light">μὸ</syll><syll weight="heavy">ν ἀν</syll><syll weight="heavy" anceps="True">τικ</syll><syll weight="heavy">νή</syll><syll weight="light">μι</syll><syll weight="heavy">ον</syll> </l>'''
     root_strophe = ET.fromstring(strophe)
@@ -500,7 +514,9 @@ if __name__ == '__main__':
     print()
     present_contour_evaluation_line(root_strophe, root_antistrophe)
 
-    xml_file_path = "responsion_ach_compiled_test.xml"
+
+if __name__ == '__main__':
+    xml_file_path = "compiled/responsion_ach_compiled_test.xml" # reintroduce the last line and debug why the last line is raising errors
     canticum_ID = "ach01"
     result = simple_comp_stats_canticum(xml_file_path, canticum_ID)
     print(f'\nRemember: analysis indicates direction of interval just \033[35mafter\033[0m the present position!')
