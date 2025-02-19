@@ -26,7 +26,7 @@ import xml.etree.ElementTree as ET
 from lxml import etree
 
 from visualize import restore_text
-from grc_utils import is_enclitic, is_proclitic, vowel
+from grc_utils import is_enclitic, is_proclitic
 from stats import accents, metrically_responding_lines_polystrophic
 from words import space_after, space_before
 
