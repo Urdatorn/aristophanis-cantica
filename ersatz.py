@@ -26,40 +26,14 @@ import xml.etree.ElementTree as ET
 from lxml import etree
 
 from visualize import restore_text
-from grc_utils import vowel
-from grc_utils import is_enclitic, is_proclitic
+from grc_utils import is_enclitic, is_proclitic, vowel
 from stats import accents, metrically_responding_lines_polystrophic
+from words import space_after, space_before
 
 
 ###############################################################################
 # 1) AUX
 ###############################################################################
-
-
-line = '<l n="204" metre="4 tr^" speaker="ΧΟ."><syll weight="heavy">Τῇ</syll><syll weight="light">δε</syll> <syll weight="heavy">πᾶ</syll><syll weight="light" anceps="True">ς ἕ</syll><syll weight="heavy">που</syll>, <syll weight="light">δί</syll><syll weight="heavy">ω</syll><syll weight="light" anceps="True">κε</syll> <syll weight="heavy">καὶ</syll> <syll weight="light">τὸ</syll><syll weight="heavy">ν ἄν</syll><syll weight="light" anceps="True">δρα</syll> <syll weight="heavy">πυν</syll><syll weight="light">θά</syll><syll weight="heavy">νου</syll> </l>'
-antistrophe = '''<l n="219" metre="4 tr^"><syll weight="heavy">Νῦν</syll> <syll weight="light">δ' ἐ</syll><syll weight="heavy">πει</syll><syll weight="heavy" anceps="True">δὴ</syll> <syll weight="heavy">στερ</syll><syll weight="light">ρὸ</syll><syll weight="heavy">ν ἤ</syll><syll weight="heavy" anceps="True">δη</syll> <syll weight="heavy">τοὐ</syll><syll weight="light">μὸ</syll><syll weight="heavy">ν ἀν</syll><syll weight="heavy" anceps="True">τικ</syll><syll weight="heavy">νή</syll><syll weight="light">μι</syll><syll weight="heavy">ον</syll> </l>'''
-root = ET.fromstring(line)
-
-
-def space_before(syll):
-    """Returns True if there is a space before the first vowel in the syllable's text."""
-    text = syll.text if syll.text else ""
-    for i, char in enumerate(text):
-        if vowel(char):  # Find the first vowel
-            return i > 0 and text[i - 1] == " "
-    return False
-
-
-def space_after(syll):
-    """Returns True if there is a space after the last vowel in the syllable's text."""
-    text = syll.text if syll.text else ""
-    last_vowel_index = -1
-
-    for i, char in enumerate(text):
-        if vowel(char):
-            last_vowel_index = i  # Keep track of the last vowel position
-
-    return last_vowel_index != -1 and last_vowel_index < len(text) - 1 and text[last_vowel_index + 1] == " "
 
 
 def all_accents_line(xml_line):
@@ -81,7 +55,6 @@ def all_accents_line(xml_line):
             accents_line.append(None)
     return accents_line
 
-#print(f'{len(all_accents_line(root))} ACCENTS: {all_accents_line(root)}') 
 
 def all_accents_line_polystrophic(*xml_lines):
     """
@@ -130,68 +103,6 @@ def all_accents_at_position(*xml_lines):
     grouped_accents = list(map(list, zip(*accents_per_line)))
 
     return grouped_accents
-
-
-###############################################################################
-# 2) WORD BREAK ANALYSIS
-###############################################################################
-
-
-def get_words_xml(l_element):
-    '''
-    Doesn't support resolution yet
-    '''
-    words = []
-    current_word = []
-
-    syllables = [child for child in l_element if child.tag == "syll"]
-    for syll in syllables:
-        print(f'Syllables: |{ET.tostring(syll, encoding="unicode", method="xml")}|')
-
-    for i, syll in enumerate(syllables):
-        syll_xml = ET.tostring(syll, encoding='unicode', method='xml')
-        current_word.append(syll_xml)
-        next_syll = syllables[i + 1] if i + 1 < len(syllables) else None
-
-        if space_after(syll):
-            print()
-            print(f'SPACE AFTER CASE: |{syll}|')
-            words.append("".join(current_word))  # Store current word
-            current_word = []  # Start a new word
-        elif syll.tail and " " in syll.tail:
-            print()
-            print(f'TAIL CASE: |{syll.tail}|')
-            words.append("".join(current_word))
-            current_word = []
-        elif next_syll is not None and space_before(next_syll):
-            print()
-            print(f'SPACE BEFORE NEXT CASE: |{next_syll}|')
-            words.append("".join(current_word))
-            current_word = []
-
-    if current_word:
-        words.append("".join(current_word))
-
-    cleaned_words = []
-    for word in words:
-        root = ET.fromstring(f"<wrapper>{word}</wrapper>")
-        for syll in root.iter("syll"):  
-            syll.tail = None
-
-        cleaned_words.append("".join(ET.tostring(syll, encoding="unicode", method="xml") for syll in root))
-    words = cleaned_words
-
-    return words
-
-
-test_line = '<l n="204" metre="4 tr^" speaker="ΧΟ."><syll weight="heavy">Τῇ</syll><syll weight="light">δε</syll> <syll weight="heavy">πᾶ</syll><syll weight="light" anceps="True">ς ἕ</syll><syll weight="heavy">που</syll>, </l>'
-root = etree.fromstring(test_line)
-words_xml = get_words_xml(root)
-print(f'WORDS: {words_xml}')  #
-if words_xml == ['<syll weight="heavy">Τῇ</syll><syll weight="light">δε</syll>', '<syll weight="heavy">πᾶ</syll>', '<syll weight="light" anceps="True">ς ἕ</syll><syll weight="heavy">που</syll>']:
-    print('PASS')
-else:
-    print('FAIL')
 
 
 ###############################################################################
@@ -258,9 +169,6 @@ def get_contours_line(l_element):
         return contours
 
 
-the_text = restore_text(root)
-contours = get_contours_line(root)
-
 arrow_dict = {        
                       'N'     : 'x',
                       '='     : '=',
@@ -272,9 +180,6 @@ arrow_dict = {
                       'CIRC-DN': '★↘',
                       'CIRC-X' : '★x',
                      }
-
-arrows = [arrow_dict[contour] for contour in contours]
-#print(f'{the_text} => {contours} => {arrows}')
 
 
 ###############################################################################
@@ -562,7 +467,7 @@ def simple_comp_stats_canticum(xml_file_path, canticum_ID):
 if __name__ == '__main__':
     strophe = '<l n="204" metre="4 tr^" speaker="ΧΟ."><syll weight="heavy">Τῇ</syll><syll weight="light">δε</syll> <syll weight="heavy">πᾶ</syll><syll weight="light" anceps="True">ς ἕ</syll><syll weight="heavy">που</syll>, <syll weight="light">δί</syll><syll weight="heavy">ω</syll><syll weight="light" anceps="True">κε</syll> <syll weight="heavy">καὶ</syll> <syll weight="light">τὸ</syll><syll weight="heavy">ν ἄν</syll><syll weight="light" anceps="True">δρα</syll> <syll weight="heavy">πυν</syll><syll weight="light">θά</syll><syll weight="heavy">νου</syll> </l>'
     antistrophe = '''<l n="219" metre="4 tr^"><syll weight="heavy">Νῦν</syll> <syll weight="light">δ' ἐ</syll><syll weight="heavy">πει</syll><syll weight="heavy" anceps="True">δὴ</syll> <syll weight="heavy">στερ</syll><syll weight="light">ρὸ</syll><syll weight="heavy">ν ἤ</syll><syll weight="heavy" anceps="True">δη</syll> <syll weight="heavy">τοὐ</syll><syll weight="light">μὸ</syll><syll weight="heavy">ν ἀν</syll><syll weight="heavy" anceps="True">τικ</syll><syll weight="heavy">νή</syll><syll weight="light">μι</syll><syll weight="heavy">ον</syll> </l>'''
-    root_strophe = ET.fromstring(line)
+    root_strophe = ET.fromstring(strophe)
     root_antistrophe = ET.fromstring(antistrophe)
     grouped_contours = all_contours_line(root_strophe, root_antistrophe)
     print()
