@@ -21,8 +21,10 @@ How we compute compatibility of XML lines:
 @license: MIT
 '''
 
+import argparse
 import xml.etree.ElementTree as ET
 from lxml import etree
+import re
 
 from visualize import restore_text
 from grc_utils import is_enclitic, is_proclitic
@@ -515,7 +517,14 @@ def print_test_line():
 
 
 if __name__ == '__main__':
-    xml_file_path = "compiled/responsion_ach_compiled_test.xml" # reintroduce the last line and debug why the last line is raising errors
-    canticum_ID = "ach01"
-    compatibility = simple_comp_stats_canticum(xml_file_path, canticum_ID)
+    parser = argparse.ArgumentParser(description="Compute accent compatibility stats for strophes.")
+    parser.add_argument("infix", help="Abbreviation for the play (e.g., 'eq').")
+    arg = parser.parse_args()
+
+    canticum_ID = arg.infix
+    play_infix = re.match(r'^([a-zA-Z]+)', canticum_ID).group(1)
+    input_file_path = f"compiled/responsion_{play_infix}_compiled.xml"
+
+
+    compatibility = simple_comp_stats_canticum(input_file_path, canticum_ID)
     print(f'\nRemember: analysis indicates direction of interval just \033[35mafter\033[0m the present position!')

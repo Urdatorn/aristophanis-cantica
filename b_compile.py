@@ -53,10 +53,20 @@ def remove_skipped_parts(xml_text):
 
 
 def remove_conjecture_tags(xml_text):
-    """Remove <conjecture> tags while preserving their content."""
-    # Remove <conjecture> tags with content
-    xml_text = re.sub(r'<conjecture[^>]*>(.*?)</conjecture>', r'\1', xml_text, flags=re.DOTALL)
-    # Remove self-closing <conjecture/> tags
+    """
+    Remove <conjecture> tags while preserving their content.
+    Relevant regex tips:
+    - Inside character classes [], ^ means "any character but", so [^>] means "any character but >".
+    - ? means "non-greedily", so .*? means "any character, zero or more times, but stop when reaching whatever next character comes after the ? in the regex", which here is <conjecture/>.
+    - r'...' (raw) makes backslash / in a string literal and not an escape character.
+    - In r.sub, the second argument is what substitutes for whatever is matched by the regex in the first argument.
+    - And remeber: regex should *always* be clearly understood in detail! You will introduce bugs if you don't understand what you're doing (I wrote this after linting one...).
+    """
+    # Debug print
+    # matches = re.findall(r'<conjecture[^>]*>(.*?)</conjecture>', xml_text)
+    # print(f"Found {len(matches)} conjecture matches.")
+    
+    xml_text = re.sub(r'<conjecture[^>]*>(.*?)</conjecture>', r'\1', xml_text) # r'\1' refers to the group captured by (.*?), the first (1) group in the regex
     xml_text = re.sub(r'<conjecture[^>]*/>', '', xml_text)
     return xml_text
 
@@ -172,8 +182,8 @@ def main():
     parser.add_argument("infix", help="Abbreviation for the play (e.g., 'eq').")
     args = parser.parse_args()
 
-    input_file = f"responsion_{args.infix}_scan.xml"
-    output_file = f"responsion_{args.infix}_compiled.xml"
+    input_file = f"scan/responsion_{args.infix}_scan.xml"
+    output_file = f"compiled/responsion_{args.infix}_compiled.xml"
 
     process_file(input_file, output_file)
 
