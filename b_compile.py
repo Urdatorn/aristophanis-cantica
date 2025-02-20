@@ -8,7 +8,7 @@ bracket_map = {
     "_)": '</macron>',
     "[#": '<syll weight="heavy" anceps="True">',
     "{#": '<syll weight="light" anceps="True">',
-    "[€": '<syll weight="heavy" contraction="True">',
+    "[€": '<syll weight="heavy" contraction="True">', # I don't use this attribute; it simplifies things to rather implicitly mark contraction by pseudo-resolution in the uncontracted strophes
     "{€": '<syll weight="light" resolution="True">',
     "[": '<syll weight="heavy">',
     "]": '</syll>',
@@ -37,6 +37,15 @@ def remove_skipped_parts(xml_text):
     return skip_pattern.sub("", xml_text)
 
 
+def remove_conjecture_tags(xml_text):
+    """Remove <conjecture> tags while preserving their content."""
+    # Remove <conjecture> tags with content
+    xml_text = re.sub(r'<conjecture[^>]*>(.*?)</conjecture>', r'\1', xml_text, flags=re.DOTALL)
+    # Remove self-closing <conjecture/> tags
+    xml_text = re.sub(r'<conjecture[^>]*/>', '', xml_text)
+    return xml_text
+
+
 def compile_scan(xml_text):
     """Compile bracket patterns inside <l> elements into <syll> tags."""
     l_pattern = re.compile(r"(<l[^>]*>)(.*?)(</l>)", re.DOTALL)
@@ -52,7 +61,7 @@ def compile_scan(xml_text):
 
 def apply_brevis_in_longo(xml_text):
     """Mark the last light non-resolution <syll> of each <l> with brevis_in_longo='True',
-    except when metre ends in 'da', unless the penultimate syllable is heavy.
+    except when metre ends in 'da' (lyric non-stichic dactylic), unless the penultimate syllable is heavy.
     """
     l_pattern = re.compile(r"(<l[^>]*>)(.*?)(</l>)", re.DOTALL)
 

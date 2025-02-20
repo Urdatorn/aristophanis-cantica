@@ -13,8 +13,7 @@ How we compute compatibility of XML lines:
         - all_contours_at_position
     STEP 3 Get detailed match status for each line *type*, i.e. the match type or clash type of the contours in different responding lines.
         - match_status_line
-    STEP 4 Summarize match status as simple MATCH, CLASH, or REPEAT for each line *token*.
-
+    STEP 4 Summarize match status as simple MATCH or REPEAT for each line *token*.
 
 *xml_lines => 
 
@@ -70,7 +69,7 @@ def all_accents_at_position(*xml_lines):
     across all lines, while merging resolved syllables.
     """
     if not metrically_responding_lines_polystrophic(*xml_lines):
-        raise ValueError("Lines do not metrically respond.")
+        raise ValueError("all_accents_at_position: Lines do not metrically respond.")
 
     # Get accents for each line
     accents_per_line = [all_accents_line(line) for line in xml_lines]
@@ -97,7 +96,7 @@ def all_accents_at_position(*xml_lines):
     # Verify equal lengths after merging
     num_positions = len(merged_syllables_per_line[0])
     if any(len(ms) != num_positions for ms in merged_syllables_per_line):
-        raise ValueError("Mismatch in syllable counts across lines after merging resolution.")
+        raise ValueError("all_accents_at_position: Mismatch in syllable counts across lines after merging resolution.")
 
     # Group accents by position
     grouped_accents = list(map(list, zip(*accents_per_line)))
@@ -208,7 +207,7 @@ def all_contours_line(*xml_lines):
     """
 
     if not metrically_responding_lines_polystrophic(*xml_lines):
-        raise ValueError(f"Lines {[line.get('n', 'unknown') for line in xml_lines]} do not metrically respond.")
+        raise ValueError(f"all_contours_line: Lines {[line.get('n', 'unknown') for line in xml_lines]} do not metrically respond.")
 
     contours_per_line = [get_contours_line(line) for line in xml_lines]
 
@@ -238,7 +237,7 @@ def all_contours_line(*xml_lines):
         if len(ms) != num_syllables:
             mismatched_lines.append(xml_lines[i].get('n', 'unknown'))
     if mismatched_lines:
-        raise ValueError(f"Mismatch in syllable counts across lines {mismatched_lines} after merging resolution.")
+        raise ValueError(f"all_contours_line: Mismatch in syllable counts across lines {mismatched_lines} after merging resolution.")
 
     # Transpose the lists: group contours by syllable position
     grouped_contours = list(map(list, zip(*contours_per_line)))
@@ -518,6 +517,5 @@ def print_test_line():
 if __name__ == '__main__':
     xml_file_path = "compiled/responsion_ach_compiled_test.xml" # reintroduce the last line and debug why the last line is raising errors
     canticum_ID = "ach01"
-    result = simple_comp_stats_canticum(xml_file_path, canticum_ID)
+    compatibility = simple_comp_stats_canticum(xml_file_path, canticum_ID)
     print(f'\nRemember: analysis indicates direction of interval just \033[35mafter\033[0m the present position!')
-    print(f"Clash percentage for canticum {canticum_ID}: {result}")
