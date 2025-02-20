@@ -1,3 +1,18 @@
+# b_compile.py
+'''
+Second step of the XML processing pipeline for the accentual responsion project, Urdatorn/aristophanis-cantica.
+
+Compiles metrical pseudo-markup into proper XML <syll> tags,
+with attributes for weight, anceps, resolution, brevis in longo and closed-syllable vowel length.
+
+NB: if information contained in input <conjecture> tags is needed, for example for a born-digital edition,
+the line "xml_content = remove_conjecture_tags(xml_content)" should be commented out.
+Since extra nested elements are bug prone, <conjecture> elements are otherwise removed.
+
+@author: Albin Thörn Cleland, Lunds universitet, albin.thorn_cleland@klass.lu.se
+@license: GPL-3.0 (GNU General Public License v3.0)
+'''
+
 import argparse
 import re
 
@@ -139,6 +154,7 @@ def process_file(input_file, output_file):
 
     xml_content = remove_skipped_lines(xml_content)
     xml_content = remove_skipped_parts(xml_content)
+    xml_content = remove_conjecture_tags(xml_content)
     xml_content = compile_scan(xml_content)
     xml_content = apply_brevis_in_longo(xml_content)
     xml_content = order_l_attributes(xml_content)
