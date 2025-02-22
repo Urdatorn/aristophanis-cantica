@@ -1,10 +1,31 @@
 # -*- coding: utf-8 -*-
 '''
-Ports of contour compatibility logic from Anna Conser's Greek-Poetry project, esp. methods from the syllable and stanza classes.
-The port includes:
-    - class-based logic to functional 
-    - machine scanned source to manually scanned sources
-    - support for polystrophic songs
+# Copyright © Albin Ruben Johannes Thörn Cleland 2025, Lunds universitet, albin.thorn_cleland@klass.lu.se
+# This file is part of aristophanis-cantica, licensed under the GNU General Public License v3.0.
+# See the LICENSE file in the project root for full details.
+#
+# Portions of this script are derived from Greek-Poetry by Anna Conser (https://github.com/aconser/Greek-Poetry),
+# licensed under the MIT License. The following notice applies to those portions:
+#
+# MIT License
+# Copyright © 2024 Anna Conser
+# Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
+# documentation files (the "Software"), to deal in the Software without restriction, including without limitation
+# the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software,
+# and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+# The above copyright notice and this permission notice shall be included in all copies or substantial portions
+# of the Software.
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED
+# TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+# THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF
+# CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+# DEALINGS IN THE SOFTWARE.
+
+Ports of contour compatibility logic from Anna Conser's Greek-Poetry, esp. methods from the syllable and stanza classes.
+However, my version contains several fundamental differences and developments:
+    - functional insted of OOP, to make the logic more transparent and modular 
+    - operates on manually scanned and syllabified sources instead of including machine scansion 
+    - supports polystrophic songs
 
 How we compute compatibility of XML lines:
     STEP 1 Get "intra-line" contours for each line *token*, i.e. contours based on accents and word-breaks.
@@ -15,10 +36,8 @@ How we compute compatibility of XML lines:
         - match_status_line
     STEP 4 Summarize match status as simple MATCH or REPEAT for each line *token*.
 
-*xml_lines => 
-
-@author: Albin Thörn Cleland, Lunds universitet, albin.thorn_cleland@klass.lu.se
-@license: MIT
+NB: There is redundancy. Compatibility and repetition can be computed on the basis of contour alone, without the need for match status.
+    - The match status is an analysis of the contours, especially useful for identifying circumflex melismas.
 '''
 
 import argparse
@@ -117,7 +136,7 @@ def get_contours_line(l_element):
         Iterates through an <l> of <syll> elements and creates a list of melodic contours.
 
         Note that 'N' is a contour that will not contradict any following contour. 
-        It's a feature and not a bug that e.g. a circumflex at wordend will have 'N' contour.
+        It's a feature and not a bug that e.g. a circumflex at word end will have 'N' contour.
         """
 
         contours = []
@@ -306,7 +325,7 @@ def contour_line(*xml_lines):
         
 
 ###############################################################################
-# 5) THE STATS
+# 5) MATCH STATUS (NOT NECESSARY FOR COMP STATS)
 ###############################################################################
 
 
@@ -376,10 +395,17 @@ def match_status_line(*xml_lines) -> list:
     return contour_match_status
 
 
+###############################################################################
+# 6) MATCH OR REPEAT EVALUATION
+###############################################################################
+
+
 def evaluation_line(contour_line, match_status_line) -> list:
     '''
     Merge of is_match, is_repeat, and is_clash from Conser's class_SylGroup,
     with support for all match codes, e.g M2, M3, etc.
+
+    Reduntant. Can be computed from contour alone.
     '''
     evaluation = []
     contours_and_matches = zip(contour_line, match_status_line)
@@ -392,6 +418,7 @@ def evaluation_line(contour_line, match_status_line) -> list:
             evaluation.append('CLASH')
         else:
             evaluation.append('UNKNOWN')
+            ValueError(f'Unknown match eval for contour {contour}')
     return evaluation
 
 
@@ -412,9 +439,22 @@ def present_contour_evaluation_line(*xml_lines):
     # Print each position with its evaluation
     for i, (position, eval) in enumerate(zip(position_texts, evaluation)):
         print(f'{i + 1}: {position} => {eval}')
-        
 
-def simple_comp_stats_canticum(xml_file_path, canticum_ID):
+
+###############################################################################
+# 7) COMPATIBILITY STATS
+###############################################################################
+
+
+
+
+
+###############################################################################
+# PRINTS (nothing deep goes on here)
+###############################################################################
+
+
+def simple_comp_stats_canticum_antistrophic(xml_file_path, canticum_ID):
     """
     Calculate percentage of clashes vs other evaluations in corresponding line pairs.
     Returns formatted percentage string.
@@ -474,11 +514,6 @@ def simple_comp_stats_canticum(xml_file_path, canticum_ID):
     return f"{compatibility:.2f}%"
 
 
-###############################################################################
-# MAIN
-###############################################################################
-
-
 def print_test_line():
     strophe = '<l n="204" metre="4 tr^" speaker="ΧΟ."><syll weight="heavy">Τῇ</syll><syll weight="light">δε</syll> <syll weight="heavy">πᾶ</syll><syll weight="light" anceps="True">ς ἕ</syll><syll weight="heavy">που</syll>, <syll weight="light">δί</syll><syll weight="heavy">ω</syll><syll weight="light" anceps="True">κε</syll> <syll weight="heavy">καὶ</syll> <syll weight="light">τὸ</syll><syll weight="heavy">ν ἄν</syll><syll weight="light" anceps="True">δρα</syll> <syll weight="heavy">πυν</syll><syll weight="light">θά</syll><syll weight="heavy">νου</syll> </l>'
     antistrophe = '''<l n="219" metre="4 tr^"><syll weight="heavy">Νῦν</syll> <syll weight="light">δ' ἐ</syll><syll weight="heavy">πει</syll><syll weight="heavy" anceps="True">δὴ</syll> <syll weight="heavy">στερ</syll><syll weight="light">ρὸ</syll><syll weight="heavy">ν ἤ</syll><syll weight="heavy" anceps="True">δη</syll> <syll weight="heavy">τοὐ</syll><syll weight="light">μὸ</syll><syll weight="heavy">ν ἀν</syll><syll weight="heavy" anceps="True">τικ</syll><syll weight="heavy">νή</syll><syll weight="light">μι</syll><syll weight="heavy">ον</syll> </l>'''
@@ -517,14 +552,17 @@ def print_test_line():
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description="Compute accent compatibility stats for strophes.")
-    parser.add_argument("infix", help="Abbreviation for the play (e.g., 'eq').")
-    arg = parser.parse_args()
+    # parser = argparse.ArgumentParser(description="Compute accent compatibility stats for strophes.")
+    # parser.add_argument("infix", help="Abbreviation for the play (e.g., 'eq').")
+    # arg = parser.parse_args()
 
-    canticum_ID = arg.infix
-    play_infix = re.match(r'^([a-zA-Z]+)', canticum_ID).group(1)
-    input_file_path = f"compiled/responsion_{play_infix}_compiled.xml"
+    # canticum_ID = arg.infix
+    # play_infix = re.match(r'^([a-zA-Z]+)', canticum_ID).group(1)
+    # input_file_path = f"compiled/responsion_{play_infix}_compiled.xml"
 
 
-    compatibility = simple_comp_stats_canticum(input_file_path, canticum_ID)
-    print(f'\nRemember: analysis indicates direction of interval just \033[35mafter\033[0m the present position!')
+    # compatibility = simple_comp_stats_canticum_antistrophic(input_file_path, canticum_ID)
+    # print(f'\nRemember: analysis indicates direction of interval just \033[35mafter\033[0m the present position!')
+
+
+    pass

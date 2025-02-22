@@ -29,7 +29,7 @@ Varav polystrofiska: 6 (≈ 7.6%)
 
 ## The stats
 
-There are tree separate statistical analyses:
+There are three separate statistical analyses:
 
 - Count accents/προσῳδίαι straight off
   - Might prove that grave responsion is not statistically significant
