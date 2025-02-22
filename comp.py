@@ -166,7 +166,7 @@ def compatibility_line(*xml_lines) -> list[float]:
         up = []
         down = []
 
-        for strophe in position: # this in an invididual syllable's contour
+        for strophe in position: # this is in an invididual syllable's contour
             if isinstance(strophe, list): # checking sublists of two resolved syllable contours
                 if all_resolved == True: # proceed as normal if all strophes resolve
                     for resolved_syll in strophe:
@@ -177,15 +177,18 @@ def compatibility_line(*xml_lines) -> list[float]:
                         else:
                             raise ValueError(f"Unknown contour {resolved_syll} in compatibility_line.")
                 
-                # special logic to compare resolved and unresolved syllables:
-                # possibilities:
-                # 1. UP and UP
-                # 2. UP and DN
-                # 3. DN and UP
-                # 4. DN and DN
-
+                # special logic to compare resolved and unresolved syllables
+                # six obvious combinations:
+                # 1. UP(-G) and UP(-G) = UP
+                # 2. DN(-A) and DN(-A) = DN
+                # 3-4. UP(-G) and N (and vice versa) = UP
+                # 5-6. DN(-A) and N (and vice versa) = DN 
+                # but these two are less obvious:
+                # 5. UP(-G) and DN(-A) = N?
+                # 6. DN and UP = N?
+                # 
                 else: 
-                       
+                       pass # logic goes here
                     
             elif strophe in ['UP', 'UP-G', 'N']:
                 up.append(strophe)
