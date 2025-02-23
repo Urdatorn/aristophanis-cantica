@@ -28,11 +28,15 @@ def get_contours_line(l_element):
         syllables = [child for child in l_element if child.tag == "syll"]
         for i, s in enumerate(syllables):
             contour = ''
-            next_syll = syllables[i + 1] if i + 1 < len(syllables) else None
+
+            is_first_res = False
+            if i + 1 < len(syllables):
+                next_syll = syllables[i + 1]
+                is_first_res = next_syll.get('resolution') == 'True'
+
             word_end = space_after(s) or (s.tail and " " in s.tail) or (next_syll is not None and space_before(next_syll))
 
             # Check for word-end in middle of resolved syllable [CHECK]
-            is_first_res = next_syll.get('resolution') == 'True'
             if is_first_res and word_end: # = first of two resolution syllables with a word end in between
                 pre_accent = True # cf. later below
             
@@ -148,7 +152,7 @@ def compatibility_line(*xml_lines) -> list[float]:
     print('Processing the following set of responding lines...')
     line_numbers = [line.get('n') for line in xml_lines]
     for line_number, line in zip(line_numbers, xml_lines):
-        print(f'\tLine {line_number}: \t{restore_text(line)[30]}...')
+        print(f'\tLine {line_number}: \t{restore_text(line)}...')
 
     compatibility_ratios = []
 
@@ -199,7 +203,7 @@ def compatibility_line(*xml_lines) -> list[float]:
 
                 else: # if all_resolved = False
                     print(f'Comparing resolved and unresolved positions...')
-                    resolved_1, resolved_2 = strophe:
+                    resolved_1, resolved_2 = strophe
                     resolved_position = resolved_1 + resolved_2
                     if resolved_1 == resolved_2 == 'N': # CASE 1
                         up.append(resolved_position)
@@ -208,10 +212,9 @@ def compatibility_line(*xml_lines) -> list[float]:
                         up.append(resolved_position)
                     elif all(x in ['DN', 'DN-A', 'N'] for x in [resolved_1, resolved_2]): # CASE 3
                         down.append(resolved_position)
-                    else: # CASE 4 - the problematic case => skip whole position in analysis
-                        continue
+                    else: # CASE 4 - the problematic case of mixed contours => skip whole position in analysis (at least I find this safest for now)
+                        continue # goes back to "for strophe in position" loop
 
-                    
             elif strophe in ['UP', 'UP-G', 'N']:
                 up.append(strophe)
                 print(f'{strophe} added to up')
@@ -225,21 +228,43 @@ def compatibility_line(*xml_lines) -> list[float]:
         position_compatibility_ratio = max_len / len(position)
         compatibility_ratios.append(position_compatibility_ratio)
 
+    return compatibility_ratios
+
+
+def compatibility_canticum(xml_file_path, canticum_ID) -> list:
+    """
+    Compute compatibility ratios for each line position across all strophes in a canticum.
+    
+    Args:
+        xml_file_path: Path to XML file
+        canticum_ID: ID to match against strophe[@responsion]
+    
+    Returns:
+        List of lists, where each inner list contains compatibility ratios for one line position
+    """
+    tree = etree.parse(xml_file_path)
+    root = tree.getroot()
+
+    strophes = root.xpath(f'//strophe[@responsion="{canticum_ID}"]')
+    if not strophes:
+        raise ValueError(f"No strophes found with responsion={canticum_ID}")
+    
+    num_lines = len([el for el in strophes[0] if el.tag == 'l']) # same for all, since they respond
+    
+    canticum_list_of_line_compatibility_ratio_lists = []
+    
+    for line_pos in range(num_lines):
+        responding_lines = []
+        for strophe in strophes:
+            lines = [el for el in strophe if el.tag == 'l']
+            if line_pos < len(lines):
+                responding_lines.append(lines[line_pos])
         
-
-
-
-
-
-
-        
-
-            
-
-
-
-def compatibility_canticum(xml_file_path, canticum_ID):
-    pass
+        # Get compatibility ratios for this set of responding lines
+        compatibility_ratios = compatibility_line(*responding_lines)
+        canticum_list_of_line_compatibility_ratio_lists.append(compatibility_ratios)
+    
+    return canticum_list_of_line_compatibility_ratio_lists
 
 
 def compatibility_play(xml_file_path):
@@ -259,3 +284,10 @@ def compatibility_play(xml_file_path):
         list_of_lists_of_compatibility_per_position_lists.append(result)
     
     return list_of_lists_of_compatibility_per_position_lists
+
+
+
+if __name__ == "__main__":
+    result_canticum = compatibility_canticum('compiled/responsion_ach_compiled_test.xml', 'ach01')
+    print('Hello world')
+    print(result_canticum)

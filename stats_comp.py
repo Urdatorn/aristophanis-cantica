@@ -57,22 +57,22 @@ from utils.words import space_after, space_before
 
 
 def all_accents_line(xml_line):
-    """
-    Iterates through an <l> of <syll> elements and creates a list of accents.
-    """
+    """Iterates through an <l> of <syll> elements and creates a list of accents."""
     accents_line = []
     for i, s in enumerate(xml_line):
         if not s.text:
             accents_line.append(None)
             continue
+            
+        accent = None
         if any(ch in accents['acute'] for ch in s.text):
-            accents_line.append('A')
-        if any(ch in accents['circumflex'] for ch in s.text):
-            accents_line.append('C')
-        if any(ch in accents['grave'] for ch in s.text):
-            accents_line.append('G')
-        else:
-            accents_line.append(None)
+            accent = 'A'
+        elif any(ch in accents['circumflex'] for ch in s.text):
+            accent = 'C'
+        elif any(ch in accents['grave'] for ch in s.text):
+            accent = 'G'
+        accents_line.append(accent)
+        
     return accents_line
 
 
@@ -552,17 +552,15 @@ def print_test_line():
 
 
 if __name__ == '__main__':
-    # parser = argparse.ArgumentParser(description="Compute accent compatibility stats for strophes.")
-    # parser.add_argument("infix", help="Abbreviation for the play (e.g., 'eq').")
-    # arg = parser.parse_args()
+    parser = argparse.ArgumentParser(description="Compute accent compatibility stats for strophes.")
+    parser.add_argument("infix", help="Responsion ID, e.g. ach01")
+    arg = parser.parse_args()
 
-    # canticum_ID = arg.infix
-    # play_infix = re.match(r'^([a-zA-Z]+)', canticum_ID).group(1)
-    # input_file_path = f"compiled/responsion_{play_infix}_compiled.xml"
-
-
-    # compatibility = simple_comp_stats_canticum_antistrophic(input_file_path, canticum_ID)
-    # print(f'\nRemember: analysis indicates direction of interval just \033[35mafter\033[0m the present position!')
+    canticum_ID = arg.infix
+    play_infix = re.match(r'^([a-zA-Z]+)', canticum_ID).group(1)
+    input_file_path = f"compiled/responsion_{play_infix}_compiled.xml"
 
 
-    pass
+    compatibility = simple_comp_stats_canticum_antistrophic(input_file_path, canticum_ID)
+    print(f'\nRemember: analysis indicates direction of interval just \033[35mafter\033[0m the present position!')
+
