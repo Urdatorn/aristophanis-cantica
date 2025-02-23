@@ -3,7 +3,7 @@ from lxml import etree
 from grc_utils import is_enclitic, is_proclitic
 from stats import accents, metrically_responding_lines_polystrophic
 from visualize import restore_text
-from words import space_after, space_before
+from utils.words import space_after, space_before
 
 
 def get_contours_line(l_element):
