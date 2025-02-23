@@ -178,17 +178,39 @@ def compatibility_line(*xml_lines) -> list[float]:
                             raise ValueError(f"Unknown contour {resolved_syll} in compatibility_line.")
                 
                 # special logic to compare resolved and unresolved syllables
-                # six obvious combinations:
+                #
+                # Out of 9 combinations, 7 are unproblematic:
+                # 0. N and N = N
                 # 1. UP(-G) and UP(-G) = UP
                 # 2. DN(-A) and DN(-A) = DN
                 # 3-4. UP(-G) and N (and vice versa) = UP
                 # 5-6. DN(-A) and N (and vice versa) = DN 
-                # but these two are less obvious:
-                # 5. UP(-G) and DN(-A) = N?
-                # 6. DN and UP = N?
-                # 
-                else: 
-                       pass # logic goes here
+                #
+                # these two are less obvious, since the sum interval could be up or down:
+                # 7. UP and DN(-A), which means second syll accented.
+                # 8. DN(-A) and UP(-G), which means first syll accented. 
+                # It could contradict both preaccentual rise and post-accentual fall, and only compatible with N.
+                # Thus it would need its own class. But methodologically, we should rather skip such syllables, and they are probably very rare (let's do a debug count!).
+                # Summing up there are four distinct cases:
+                # - Append to both up and down if 0.
+                # - Append to up if 1, 3 or 4.
+                # - Append to down if 2, 5 or 6.
+                # - 'continue' strophe in position loop if 7 or 8. 
+
+                else: # if all_resolved = False
+                    print(f'Comparing resolved and unresolved positions...')
+                    resolved_1, resolved_2 = strophe:
+                    resolved_position = resolved_1 + resolved_2
+                    if resolved_1 == resolved_2 == 'N': # CASE 1
+                        up.append(resolved_position)
+                        down.append(resolved_position)
+                    elif all(x in ['UP', 'UP-G', 'N'] for x in [resolved_1, resolved_2]): # CASE 2
+                        up.append(resolved_position)
+                    elif all(x in ['DN', 'DN-A', 'N'] for x in [resolved_1, resolved_2]): # CASE 3
+                        down.append(resolved_position)
+                    else: # CASE 4 - the problematic case => skip whole position in analysis
+                        continue
+
                     
             elif strophe in ['UP', 'UP-G', 'N']:
                 up.append(strophe)
