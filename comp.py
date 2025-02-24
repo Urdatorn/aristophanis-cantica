@@ -288,90 +288,47 @@ def compatibility_play(xml_file_path):
     return list_of_lists_of_compatibility_per_position_lists
 
 
-def compatibility_ratios_to_stats(list, binary=False):
+def compatibility_ratios_to_stats(list_in, binary=False) -> float:
     """
+    Convert nested compatibility ratios to a single stat, optionally binarizing values.
+    
+    Args:
+        list_in: Nested list of compatibility ratios
+        binary: If True, convert all non-1 values to 0
+        
+    Returns:
+        float: Mean compatibility ratio
     """
     def get_nesting_depth(lst) -> int:
-        """
-        Returns maximum nesting depth of a list structure.
-        Examples:
-            [1, 2] -> 1
-            [1, [2]] -> 2
-            [1, [2, [3]], 4] -> 3
-        """
         if not isinstance(lst, list):
             return 0
-        if not lst:  # Empty list
+        if not lst:
             return 1
-        return 1 + max((get_nesting_depth(item) for item in lst), default=0) # recursion
+        return 1 + max((get_nesting_depth(item) for item in lst), default=0)
     
-    compatibility = 0
+    depth = get_nesting_depth(list_in)
+    merged_list = []
 
-    if get_nesting_depth(list) == 1: # single line
-        line_list = list
-        if binary:
-            print(f'Binarizing list...')
-            for position in line_list:
-                if position != 1:
-                    position = 0 # binarize
-            compatibility = mean(line_list)
-        else:
-            compatibility = mean(line_list)
-
-    if get_nesting_depth(list) == 2: # canticum
-        canticum_list = list
-        merged_list = []
-        if binary:
-            print(f'Binarizing list...')
-            for line in canticum_list:
-                for position in line:
-                    if position != 1:
-                        position = 0
+    if depth == 1:  # single line
+        merged_list = list_in
+    elif depth == 2:  # canticum
+        for line in list_in:
+            merged_list.extend(line)
+    elif depth == 3:  # whole play
+        for canticum in list_in:
+            for line in canticum:
                 merged_list.extend(line)
-            compatibility = mean(merged_list)
-        else:
-            for line in canticum_list:
-                merged_list.extend(line)
-            compatibility = mean(merged_list)
-
-    elif get_nesting_depth(list) == 3: # whole play
-        play_list = list
-        merged_list = []
-        if binary:
-            print(f'Binarizing list...')
-            for canticum in play_list:
-                for line in canticum:
-                    for position in line:
-                        if position != 1:
-                            position = 0
-                    merged_list.extend(line)
-            compatibility = mean(merged_list)
-        else:
-            for canticum in play_list:
+    elif depth == 4:  # all plays
+        for play in list_in:
+            for canticum in play:
                 for line in canticum:
                     merged_list.extend(line)
-            compatibility = mean(merged_list)
 
-    elif get_nesting_depth(list) == 4: # all plays
-        corpus_list = list
-        merged_list = []
-        if binary:
-            print(f'Binarizing list...')
-            for play in corpus_list:
-                for canticum in play:
-                    for line in canticum:
-                        for position in line:
-                            if position != 1:
-                                position = 0
-                        merged_list.extend(line)
-            compatibility = mean(merged_list)
-        else:
-            for play in corpus_list:
-                for canticum in play:
-                    for line in canticum:
-                        merged_list.extend(line)
-            compatibility = mean(merged_list)
-    
+    # Binarize if requested
+    if binary:
+        merged_list = [0 if x != 1 else 1 for x in merged_list]
+        
+    return mean(merged_list)
 
 
 if __name__ == "__main__":
