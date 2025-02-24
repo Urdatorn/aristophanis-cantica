@@ -1,4 +1,5 @@
 from lxml import etree
+import os
 from statistics import mean
 
 from grc_utils import is_enclitic, is_proclitic
@@ -288,6 +289,25 @@ def compatibility_play(xml_file_path):
     return list_of_lists_of_compatibility_per_position_lists
 
 
+def compatibility_corpus(dir_path):
+    corpus_compatibility_lists = []
+    
+    # Get all XML files in directory
+    xml_files = [f for f in os.listdir(dir_path) if f.endswith('.xml')]
+    
+    # Process each XML file
+    for xml_file in xml_files:
+        file_path = os.path.join(dir_path, xml_file)
+        try:
+            play_results = compatibility_play(file_path)
+            corpus_compatibility_lists.append(play_results)
+        except Exception as e:
+            print(f"Error processing {xml_file}: {e}")
+            continue
+            
+    return corpus_compatibility_lists
+
+
 def compatibility_ratios_to_stats(list_in, binary=False) -> float:
     """
     Convert nested compatibility ratios to a single stat, optionally binarizing values.
@@ -332,6 +352,15 @@ def compatibility_ratios_to_stats(list_in, binary=False) -> float:
 
 
 if __name__ == "__main__":
-    result_canticum = compatibility_canticum('compiled/responsion_ach_compiled_test_polystrophic.xml', 'ach05')
-    print('Hello world 2')
-    print(result_canticum)
+    #result_canticum = compatibility_canticum('compiled/responsion_ach_compiled_test_polystrophic.xml', 'ach05')
+    #print(result_canticum)
+
+    result_corpus = compatibility_corpus('compiled')
+    print(result_corpus)
+
+    stat = compatibility_ratios_to_stats(result_corpus, binary=False)
+    stat_binary = compatibility_ratios_to_stats(result_corpus, binary=True)
+
+    print(f'\nCompatibility: {stat}')
+    print(f'Binary compatibility: {stat_binary}')
+    
