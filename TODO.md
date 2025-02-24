@@ -1,8 +1,10 @@
 # URGENT TODOS (from more to less urgent)
 
-- undersöka robusthet hos polystrofi i ersatz.py, e.g. ach05
+
   - benchmarka robusthet hos barys- och accentresponsion också
-- sammanställa comp stats på pjäs-nivå; integrera i main.py
+
+- fixa polystrofisk trimeter-baseline
+
 - plotta 
   - pjäsbasis
   - cantica-basis

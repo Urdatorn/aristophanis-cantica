@@ -271,8 +271,6 @@ def compatibility_canticum(xml_file_path, canticum_ID) -> list:
 
 
 def compatibility_play(xml_file_path):
-    """
-    """
     tree = etree.parse(xml_file_path)
     root = tree.getroot()
 
@@ -301,6 +299,59 @@ def compatibility_corpus(dir_path):
         try:
             play_results = compatibility_play(file_path)
             corpus_compatibility_lists.append(play_results)
+        except Exception as e:
+            print(f"Error processing {xml_file}: {e}")
+            continue
+            
+    return corpus_compatibility_lists
+
+
+def compatibility_strophicity(dir_path, mode="polystrophic"):
+    """
+    Compute compatibility ratios for all XML files in a directory,
+    filtered by number of responding strophes.
+    
+    Args:
+        dir_path: Path to directory containing XML files
+        mode: "polystrophic" for 3+ strophes, "antistrophic" for exactly 2 strophes
+        
+    Returns:
+        List of compatibility ratio lists from filtered cantica
+    """
+    if mode not in ["polystrophic", "antistrophic"]:
+        raise ValueError("Mode must be 'polystrophic' or 'antistrophic'")
+        
+    corpus_compatibility_lists = []
+    xml_files = [f for f in os.listdir(dir_path) if f.endswith('.xml')]
+    
+    for xml_file in xml_files:
+        file_path = os.path.join(dir_path, xml_file)
+        try:
+            tree = etree.parse(file_path)
+            root = tree.getroot()
+
+            # Count strophes per canticum
+            canticum_counts = {}
+            for strophe in root.xpath('//strophe[@responsion]'):
+                resp_id = strophe.get('responsion')
+                canticum_counts[resp_id] = canticum_counts.get(resp_id, 0) + 1
+
+            # Filter based on mode
+            filtered_cantica = [
+                canticum_id for canticum_id, count in canticum_counts.items() 
+                if (mode == "polystrophic" and count >= 3) or 
+                   (mode == "antistrophic" and count == 2)
+            ]
+
+            # Process filtered cantica
+            play_results = []
+            for canticum_id in filtered_cantica:
+                result = compatibility_canticum(file_path, canticum_id)
+                play_results.append(result)
+
+            if play_results:
+                corpus_compatibility_lists.append(play_results)
+                
         except Exception as e:
             print(f"Error processing {xml_file}: {e}")
             continue
@@ -363,4 +414,9 @@ if __name__ == "__main__":
 
     print(f'\nCompatibility: {stat}')
     print(f'Binary compatibility: {stat_binary}')
+
+    stat_polystrophic = compatibility_ratios_to_stats(compatibility_strophicity('compiled', mode='polystrophic'))
+    stat_antistrophic = compatibility_ratios_to_stats(compatibility_strophicity('compiled', mode='antistrophic'))
+    print(f'Polystrophic compatibility: {stat_polystrophic}')
+    print(f'Antistrophic compatibility: {stat_antistrophic}')
     
