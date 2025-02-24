@@ -1,4 +1,5 @@
 from lxml import etree
+from statistics import mean
 
 from grc_utils import is_enclitic, is_proclitic
 from stats import accents, metrically_responding_lines_polystrophic
@@ -173,6 +174,7 @@ def compatibility_line(*xml_lines) -> list[float]:
         for strophe in position: # this is in an invididual syllable's contour
             if isinstance(strophe, list): # checking sublists of two resolved syllable contours
                 if all_resolved == True: # proceed as normal if all strophes resolve
+                    print('\033[31mComparing resolved positions...\033[0m')
                     for resolved_syll in strophe:
                         if resolved_syll in ['UP', 'UP-G', 'N']:
                             up.append(resolved_syll)
@@ -202,7 +204,7 @@ def compatibility_line(*xml_lines) -> list[float]:
                 # - 'continue' strophe in position loop if 7 or 8. 
 
                 else: # if all_resolved = False
-                    print(f'Comparing resolved and unresolved positions...')
+                    print(f'\033[31mComparing resolved and unresolved positions...\033[0m')
                     resolved_1, resolved_2 = strophe
                     resolved_position = resolved_1 + resolved_2
                     if resolved_1 == resolved_2 == 'N': # CASE 1
@@ -286,8 +288,93 @@ def compatibility_play(xml_file_path):
     return list_of_lists_of_compatibility_per_position_lists
 
 
+def compatibility_ratios_to_stats(list, binary=False):
+    """
+    """
+    def get_nesting_depth(lst) -> int:
+        """
+        Returns maximum nesting depth of a list structure.
+        Examples:
+            [1, 2] -> 1
+            [1, [2]] -> 2
+            [1, [2, [3]], 4] -> 3
+        """
+        if not isinstance(lst, list):
+            return 0
+        if not lst:  # Empty list
+            return 1
+        return 1 + max((get_nesting_depth(item) for item in lst), default=0) # recursion
+    
+    compatibility = 0
+
+    if get_nesting_depth(list) == 1: # single line
+        line_list = list
+        if binary:
+            print(f'Binarizing list...')
+            for position in line_list:
+                if position != 1:
+                    position = 0 # binarize
+            compatibility = mean(line_list)
+        else:
+            compatibility = mean(line_list)
+
+    if get_nesting_depth(list) == 2: # canticum
+        canticum_list = list
+        merged_list = []
+        if binary:
+            print(f'Binarizing list...')
+            for line in canticum_list:
+                for position in line:
+                    if position != 1:
+                        position = 0
+                merged_list.extend(line)
+            compatibility = mean(merged_list)
+        else:
+            for line in canticum_list:
+                merged_list.extend(line)
+            compatibility = mean(merged_list)
+
+    elif get_nesting_depth(list) == 3: # whole play
+        play_list = list
+        merged_list = []
+        if binary:
+            print(f'Binarizing list...')
+            for canticum in play_list:
+                for line in canticum:
+                    for position in line:
+                        if position != 1:
+                            position = 0
+                    merged_list.extend(line)
+            compatibility = mean(merged_list)
+        else:
+            for canticum in play_list:
+                for line in canticum:
+                    merged_list.extend(line)
+            compatibility = mean(merged_list)
+
+    elif get_nesting_depth(list) == 4: # all plays
+        corpus_list = list
+        merged_list = []
+        if binary:
+            print(f'Binarizing list...')
+            for play in corpus_list:
+                for canticum in play:
+                    for line in canticum:
+                        for position in line:
+                            if position != 1:
+                                position = 0
+                        merged_list.extend(line)
+            compatibility = mean(merged_list)
+        else:
+            for play in corpus_list:
+                for canticum in play:
+                    for line in canticum:
+                        merged_list.extend(line)
+            compatibility = mean(merged_list)
+    
+
 
 if __name__ == "__main__":
-    result_canticum = compatibility_canticum('compiled/responsion_ach_compiled_test.xml', 'ach01')
-    print('Hello world')
+    result_canticum = compatibility_canticum('compiled/responsion_ach_compiled_test_polystrophic.xml', 'ach05')
+    print('Hello world 2')
     print(result_canticum)
