@@ -220,9 +220,9 @@ def compatibility_line(*xml_lines) -> list[float]:
 
             elif strophe in ['UP', 'UP-G', 'N']:
                 up.append(strophe)
-                print(f'{strophe} added to up')
+                #print(f'{strophe} added to up')
             elif strophe in ['DN', 'DN-A', 'N']:
-                print(f'{strophe} added to down')
+                #print(f'{strophe} added to down')
                 down.append(strophe)
             else:
                 raise ValueError(f"Unknown contour {strophe} in compatibility_line.")
@@ -231,6 +231,7 @@ def compatibility_line(*xml_lines) -> list[float]:
         position_compatibility_ratio = max_len / len(position)
         compatibility_ratios.append(position_compatibility_ratio)
 
+    print(f'Compatibility ratios: {compatibility_ratios}')
     return compatibility_ratios
 
 
@@ -306,14 +307,15 @@ def compatibility_corpus(dir_path):
     return corpus_compatibility_lists
 
 
-def compatibility_strophicity(dir_path, mode="polystrophic"):
+def compatibility_strophicity(dir_path="compiled", mode="polystrophic", id=""):
     """
     Compute compatibility ratios for all XML files in a directory,
-    filtered by number of responding strophes.
+    filtered by number of responding strophes and optional ID prefix.
     
     Args:
         dir_path: Path to directory containing XML files
         mode: "polystrophic" for 3+ strophes, "antistrophic" for exactly 2 strophes
+        id: String prefix to filter canticum IDs (e.g. "ach" for Acharnians)
         
     Returns:
         List of compatibility ratio lists from filtered cantica
@@ -334,6 +336,8 @@ def compatibility_strophicity(dir_path, mode="polystrophic"):
             canticum_counts = {}
             for strophe in root.xpath('//strophe[@responsion]'):
                 resp_id = strophe.get('responsion')
+                if id and not resp_id.startswith(id):  # Skip if ID doesn't match prefix
+                    continue
                 canticum_counts[resp_id] = canticum_counts.get(resp_id, 0) + 1
 
             # Filter based on mode
@@ -403,20 +407,9 @@ def compatibility_ratios_to_stats(list_in, binary=False) -> float:
 
 
 if __name__ == "__main__":
-    #result_canticum = compatibility_canticum('compiled/responsion_ach_compiled_test_polystrophic.xml', 'ach05')
-    #print(result_canticum)
 
-    result_corpus = compatibility_corpus('compiled')
-    print(result_corpus)
-
-    stat = compatibility_ratios_to_stats(result_corpus, binary=False)
-    stat_binary = compatibility_ratios_to_stats(result_corpus, binary=True)
-
-    print(f'\nCompatibility: {stat}')
-    print(f'Binary compatibility: {stat_binary}')
-
-    stat_polystrophic = compatibility_ratios_to_stats(compatibility_strophicity('compiled', mode='polystrophic'))
-    stat_antistrophic = compatibility_ratios_to_stats(compatibility_strophicity('compiled', mode='antistrophic'))
+    stat_polystrophic = compatibility_ratios_to_stats(compatibility_strophicity('compiled', mode='polystrophic', id='ach'), binary=False)
+    #stat_antistrophic = compatibility_ratios_to_stats(compatibility_strophicity('compiled', mode='antistrophic', id='ach'), binary=False) # antistrophic song is always binary anyways
     print(f'Polystrophic compatibility: {stat_polystrophic}')
-    print(f'Antistrophic compatibility: {stat_antistrophic}')
+    #print(f'Antistrophic compatibility: {stat_antistrophic}')
     
