@@ -1,0 +1,24 @@
+In ancient Greek theatre, choral poetry and music were inseparable.
+Choruses didn’t simply recite lines; they sang them with melodic and rhyth-
+mic precision. An key question is, did the Greek pitch accent influence the
+composition of these verse songs?
+For nearly half a century after Erik Wahlström’s pioneering but method-
+ologically simplistic affirmative answer to that question in 1970, scholars of
+pre-Hellenistic Greek poetry largely overlooked the contribution of phone-
+mic tone.
+The turning point came first for stichic verse (Abritta 2015, 2018), and
+continued with results for antistrophic lyric (songs with exactly two metri-
+cally equal refrains) through Anna Conser’s (2020, 2021, 2024) pioneering
+computational approach.
+Yet this revival of attention to phonemic tone in Greek metre still mostly
+centers on the three tragedians, leaving comedy and lyric unexamined.
+Aristophanes stands out as the only dramatist whose preserved plays include
+polystrophic lyric (songs with more than two metrically equal refrains),
+which imposes stricter constraints on recurring phenomena. Aristophanes’
+choral passages thus make the ideal testing ground for whether phonemic
+tone played a large enough role in Greek metre to merit renewed scholarly
+attention.
+This study computationally analyses the 79 strophic songs of Aristo-
+phanes using three metrics: one based on accents as written characters,
+another treating accent as a phonemic phenomenon and a third linking ac-
+cent to melodic contour in the way suggested by Conser.
