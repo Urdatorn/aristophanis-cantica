@@ -186,7 +186,8 @@ def metrically_responding_lines_polystrophic(*strophes):
       - 'anceps' matches anything.
       - Light syllable with brevis_in_longo="True" is treated as 'heavy'.
 
-      NB: Used very widely in the codebase!
+    NB: Used very widely in the codebase!
+    NB: Philosophy should be that the burden of asserting and printing errors is on the caller. This function should be lean. 
     """
     strophe_lines = [canonical_sylls(strophe) for strophe in strophes]
     all_checks_pass = True

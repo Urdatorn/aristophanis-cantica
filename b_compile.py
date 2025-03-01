@@ -9,6 +9,8 @@ NB: if information contained in input <conjecture> tags is needed, for example f
 the line "xml_content = remove_conjecture_tags(xml_content)" should be commented out.
 Since extra nested elements are bug prone, <conjecture> elements are otherwise removed.
 
+NB: self-closing placeholder <l skip="True"/> elements not supported! If skipped placeholder lines are needed, use <l skip="True"></l> instead.
+
 @author: Albin Thörn Cleland, Lunds universitet, albin.thorn_cleland@klass.lu.se
 @license: GPL-3.0 (GNU General Public License v3.0)
 '''
