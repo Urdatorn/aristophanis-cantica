@@ -14,7 +14,10 @@ Since extra nested elements are bug prone, <conjecture> elements are otherwise r
 '''
 
 import argparse
+from lxml import etree
 import re
+
+from stats import metrically_responding_lines_polystrophic
 
 # Mapping of brackets to <syll> tags
 # ***Important: single chars must come after multi-chars!***
@@ -138,6 +141,23 @@ def order_l_attributes(xml_text):
     return l_pattern.sub(reorder_attributes, xml_text)
 
 
+def remove_empty_cantica(xml_text):
+    """
+    Remove cantica yet to be scanned. 
+    Useful to debug while in the midst of scanning.
+
+    NB: Since cantica span multiple lines, we need the regex flag "re.DOTALL".
+    """
+    canticum_pattern = re.compile(r'\s*<canticum[^>]*>.*?</canticum>\s*', re.DOTALL)
+    
+    def filter_cantica(match):
+        cantica = match.group(0)
+        has_sylls = bool(re.search(r'<syll[^>]*>', cantica))
+        return cantica if has_sylls else ''
+    
+    return canticum_pattern.sub(filter_cantica, xml_text) # function-based replacement is pretty cool
+
+
 def validator(text):
     """Validate for misplaced characters, unbalanced tags, and empty <l> elements."""
     lines = text.splitlines()
@@ -157,6 +177,32 @@ def validator(text):
             raise ValueError(f"Empty <l> element at line {line_number}!")
 
 
+def assert_responsion(xml_text):
+    """
+    Assert that all corresponding lines in strophes with the same responsion attribute metrically respond.
+    """
+    root = etree.fromstring(xml_text.encode())
+    responsion_groups = {}
+    
+    # Group strophes by responsion attribute using XPath
+    for strophe in root.xpath('//strophe[@responsion]'):
+        responsion_id = strophe.get('responsion')
+        if responsion_id not in responsion_groups:
+            responsion_groups[responsion_id] = []
+        responsion_groups[responsion_id].append(strophe)
+    
+    # For each responsion group, check corresponding lines
+    for responsion_id, strophes in responsion_groups.items():
+        # Get lines from each strophe
+        strophe_lines = [strophe.findall('.//l') for strophe in strophes]
+        
+        # Compare corresponding lines
+        for line_index, lines in enumerate(zip(*strophe_lines)):
+            line_numbers = [l.get('n', 'unknown') for l in lines]
+            assert metrically_responding_lines_polystrophic(*lines), \
+                f"Lines {', '.join(line_numbers)} in responsion group '{responsion_id}' do not respond metrically"
+
+
 def process_file(input_file, output_file):
     """Process the XML file and save the output."""
     with open(input_file, "r", encoding="utf-8") as f:
@@ -168,7 +214,9 @@ def process_file(input_file, output_file):
     xml_content = compile_scan(xml_content)
     xml_content = apply_brevis_in_longo(xml_content)
     xml_content = order_l_attributes(xml_content)
-    validator(xml_content)
+    xml_content = remove_empty_cantica(xml_content)
+    validator(xml_content) # validate XML syntax
+    assert_responsion(xml_content) # validate scansion
 
     with open(output_file, "w", encoding="utf-8") as f:
         f.write(xml_content)

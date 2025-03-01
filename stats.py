@@ -181,30 +181,27 @@ def metrically_responding_lines(strophe_line, antistrophe_line):
 def metrically_responding_lines_polystrophic(*strophes):
     """
     Returns True if all the input strophes metrically respond to each other.
-    Considers:
+    Considers (partly inherited from canonical_sylls):
       - Consecutive resolution="True" => 'heavy'.
       - 'anceps' matches anything.
       - Light syllable with brevis_in_longo="True" is treated as 'heavy'.
+
+      NB: Used very widely in the codebase!
     """
-    # Extract canonical syllables for each strophe line
     strophe_lines = [canonical_sylls(strophe) for strophe in strophes]
+    all_checks_pass = True
 
-    # Check that all lines have the same number of syllables
+    # Check 1: Line lengths
     line_lengths = [len(line) for line in strophe_lines]
-    if len(set(line_lengths)) != 1:
-        strophe_ids = ", ".join(strophe.get("n", "unknown") for strophe in strophes)
-        print(f"metrically_responding_lines_polystrophic: Strophes {strophe_ids} have differing syllable counts.")
-        print(f"Line lengths: {line_lengths}")
-        return False
-
-    # Compare syllables at each position across all strophes
-    for syllables in zip(*strophe_lines):  # Transpose the syllable matrix
-        if any(s == 'anceps' for s in syllables):  # 'anceps' matches anything
-            continue
-        if len(set(syllables)) != 1:  # Check if all syllables are identical
-            return False
-
-    return True
+    if len(set(line_lengths)) != 1: # note smart use of set() to check for canonical-syll uniformity!
+        all_checks_pass = False
+    
+    # Check 2: Position by position comparisons
+    for position, syllables in enumerate(zip(*strophe_lines), 1): # a cool way of describing zip is that it is matrix transposition ("T" operator, changes columns to rows)
+        non_anceps = [s for s in syllables if s != 'anceps']
+        if non_anceps and len(set(non_anceps)) != 1:
+            all_checks_pass = False
+    return all_checks_pass
 
 
 ###############################################################################
