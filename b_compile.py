@@ -9,7 +9,7 @@ NB: if information contained in input <conjecture> tags is needed, for example f
 the line "xml_content = remove_conjecture_tags(xml_content)" should be commented out.
 Since extra nested elements are bug prone, <conjecture> elements are otherwise removed.
 
-NB: self-closing placeholder <l skip="True"/> elements not supported! If skipped placeholder lines are needed, use <l skip="True"></l> instead.
+NB: self-closing placeholder <l skip="True"/> elements are supported, but not recommended. If skipped placeholder lines are needed, use <l skip="True"></l> instead.
 
 @author: Albin Thörn Cleland, Lunds universitet, albin.thorn_cleland@klass.lu.se
 @license: GPL-3.0 (GNU General Public License v3.0)
@@ -38,17 +38,21 @@ bracket_map = {
 
 
 def remove_skipped_lines(xml_text):
-    """Remove <l> elements with skip="True"."""
+    """
+    Remove <l> elements with skip="True".
+    Handles both regular and self-closing <l> tags.
+    """
     def clean_line(match):
         line = match.group(0)
         return "" if line.strip() else line
 
-    return re.sub(
-        r"^[ \t]*<l[^>]*\bskip=['\"]True['\"][^>]*>.*?</l>[ \t]*\n?",
-        clean_line,
-        xml_text,
-        flags=re.DOTALL | re.MULTILINE,
-    )
+    regular_l = r"^[ \t]*<l[^>]*\bskip=['\"]True['\"][^>]*>.*?</l>[ \t]*" # \b is a word boundary anchor which matches a position between a word char (\w) and a non-word char (\W).
+    selfclose_l = r"^[ \t]*<l[^>]*\bskip=['\"]True['\"][^>]*/>[ \t]*"
+    
+    text = re.sub(regular_l, clean_line, xml_text, flags=re.MULTILINE) # the flag MULTILINE makes ^ and $ match the start and end of *each* line, instead of of the entire string.
+    text = re.sub(selfclose_l, clean_line, text, flags=re.MULTILINE)
+    
+    return text
 
 
 def remove_skipped_parts(xml_text):
