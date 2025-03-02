@@ -46,8 +46,8 @@ def remove_skipped_lines(xml_text):
         line = match.group(0)
         return "" if line.strip() else line
 
-    regular_l = r"^[ \t]*<l[^>]*\bskip=['\"]True['\"][^>]*>.*?</l>[ \t]*" # \b is a word boundary anchor which matches a position between a word char (\w) and a non-word char (\W).
-    selfclose_l = r"^[ \t]*<l[^>]*\bskip=['\"]True['\"][^>]*/>[ \t]*"
+    regular_l = r"^[ \t]*<l[^>]*\bskip=['\"]True['\"][^>]*>.*?</l>[ \t]*\n?" # \b is a word boundary anchor which matches a position between a word char (\w) and a non-word char (\W).
+    selfclose_l = r"^[ \t]*<l[^>]*\bskip=['\"]True['\"][^>]*/>[ \t]*\n?" # NB: without the "\n?"" there are empty lines left in the output
     
     text = re.sub(regular_l, clean_line, xml_text, flags=re.MULTILINE) # the flag MULTILINE makes ^ and $ match the start and end of *each* line, instead of of the entire string.
     text = re.sub(selfclose_l, clean_line, text, flags=re.MULTILINE)
