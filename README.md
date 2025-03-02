@@ -7,7 +7,7 @@ Cantica med responsion:
 - ☑︎ Eq.: 8, alla körer! (1 polystr. m. 4)
 - ☑︎ Nu.: 6
 - ☑︎ V.: 8
-- ☐ Pax: 6 (1 polystr.)
+- ☑︎ Pax: 6 (1 polystr.)
 - ☐ Av.: 10
 - ☐ Lys.: 8 (1 polystr.)
 - ☐ Th.: 4
@@ -27,7 +27,7 @@ Varav polystrofiska: 6 (≈ 7.6%)
 3. Compile into machine-friendly custom XML
 4. Runs responsion stats 
 
-## The stats
+## Stats, hypotheses
 
 There are three separate statistical analyses:
 
@@ -47,7 +47,8 @@ These metrics should also be run on subsets of
 
 We search for statistical development
 - between the songs within a play (are the earlier or latter more responding? Linear dev?)
-- between all plays 
+- between all plays
+  - do "virtuosic" plays (such as Av. acc. to Parker, and arguably Ra.) stand out in any way?
 - between machine generated clusters of plays!
 - inside a song, e.g. if as in V. 526 (νῦν δὴ...) the opening 7 cola have no responsion while the last 6 all have. For such a corrupt text, that can also be a possible indicator of reliability
 

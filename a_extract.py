@@ -1,5 +1,10 @@
-import sys
-import argparse
+# a_extract.py
+'''
+First step of the XML processing pipeline for the accentual responsion project, Urdatorn/aristophanis-cantica.
+
+Takes a TEI XML file and extracts manually chosen responding strophes, formatting them as <canticum> elements with <strophe> and <antistrophe> children.
+'''
+
 from lxml import etree
 import re
 
@@ -8,18 +13,21 @@ import re
 ################
 
 cantica = [
-    [(346, 360), (385, 399), (582, 600)],
-    [(463, 472), (490, 499)],
-    [(775, 795), (796, 818)],
-    [(856, 867), (909, 921)],
-    [(939, 955), (1023, 1038)],
-    [(1127, 1139), (1159, 1171)]
+    [(327, 335), (343, 351)],
+    [(451, 459), (539, 547)],
+    [(737, 752), (769, 784)],
+    [(851, 858), (859, 902)],
+    [(1188, 1195), (1262, 1266)],
+    [(1313, 1322), (1325, 1334)],
+    [(1470, 1481), (1482, 1493)],
+    [(1553, 1564), (1694, 1705)],
+    [(1731, 1736), (1737, 1742)]
 ]
 
 responsion_prefix = "av"
 responsion_counter = 1
 xml_file = "source/06av.xml"
-output_file = f"responsion_{responsion_prefix}_raw.xml"
+output_file = f"raw/responsion_{responsion_prefix}_raw.xml"
 author = "Aristophanes"
 title = "Aves"
 
