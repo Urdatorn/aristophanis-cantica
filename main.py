@@ -1,5 +1,13 @@
 #!/usr/bin/env python3
 
+# Copyright © Albin Ruben Johannes Thörn Cleland 2025, Lunds universitet, albin.thorn_cleland@klass.lu.se
+# This file is part of aristophanis-cantica, licensed under the GNU General Public License v3.0.
+# See the LICENSE file in the project root for full details.
+
+'''
+
+'''
+
 import re
 import os
 import argparse
@@ -13,7 +21,6 @@ from significance import SignificanceTester
 
 from stats import (
     accentually_responding_syllables_of_strophes_polystrophic,
-    accentually_responding_syllables_of_lines_polystrophic,
     count_all_syllables,
     count_all_accents,
     count_all_accents_canticum
@@ -46,6 +53,10 @@ def get_all_responsion_numbers(tree):
         responsions.add(strophe.get('responsion'))
     return responsions
 
+#######################
+# Process responsions #
+#######################
+
 
 def process_responsions(tree, responsion_numbers):
     """
@@ -65,7 +76,7 @@ def process_responsions(tree, responsion_numbers):
 
     for responsion in responsion_numbers:
         # Fetch all strophes and antistrophes with this responsion number
-        strophes = tree.xpath(f'//strophe[@responsion="{responsion}"] | //antistrophe[@responsion="{responsion}"]')
+        strophes = tree.xpath(f'//*[self::strophe or self::antistrophe][@responsion="{responsion}"]')
 
         if len(strophes) < 2:
             print(f"process_responsions: Insufficient strophes for responsion {responsion}.\n")
@@ -99,8 +110,12 @@ def process_barys_responsions(tree, responsion_numbers):
     oxys_total = 0
     barys_summaries = {}
 
+    print(f'{responsion_numbers=}')
+
     for responsion in responsion_numbers:
-        strophes = tree.xpath(f'//strophe[@responsion="{responsion}"] | //antistrophe[@responsion="{responsion}"]')
+        strophes = tree.xpath(f'//*[self::strophe or self::antistrophe][@responsion="{responsion}"]')
+        print(f"Found {len(strophes)} strophes for responsion {responsion}")
+        print(f"Their types: {[s.get('type') for s in strophes]}")
 
         if len(strophes) < 2:
             print(f"process_barys_responsions: Insufficient strophes for responsion {responsion}.\n")
@@ -108,6 +123,7 @@ def process_barys_responsions(tree, responsion_numbers):
 
         # Extract corresponding lines from each strophe
         strophe_lines = [strophe.findall('l') for strophe in strophes]
+        print(f"Line counts in strophes: {[len(lines) for lines in strophe_lines]}")
 
         # Ensure all strophes have the same number of lines
         num_lines = len(strophe_lines[0])
@@ -133,6 +149,23 @@ def process_barys_responsions(tree, responsion_numbers):
         oxys_total += oxys_count
 
     return barys_total, oxys_total, barys_summaries
+
+
+##########
+# Prints #
+##########
+
+
+def print_ascii_header():
+    """Print the ASCII art header for responsion."""
+    print(r"""
+                                     _             
+ _ __ ___  ___ _ __   ___  _ __  ___(_) ___  _ __  
+| '__/ _ \/ __| '_ \ / _ \| '_ \/ __| |/ _ \| '_ \ 
+| | |  __/\__ \ |_) | (_) | | | \__ \ | (_) | | | |
+|_|  \___||___/ .__/ \___/|_| |_|___/_|\___/|_| |_|
+              |_|                                  
+    """)
 
 
 def print_combined_summary(
@@ -225,14 +258,7 @@ def print_combined_summary(
     infix_list_str = ', '.join(ordered_infix_list)
 
     # Print summary
-    print(r"""
-                                     _             
- _ __ ___  ___ _ __   ___  _ __  ___(_) ___  _ __  
-| '__/ _ \/ __| '_ \ / _ \| '_ \/ __| |/ _ \| '_ \ 
-| | |  __/\__ \ |_) | (_) | | | \__ \ | (_) | | | |
-|_|  \___||___/ .__/ \___/|_| |_|___/_|\___/|_| |_|
-              |_|                                  
-    """)
+    print_ascii_header()
     print(f"Analyzed Plays: {infix_list_str}")
     print(f"Cantica: {responsion_list_str}\n")
 
@@ -285,39 +311,31 @@ if __name__ == "__main__":
     # Decide how many arguments we have and whether they are infixes or specific canticum labels
     # ------------------------------------------------------------------------
     if len(args.args) == 0:
-        # If no arguments, we process ALL allowed infixes in the current directory
         for infix in ALLOWED_INFIXES:
-            xml_file = f"responsion_{infix}_compiled.xml"
+            xml_file = f"compiled/responsion_{infix}_compiled.xml"
             if os.path.exists(xml_file):
                 infix_list.append(infix)
                 tree = etree.parse(xml_file)
 
-                responsion_nums = get_all_responsion_numbers(tree)
-                responsion_numbers.update(responsion_nums)
+                # Get responsions for THIS file only
+                file_responsions = get_all_responsion_numbers(tree)
+                responsion_numbers.update(file_responsions)  # Add to global set for final reporting
 
-                # Count total accent occurrences for the entire file
+                # Count total accents for this file
                 file_counts = count_all_accents(tree)
                 for key in total_counts:
                     total_counts[key] += file_counts[key]
 
-                # Count total syllables for the entire file
-                file_sylls = count_all_syllables(tree)
-
-                # Count accentual responsion matches
-                file_overall, file_summaries = process_responsions(tree, responsion_nums)
+                # Process THIS file with its own responsions
+                file_overall, file_summaries = process_responsions(tree, file_responsions)
+                file_barys, file_oxys, _ = process_barys_responsions(tree, file_responsions)
+                
+                # Update totals
                 for key in overall_counts:
                     overall_counts[key] += file_overall[key]
-                merge_summaries(resp_summaries, file_summaries)
-
-                if len(responsion_numbers) == 1:
-                    # Single canticum case: process only this responsion
-                    responsion = next(iter(responsion_numbers))
-                    total_barys, total_oxys, _ = process_barys_responsions(tree, {responsion})
-                else:
-                    # Multiple cantica case: process all responsions normally
-                    file_barys, file_oxys, _ = process_barys_responsions(tree, responsion_numbers)
-                    total_barys += file_barys
-                    total_oxys  += file_oxys
+                merge_summaries(resp_summaries, file_summaries)  # Add this line
+                total_barys += file_barys
+                total_oxys += file_oxys
 
     else:
         # If we do have arguments, handle them
@@ -326,7 +344,7 @@ if __name__ == "__main__":
             if arg in ALLOWED_INFIXES:
                 if arg not in infix_list:
                     infix_list.append(arg)
-                input_file = f"responsion_{arg}_compiled.xml"
+                input_file = f"compiled/responsion_{arg}_compiled.xml"
                 if os.path.exists(input_file):
                     tree = etree.parse(input_file)
                     responsion_nums = get_all_responsion_numbers(tree)
@@ -361,7 +379,7 @@ if __name__ == "__main__":
                     continue
                 infix = match.group(1)
 
-                input_file = f"responsion_{infix}_compiled.xml"
+                input_file = f"compiled/responsion_{infix}_compiled.xml"
                 if os.path.exists(input_file):
                     
                     if infix in ALLOWED_INFIXES and infix not in infix_list:

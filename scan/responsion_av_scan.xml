@@ -10,7 +10,7 @@
   </teiHeader>
   <text>
     <body>
-      <canticum>
+      <canticum genre="anapaestic, dochmic, cretic">
         <strophe type="strophe" responsion="av01">
           <l n="327" metre="" speaker="ΧΟ.">Ἔα ἔα· </l>
           <l n="328" metre="">προδεδόμεθ' ἀνόσιά τ' ἐπάθομεν· ὃς γὰρ </l>
