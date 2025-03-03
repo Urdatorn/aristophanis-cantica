@@ -7,3 +7,9 @@ graph TD
     B -->|Yes| C[Celebrate!]
     B -->|No| D[Fix it!]
     D --> B
+    
+```
+
+Text[^1]
+
+[^1]: Footnote
