@@ -151,10 +151,10 @@ def compatibility_line(*xml_lines) -> list[float]:
     Returns a list of floats, one for each position.
     - To "re-binarize" the results later, simply interpret 1 as MATCH and everything else as REPEAT.
     '''
-    print('Processing the following set of responding lines...')
-    line_numbers = [line.get('n') for line in xml_lines]
-    for line_number, line in zip(line_numbers, xml_lines):
-        print(f'\tLine {line_number}: \t{restore_text(line)}...')
+    # print('Processing the following set of responding lines...')
+    # line_numbers = [line.get('n') for line in xml_lines]
+    # for line_number, line in zip(line_numbers, xml_lines):
+    #     print(f'\tLine {line_number}: \t{restore_text(line)}...')
 
     compatibility_ratios = []
 
@@ -231,7 +231,7 @@ def compatibility_line(*xml_lines) -> list[float]:
         position_compatibility_ratio = max_len / len(position)
         compatibility_ratios.append(position_compatibility_ratio)
 
-    print(f'Compatibility ratios: {compatibility_ratios}')
+    #print(f'Compatibility ratios: {compatibility_ratios}')
     return compatibility_ratios
 
 

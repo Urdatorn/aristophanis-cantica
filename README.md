@@ -2,12 +2,12 @@
 
 ## URGENT TODOS!!
 
+☐ scan some recitative as baseline, both since Conser does not provide a baseline of barys, and because it would be more fitting to use comic recitative 
 ☐ fix accent count only counting one strophe sometimes
 ☐ polystrophic songs
-☐ add "compatible syllables" stats
-☐ scan some recitative as baseline, both since Conser does not provide a baseline of barys, and because it would be more fitting to use comic recitative 
+☑︎ add "compatible syllables" stats
 ☐ show word breaks in visualization 
-- might be good to add option to remove "precisely repeating rephrains" from stats; cf. Conser's diss. p. 374.
+☐ might be good to add option to remove "precisely repeating rephrains" from stats; cf. Conser's diss. p. 374.
 
 ## Scanning progress
 
@@ -32,9 +32,10 @@ Varav polystrofiska: 6 (≈ 7.6%)
 2. Manually mark 
    1. syllable boundaries and their weight, 
    2. anceps and resolution/contraction attributes
-   3. macrons
+   3. (optional: macrons for some superlongs)
 3. Compile into machine-friendly custom XML
-4. Runs responsion stats 
+4. Compute the three responsion metrics 
+5. Interpret and cluster the results in interesting ways
 
 ## Hypotheses to test
 
