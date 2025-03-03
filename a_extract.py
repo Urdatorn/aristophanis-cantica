@@ -13,23 +13,18 @@ import re
 ################
 
 cantica = [
-    [(327, 335), (343, 351)],
-    [(451, 459), (539, 547)],
-    [(737, 752), (769, 784)],
-    [(851, 858), (859, 902)],
-    [(1188, 1195), (1262, 1266)],
-    [(1313, 1322), (1325, 1334)],
-    [(1470, 1481), (1482, 1493)],
-    [(1553, 1564), (1694, 1705)],
-    [(1731, 1736), (1737, 1742)]
+    [(1, 8), (9, 17)],
+    [(18, 26), (27, 35)],
+    [(54, 62), (63, 71)],
+    [(72, 80), (81, 89)]
 ]
 
-responsion_prefix = "av"
-responsion_counter = 1
-xml_file = "source/06av.xml"
+responsion_prefix = "baseline"
+responsion_counter = 13
+xml_file = "source/04v.xml"
 output_file = f"raw/responsion_{responsion_prefix}_raw.xml"
 author = "Aristophanes"
-title = "Aves"
+title = "Baseline"
 
 ################
 ################
@@ -70,11 +65,27 @@ tree = etree.parse(xml_file)
 for elem in tree.getiterator():
     elem.tag = etree.QName(elem).localname  # Strip namespace prefix
 
-# 2) Remove all <pb/> and <lb/> elements
+# 2a) Remove all <pb/> and <lb/> elements
 for pb in tree.xpath("//pb"):
     pb.getparent().remove(pb)
 for lb in tree.xpath("//lb"):
     lb.getparent().remove(lb)
+
+# 2b) Remove all <hi> elements
+for hi in tree.xpath("//hi"):
+    parent = hi.getparent()
+    if hi.tail is not None:
+        if len(hi) > 0:  # if hi has children
+            last_child = hi[-1]
+            last_child.tail = (last_child.tail or '') + hi.tail
+        else:  # if hi has no children
+            hi.text = (hi.text or '') + hi.tail
+    previous = hi.getprevious()
+    if previous is not None:
+        previous.tail = (previous.tail or '') + (hi.text or '')
+    else:
+        parent.text = (parent.text or '') + (hi.text or '')
+    parent.remove(hi)
 
 # -----------------------------------------------------------------------------
 # 3) Remove <label type="speaker" ...> from within <l>; 
@@ -100,6 +111,12 @@ for label in tree.xpath("//label"):
     label.attrib.clear()
     label.set("speaker", speaker_text)
     label.text = None
+
+# Optional: remove speaker="" attribute from all elements
+for line in tree.xpath("//l"):
+    if "speaker" in line.attrib:
+        del line.attrib["speaker"]
+        print(f"Removed speaker= attribute from {line.tag}")   
 
 # 5) Ensure metre="" is present and ordered correctly
 for l in tree.xpath("//body//l"):
