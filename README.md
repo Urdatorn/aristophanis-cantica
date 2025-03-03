@@ -27,7 +27,7 @@ Varav polystrofiska: 6 (≈ 7.6%)
 3. Compile into machine-friendly custom XML
 4. Runs responsion stats 
 
-## Stats, hypotheses
+## Hypotheses to test
 
 There are three separate statistical analyses:
 
@@ -43,6 +43,7 @@ These metrics should also be run on subsets of
   - on trochaic verses only
   - on iambic verses only
   - on Aeolic verses only
+  - on the two songs of "undeveloped Attic dactylo-epitrite", av02 and Ran. 674ff~706ff
 - individual plays
 
 We search for statistical development
@@ -77,3 +78,5 @@ We also need to show
 The penultimate paeon of  997 is an intersting example of melodic responsion as influencing editorial decisions. The strophe has τήνδε, and readings vary between ὄρχον (L, adoped by Wilson 2007), κλάδον (cett), ὄσχον (Brunck) and ὦσχον (Deubner, adopted by Parker 1997). Bracketing the sense, the first three readings gain extra attraction (for what its worth) because they make the acutes respond, perhaps the more convincing since the outlier is a conjecture.
 
 # Results
+
+See [this markdown document](RESULT.md). 
