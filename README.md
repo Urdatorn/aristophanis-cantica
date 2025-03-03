@@ -1,6 +1,15 @@
 # Aristophanis Canticorum Omniorum Responsio Accentuum
 
-## Antistrophic Cantica
+## URGENT TODOS!!
+
+☐ fix accent count only counting one strophe sometimes
+☐ polystrophic songs
+☐ add "compatible syllables" stats
+☐ scan some recitative as baseline, both since Conser does not provide a baseline of barys, and because it would be more fitting to use comic recitative 
+☐ show word breaks in visualization 
+- might be good to add option to remove "precisely repeating rephrains" from stats; cf. Conser's diss. p. 374.
+
+## Scanning progress
 
 Cantica med responsion: 
 - ☑︎ Ach.: 10 (1 polystr.)
@@ -56,15 +65,6 @@ We search for statistical development
 We also need to show
 - the degree of dependence between word-end distribution and accent distribution and
 - how often word-end responsion and accentual responsion come together 
-
-## URGENT TODOS!!
-
-☐ fix accent count only counting one strophe sometimes
-☐ polystrophic songs
-☐ add "compatible syllables" stats
-☐ scan some recitative as baseline, both since Conser does not provide a baseline of barys, and because it would be more fitting to use comic recitative 
-☐ show word breaks in visualization 
-- might be good to add option to remove "precisely repeating rephrains" from stats; cf. Conser's diss. p. 374.
 
 ## Upgrades to Conser's compatibility stats
 
