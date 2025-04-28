@@ -152,6 +152,22 @@
           <l n="1704-1705" metre="2 tr lek"><syll weight="heavy">παν</syll><syll weight="light">τα</syll><syll weight="heavy">χοῦ</syll> <syll weight="heavy" anceps="True">τῆ</syll><syll weight="heavy">ς Ἀτ</syll><syll weight="light">τι</syll><syll weight="heavy">κῆ</syll><syll weight="heavy" anceps="True">ς ἡ</syll> <syll weight="heavy">γλῶτ</syll><syll weight="light">τα</syll> <syll weight="heavy">χω</syll><syll weight="heavy" anceps="True">ρὶς</syll> <syll weight="heavy">τέμ</syll><syll weight="light">νε</syll><syll weight="heavy">ται</syll>. </l>
         </strophe>
       </canticum>
-      </body>
+      <canticum genre="aeolic">
+        <strophe type="strophe" responsion="av09">
+          <l n="1731" metre="tel"><syll weight="heavy" anceps="True">Ἥ</syll><syll weight="heavy">ρᾳ</syll> <syll weight="light">πο</syll><syll weight="light">τ' Ὀ</syll><syll weight="heavy">λυμ</syll><syll weight="light">πί</syll><syll weight="heavy">ᾳ</syll> </l>
+          <l n="1732" metre="tel"><syll weight="light" anceps="True">τὸ</syll><syll weight="heavy">ν ἠ</syll><syll weight="light">λι</syll><syll weight="light">βά</syll><syll weight="heavy">των</syll> <syll weight="light">θρό</syll><syll weight="heavy">νων</syll> </l>
+          <l n="1733" metre="tel"><syll weight="heavy" anceps="True">ἄρ</syll><syll weight="heavy">χον</syll><syll weight="light">τα</syll> <syll weight="light">θε</syll><syll weight="heavy">αὶ</syll> <syll weight="light">μέ</syll><syll weight="heavy">γαν</syll> </l>
+          <l n="1734" metre="tel"><syll weight="heavy" anceps="True">Μοῖ</syll><syll weight="heavy">ραι ξ</syll><syll weight="light">υ</syll><syll weight="light">νε</syll><syll weight="heavy">κοί</syll><syll weight="light">μι</syll><syll weight="heavy">σαν</syll> </l>
+          <l n="1735" metre="ph"><syll weight="light" anceps="True">ἐν</syll> <syll weight="heavy" anceps="True">τοι</syll><syll weight="heavy">ῷ</syll><syll weight="light">δ' ὑ</syll><syll weight="light">με</syll><syll weight="heavy">ναί</syll><syll weight="heavy">ῳ</syll>. </l>
+        </strophe>
+        <strophe type="antistrophe" responsion="av09">
+          <l n="1737" metre="tel"><syll weight="light" anceps="True">Ὁ</syll> <syll weight="heavy">δ' ἀμ</syll><syll weight="light">φι</syll><syll weight="light">θα</syll><syll weight="heavy">λὴ</syll><syll weight="light">ς Ἔ</syll><syll weight="heavy">ρως</syll> </l>
+          <l n="1738" metre="tel"><syll weight="heavy" anceps="True">χρυ</syll><syll weight="heavy">σόπ</syll><syll weight="light">τε</syll><syll weight="light">ρο</syll><syll weight="heavy">ς ἡ</syll><syll weight="light">νί</syll><syll weight="heavy">ας</syll> </l>
+          <l n="1739" metre="tel"><syll weight="heavy" anceps="True">ηὔ</syll><syll weight="heavy">θυ</syll><syll weight="light">νε</syll> <syll weight="light">πα</syll><syll weight="heavy">λιν</syll><syll weight="light">τό</syll><syll weight="heavy">νους</syll>, </l>
+          <l n="1740" metre="tel"><syll weight="heavy" anceps="True">Ζη</syll><syll weight="heavy">νὸς</syll> <syll weight="light">πά</syll><syll weight="light">ρο</syll><syll weight="heavy">χος</syll> <syll weight="light">γά</syll><syll weight="heavy">μων</syll> </l>
+          <l n="1741" metre="ph"><syll weight="heavy" anceps="True">τῆς</syll> <syll weight="heavy" anceps="True">τ' εὐ</syll><syll weight="heavy">δαί</syll><syll weight="light">μο</syll><syll weight="light">νο</syll><syll weight="heavy">ς Ἥ</syll><syll weight="heavy">ρας</syll>. </l>
+        </strophe>
+      </canticum>
+    </body>
   </text>
 </TEI>
