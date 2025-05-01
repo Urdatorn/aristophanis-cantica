@@ -13,18 +13,22 @@ import re
 ################
 
 cantica = [
-    [(1, 8), (9, 17)],
-    [(18, 26), (27, 35)],
-    [(54, 62), (63, 71)],
-    [(72, 80), (81, 89)]
+    [(256, 265), (271, 280)],
+    [(286, 295), (296, 305)],
+    [(321, 334), (335, 349)],
+    [(476, 483), (541, 548)],
+    [(614, 625), (636, 647)],
+    [(658, 671), (682, 695)],
+    [(781, 796), (805, 820)],
+    [(1043, 1057), (1058, 1071), (1189, 1202), (1203, 1215)]
 ]
 
-responsion_prefix = "baseline"
-responsion_counter = 13
-xml_file = "source/04v.xml"
+responsion_prefix = "lys"
+responsion_counter = 1
+xml_file = "source/07lys.xml"
 output_file = f"raw/responsion_{responsion_prefix}_raw.xml"
 author = "Aristophanes"
-title = "Baseline"
+title = "Lysistrata"
 
 ################
 ################

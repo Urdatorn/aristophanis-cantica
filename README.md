@@ -17,7 +17,7 @@ Cantica med responsion:
 - ☑︎ Nu.: 6
 - ☑︎ V.: 8
 - ☑︎ Pax: 6 (1 polystr.)
-- ☐ Av.: 10
+- ☑︎ Av.: 10
 - ☐ Lys.: 8 (1 polystr.)
 - ☐ Th.: 4
 - ☐ Ra.: 11 (2 polystr.)

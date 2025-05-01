@@ -1,0 +1,27 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<TEI>
+  <teiHeader>
+    <fileDesc>
+      <titleStmt>
+        <title>Lysistrata</title>
+        <author>Aristophanes</author>
+      </titleStmt>
+    </fileDesc>
+  </teiHeader>
+  <text>
+    <body>
+      <canticum genre="euripideans with synizesis">
+        <strophe type="strophe" responsion="lys01">
+          <l n="256-257" metre="2 ia ith"><syll weight="heavy" anceps="True">Ἦ</syll> <syll weight="heavy">πόλ</syll><syll weight="light">λ' ἄ</syll><syll weight="heavy">ελ</syll><syll weight="light" anceps="True">πτ' ἔ</syll><syll weight="heavy">νεσ</syll><syll weight="light">τι</syll><syll weight="heavy">ν ἐν</syll> <syll weight="heavy">τῷ</syll> <syll weight="light">μα</syll><syll weight="heavy">κρῷ</syll> <syll weight="light">βί</syll><syll weight="heavy">ῳ</syll>, <syll weight="heavy">φεῦ</syll>, </l>
+          <l n="258-259" metre="2 ia ith"><syll weight="light" anceps="True">ἐ</syll><syll weight="heavy">πεὶ</syll> <syll weight="light">τί</syll><syll weight="heavy">ς ἄν</syll> <syll weight="light" anceps="True">πο</syll><syll weight="heavy">τ' ἤλ</syll><syll weight="light">πι</syll><syll weight="heavy">σ', ὦ Σ</syll><syll weight="heavy">τρυ</syll><syll weight="light">μό</syll><syll weight="heavy">δω</syll><syll weight="light">ρ', ἀ</syll><syll weight="heavy">κοῦ</syll><syll weight="heavy">σαι</syll> </l>
+          <l n="260-261" metre="4 ia"><syll weight="light" anceps="True">γυ</syll><syll weight="heavy">ναῖ</syll><syll weight="light">κα</syll><syll weight="heavy">ς, ἃ</syll><syll weight="light" anceps="True">ς ἐ</syll><syll weight="heavy">βόσ</syll><syll weight="light">κο</syll><syll weight="heavy">μεν</syll> <syll weight="light" anceps="True">κα</syll><syll weight="heavy">τ' οἶ</syll><syll weight="light">κο</syll><syll weight="heavy">ν ἐμ</syll><syll weight="light" anceps="True">φα</syll><syll weight="heavy">νὲς</syll> <syll weight="light">κα</syll><syll weight="heavy">κόν</syll>, </l>
+        </strophe>
+        <strophe type="antistrophe" responsion="lys01">
+          <l n="271-272" metre="2 ia ith"><syll weight="heavy" anceps="True">Οὐ</syll> <syll weight="heavy">γὰρ</syll> <syll weight="light">μὰ</syll> <syll weight="heavy">τὴν</syll> <syll weight="heavy" anceps="True">Δή</syll><syll weight="heavy">μη</syll><syll weight="light">τρ' ἐ</syll><syll weight="heavy">μοῦ ζ</syll><syll weight="heavy">ῶν</syll><syll weight="light">το</syll><syll weight="heavy">ς ἐγ</syll><syll weight="light">χα</syll><syll weight="heavy">νοῦν</syll><syll weight="heavy">ται</syll>· </l>
+          <l n="273-274" metre="2 ia ith"><syll weight="light" anceps="True">ἐ</syll><syll weight="heavy">πεὶ οὐ</syll><syll weight="light">δὲ</syll> <syll weight="light" resolution="True">Κλε</syll><syll weight="light" resolution="True">ο</syll><syll weight="light" anceps="True">μέ</syll><syll weight="heavy">νη</syll><syll weight="light">ς, ὃ</syll><syll weight="heavy">ς αὐ</syll><syll weight="heavy">τὴν</syll> <syll weight="light">κα</syll><syll weight="heavy">τέσ</syll><syll weight="light">χε</syll> <syll weight="heavy">πρῶ</syll><syll weight="heavy">τος</syll>, </l>
+          <l n="275-276" metre=""><syll weight="light" anceps="True">ἀ</syll><syll weight="heavy">πῆλ</syll><syll weight="light">θε</syll><syll weight="heavy">ν ἀψ</syll><syll weight="light" anceps="True">ά</syll><syll weight="heavy">λακ</syll><syll weight="light">το</syll><syll weight="heavy">ς, ἀλ</syll><syll weight="light" anceps="True">λ' ὅ</syll><syll weight="heavy">μως</syll> <syll weight="light">Λα</syll><syll weight="heavy">κω</syll><syll weight="light" anceps="True">νι</syll><syll weight="heavy">κὸν</syll> <syll weight="light">πνέ</syll><syll weight="heavy">ων</syll> </l>
+        </strophe>
+      </canticum>
+      </body>
+  </text>
+</TEI>
