@@ -13,22 +13,18 @@ import re
 ################
 
 cantica = [
-    [(256, 265), (271, 280)],
-    [(286, 295), (296, 305)],
-    [(321, 334), (335, 349)],
-    [(476, 483), (541, 548)],
-    [(614, 625), (636, 647)],
-    [(658, 671), (682, 695)],
-    [(781, 796), (805, 820)],
-    [(1043, 1057), (1058, 1071), (1189, 1202), (1203, 1215)]
+    [(434, 442), (520, 530)],
+    [(959, 962), (963, 965)],
+    [(969, 976), (977, 984)],
+    [(990, 994), (995, 1000)],
 ]
 
-responsion_prefix = "lys"
+responsion_prefix = "th"
 responsion_counter = 1
-xml_file = "source/07lys.xml"
+xml_file = "source/08th.xml"
 output_file = f"raw/responsion_{responsion_prefix}_raw.xml"
 author = "Aristophanes"
-title = "Lysistrata"
+title = "Tesmophoriazusae"
 
 ################
 ################

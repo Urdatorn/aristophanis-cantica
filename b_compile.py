@@ -19,7 +19,7 @@ import argparse
 from lxml import etree
 import re
 
-from stats import metrically_responding_lines_polystrophic
+from src.stats import metrically_responding_lines_polystrophic
 
 # Mapping of brackets to <syll> tags
 # ***Important: single chars must come after multi-chars!***

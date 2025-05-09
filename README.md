@@ -2,23 +2,23 @@
 
 ## URGENT TODOS!!
 
-☐ scan some recitative as baseline, both since Conser does not provide a baseline of barys, and because it would be more fitting to use comic recitative 
-☐ fix accent count only counting one strophe sometimes
-☐ polystrophic songs
-☑︎ add "compatible syllables" stats
-☐ show word breaks in visualization 
-☐ might be good to add option to remove "precisely repeating rephrains" from stats; cf. Conser's diss. p. 374.
+- ✅ scan some recitative as baseline, both since Conser does not provide a baseline of barys, and because it would be more fitting to use comic recitative 
+- ☐ fix accent count only counting one strophe sometimes
+- ✅ polystrophic songs
+- ✅ add "compatible syllables" stats
+- ☐ show word breaks in visualization 
+- ☐ might be good to add option to remove "precisely repeating rephrains" from stats; cf. Conser's diss. p. 374.
 
 ## Scanning progress
 
 Cantica med responsion: 
-- ☑︎ Ach.: 10 (1 polystr.)
-- ☑︎ Eq.: 8, alla körer! (1 polystr. m. 4)
-- ☑︎ Nu.: 6
-- ☑︎ V.: 8
-- ☑︎ Pax: 6 (1 polystr.)
-- ☑︎ Av.: 10
-- ☑︎ Lys.: 8 (1 polystr.)
+- ✅ Ach.: 10 (1 polystr.)
+- ✅ Eq.: 8, alla körer! (1 polystr. m. 4)
+- ✅ Nu.: 6
+- ✅ V.: 8
+- ✅ Pax: 6 (1 polystr.)
+- ✅ Av.: 10
+- ✅ Lys.: 8 (1 polystr.)
 - ☐ Th.: 4
 - ☐ Ra.: 11 (2 polystr.)
 - ☐ Ec.: 6 
