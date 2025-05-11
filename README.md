@@ -19,7 +19,7 @@ Cantica med responsion:
 - ✅ Pax: 6 (1 polystr.)
 - ✅ Av.: 10
 - ✅ Lys.: 8 (1 polystr.)
-- ☐ Th.: 4
+- ✅ Th.: 4
 - ☐ Ra.: 11 (2 polystr.)
 - ☐ Ec.: 6 
 - ☐ Pl.: 2 

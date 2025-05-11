@@ -13,18 +13,16 @@ import re
 ################
 
 cantica = [
-    [(434, 442), (520, 530)],
-    [(959, 962), (963, 965)],
-    [(969, 976), (977, 984)],
-    [(990, 994), (995, 1000)],
+    [(290, 295), (296, 301)],
+    [(302, 308), (309, 315)],
 ]
 
-responsion_prefix = "th"
+responsion_prefix = "pl"
 responsion_counter = 1
-xml_file = "source/08th.xml"
+xml_file = "source/11pl.xml"
 output_file = f"raw/responsion_{responsion_prefix}_raw.xml"
 author = "Aristophanes"
-title = "Tesmophoriazusae"
+title = "Plutus"
 
 ################
 ################
