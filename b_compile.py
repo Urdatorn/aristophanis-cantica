@@ -236,8 +236,8 @@ def main():
     parser.add_argument("infix", help="Abbreviation for the play (e.g., 'eq').")
     args = parser.parse_args()
 
-    input_file = f"scan/responsion_{args.infix}_scan.xml"
-    output_file = f"compiled/responsion_{args.infix}_compiled.xml"
+    input_file = f"data/scan/responsion_{args.infix}_scan.xml"
+    output_file = f"data/compiled/responsion_{args.infix}_compiled.xml"
 
     process_file(input_file, output_file)
 

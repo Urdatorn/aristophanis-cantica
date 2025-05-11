@@ -22,7 +22,7 @@ Cantica med responsion:
 - ✅ Th.: 4
 - ☐ Ra.: 11 (2 polystr.)
 - ☐ Ec.: 6 
-- ☐ Pl.: 2 
+- ✅ Pl.: 2 
 
 Summa: 79
 Varav polystrofiska: 6 (≈ 7.6%)

@@ -50,7 +50,8 @@ import argparse
 from lxml import etree
 
 from grc_utils import normalize_word
-from stats import (
+
+from .stats import (
     polystrophic,
     metrically_responding_lines_polystrophic,
     build_units_for_accent,         # same 'unit' building logic

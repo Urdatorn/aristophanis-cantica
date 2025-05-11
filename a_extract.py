@@ -19,8 +19,8 @@ cantica = [
 
 responsion_prefix = "pl"
 responsion_counter = 1
-xml_file = "source/11pl.xml"
-output_file = f"raw/responsion_{responsion_prefix}_raw.xml"
+xml_file = "data/source/11pl.xml"
+output_file = f"data/raw/responsion_{responsion_prefix}_raw.xml"
 author = "Aristophanes"
 title = "Plutus"
 

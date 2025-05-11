@@ -45,10 +45,11 @@ import xml.etree.ElementTree as ET
 from lxml import etree
 import re
 
-from visualize import restore_text
 from grc_utils import is_enclitic, is_proclitic
-from stats import accents, metrically_responding_lines_polystrophic
-from utils.words import space_after, space_before
+
+from .visualize import restore_text
+from .stats import accents, metrically_responding_lines_polystrophic
+from .utils.words import space_after, space_before
 
 
 ###############################################################################

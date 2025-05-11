@@ -1,7 +1,8 @@
 import re
 import sys
 from lxml import etree
-from stats import (
+
+from .stats import (
     accentually_responding_syllables_of_line_pair,
     build_units_for_accent,
     canonical_sylls,
