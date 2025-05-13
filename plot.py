@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 
-def visualize_play_dict(play_dict):
+def plot_dict(play_dict, y_start=0.8, y_end=0.84):
     # Extract keys and values from the dictionary
     plays = list(play_dict.keys())
     stats = list(play_dict.values())
@@ -16,7 +16,7 @@ def visualize_play_dict(play_dict):
     plt.xticks(rotation=45)
 
     # Adjust y-axis limits to focus on the range of interest
-    plt.ylim(0.8, 0.84)
+    plt.ylim(y_start, y_end)
 
     plt.tight_layout()
 
