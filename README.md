@@ -20,7 +20,7 @@ Cantica med responsion:
 - ✅ Av.: 10
 - ✅ Lys.: 8 (1 polystr.)
 - ✅ Th.: 4
-- ☐ Ra.: 11 (2 polystr.)
+- ✅ Ra.: 11 (2 polystr.)
 - ☐ Ec.: 6 
 - ✅ Pl.: 2 
 
