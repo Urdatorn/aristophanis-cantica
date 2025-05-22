@@ -1,11 +1,20 @@
+import logging
 from lxml import etree
 
 from grc_utils import normalize_word
 
+from grc_utils import ACUTES, CIRCUMFLEXES, GRAVES
 from grc_utils import (
     UPPER_SMOOTH_ACUTE, UPPER_ROUGH_ACUTE, LOWER_ACUTE, LOWER_SMOOTH_ACUTE, LOWER_ROUGH_ACUTE, LOWER_DIAERESIS_ACUTE,
     UPPER_SMOOTH_GRAVE, UPPER_ROUGH_GRAVE, LOWER_GRAVE, LOWER_SMOOTH_GRAVE, LOWER_ROUGH_GRAVE, LOWER_DIAERESIS_GRAVE,
     UPPER_SMOOTH_CIRCUMFLEX, UPPER_ROUGH_CIRCUMFLEX, LOWER_CIRCUMFLEX, LOWER_SMOOTH_CIRCUMFLEX, LOWER_ROUGH_CIRCUMFLEX, LOWER_DIAERESIS_CIRCUMFLEX
+)
+
+logging.basicConfig(
+    filename='logs/debug.log',           # Save logs here
+    level=logging.DEBUG,            # Log all messages from DEBUG and up
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    filemode='w'                    # Overwrite each run; use 'a' to append
 )
 
 ###############################################################################
@@ -166,7 +175,7 @@ def metrically_responding_lines(strophe_line, antistrophe_line):
     c2 = canonical_sylls(antistrophe_line)
 
     if len(c1) != len(c2):
-        print(f"metrically_responding_lines: Line {strophe_line.get('n')} and {antistrophe_line.get('n')} have different syllable counts.")
+        logging.debug(f"metrically_responding_lines: Line {strophe_line.get('n')} and {antistrophe_line.get('n')} have different syllable counts.")
         return False
 
     for s1, s2 in zip(c1, c2):
@@ -260,7 +269,7 @@ def has_acute(syll):
     """
     text = syll.text or ""
     norm = normalize_word(text)
-    return any(ch in accents['acute'] for ch in norm)
+    return any(ch in ACUTES for ch in norm)
 
 
 def is_heavy(syll):
@@ -351,12 +360,14 @@ def do_double_vs_double_polystrophic(units, accent_lists):
 
     # Case (a): All first sub-syllables have acute
     if first_acutes:
+        logging.debug(f"DOUBLE RESPONSION: {units[0]['unit_ord']}.")
         accent_lists[0].append({
             (u['line_n'], u['unit_ord']): u['syll1'].text or "" for u in units
         })
 
     # Case (b): All second sub-syllables have acute
     if second_acutes:
+        logging.debug(f"DOUBLE RESPONSION: {units[0]['unit_ord']}.")
         accent_lists[0].append({
             (u['line_n'], u['unit_ord']): u['syll2'].text or "" for u in units
         })
@@ -407,6 +418,7 @@ def do_mixed_single_double_polystrophic(units, accent_lists):
         return
 
     # If conditions are satisfied, record matches
+    logging.debug(f"MIXED RESPONSION: {units[0]['unit_ord']}.") 
     for u in single_units:
         for d in double_units:
             accent_lists[0].append({
@@ -432,7 +444,7 @@ def accentually_responding_syllables_of_line_pair(strophe_line, antistrophe_line
     strophe_id = strophe_line.get('responsion')
     
     if not metrically_responding_lines(strophe_line, antistrophe_line):
-        print(f"accentually_responding_syllables_of_line_pair: Lines {strophe_line.get('n')} and {antistrophe_line.get('n')} in {strophe_id} do not metrically respond.")
+        logging.debug(f"accentually_responding_syllables_of_line_pair: Lines {strophe_line.get('n')} and {antistrophe_line.get('n')} in {strophe_id} do not metrically respond.")
         return False
 
     units1 = build_units_for_accent(strophe_line)
@@ -487,7 +499,7 @@ def accentually_responding_syllables_of_lines_polystrophic(*strophe_lines):
 
     # Check for metric responsion
     if not metrically_responding_lines_polystrophic(*strophe_lines):
-        print(
+        logging.debug(
             f"accentually_responding_syllables_of_lines_polystrophic: "
             f"Lines {line_numbers} in {strophe_ids} do not metrically respond."
         )
@@ -522,10 +534,18 @@ def accentually_responding_syllables_of_lines_polystrophic(*strophe_lines):
         elif all(t == 'double' for t in types):
             # All lines have double syllables at this index
             do_double_vs_double_polystrophic(units, accent_lists)
+            logging.debug(
+                f"\naccentually_responding_syllables_of_lines_polystrophic:"
+                f"\n\tAll double types at ordinal {units[0]['unit_ord']} in lines {line_numbers}."
+            )
 
         else:
             # Mixed single/double cases
             do_mixed_single_double_polystrophic(units, accent_lists)
+            logging.debug(
+                f"\naccentually_responding_syllables_of_lines_polystrophic: "
+                f"\n\tMixed types at ordinal {units[0]['unit_ord']} in lines {line_numbers}."
+            )
 
     return accent_lists
 
@@ -631,7 +651,7 @@ def accentually_responding_syllables_of_strophes_polystrophic(*strophes):
 
 
 if __name__ == "__main__":
-    tree = etree.parse("responsion_ach_compiled.xml")
+    tree = etree.parse("data/compiled/responsion_ach_compiled.xml")
 
     # Specify the responsion numbers to process
     responsion_numbers = {"ach01"}

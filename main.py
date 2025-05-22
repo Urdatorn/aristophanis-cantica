@@ -17,34 +17,23 @@ from lxml import etree
 import concurrent.futures
 
 # Updated import from significance.py
-from significance import SignificanceTester
+from src.significance import SignificanceTester
 
-from stats import (
+from src.stats import (
     accentually_responding_syllables_of_strophes_polystrophic,
     count_all_syllables,
     count_all_accents,
     count_all_accents_canticum
 )
-from stats_barys import (
+from src.stats_barys import (
     barys_accentually_responding_syllables_of_lines,
     count_all_barys_oxys,
     count_all_barys_oxys_canticum
 )
 
-ALLOWED_INFIXES = [
-    "ach",
-    "eq",
-    "nu",
-    "v",
-    "pax",
-    "av",
-    "lys",
-    "th",
-    "ra",
-    "ec",
-    "pl"
-]
+from src.utils.utils import abbreviations
 
+ALLOWED_INFIXES = abbreviations
 
 def get_all_responsion_numbers(tree):
     responsions = set()
@@ -56,7 +45,6 @@ def get_all_responsion_numbers(tree):
 #######################
 # Process responsions #
 #######################
-
 
 def process_responsions(tree, responsion_numbers):
     """
@@ -84,6 +72,7 @@ def process_responsions(tree, responsion_numbers):
 
         # Process strophes using the correct function
         accent_maps = accentually_responding_syllables_of_strophes_polystrophic(*strophes)
+        print("accent_maps: ", accent_maps)
 
         if accent_maps is False:
             continue  # Skip if something went wrong
@@ -312,7 +301,7 @@ if __name__ == "__main__":
     # ------------------------------------------------------------------------
     if len(args.args) == 0:
         for infix in ALLOWED_INFIXES:
-            xml_file = f"compiled/responsion_{infix}_compiled.xml"
+            xml_file = f"data/compiled/responsion_{infix}_compiled.xml"
             if os.path.exists(xml_file):
                 infix_list.append(infix)
                 tree = etree.parse(xml_file)
@@ -344,7 +333,7 @@ if __name__ == "__main__":
             if arg in ALLOWED_INFIXES:
                 if arg not in infix_list:
                     infix_list.append(arg)
-                input_file = f"compiled/responsion_{arg}_compiled.xml"
+                input_file = f"data/compiled/responsion_{arg}_compiled.xml"
                 if os.path.exists(input_file):
                     tree = etree.parse(input_file)
                     responsion_nums = get_all_responsion_numbers(tree)
@@ -379,7 +368,7 @@ if __name__ == "__main__":
                     continue
                 infix = match.group(1)
 
-                input_file = f"compiled/responsion_{infix}_compiled.xml"
+                input_file = f"data/compiled/responsion_{infix}_compiled.xml"
                 if os.path.exists(input_file):
                     
                     if infix in ALLOWED_INFIXES and infix not in infix_list:

@@ -9,19 +9,19 @@
 - ☐ show word breaks in visualization 
 - ☐ might be good to add option to remove "precisely repeating rephrains" from stats; cf. Conser's diss. p. 374.
 
-## Scanning progress
+## Corpus
 
 Cantica med responsion: 
-- ✅ Ach.: 10 (1 polystr.)
-- ✅ Eq.: 8, alla körer! (1 polystr. m. 4)
+- ✅ Ach.: 10 (1 polystr. with 4 str.)
+- ✅ Eq.: 8, alla körer! (1 polystr. with 4 str.)
 - ✅ Nu.: 6
 - ✅ V.: 8
-- ✅ Pax: 6 (1 polystr.)
+- ✅ Pax: 6 (1 polystr. with 3 str.)
 - ✅ Av.: 10
-- ✅ Lys.: 8 (1 polystr.)
+- ✅ Lys.: 8 (1 polystr. with 4 str.)
 - ✅ Th.: 4
-- ✅ Ra.: 11 (2 polystr.)
-- ☐ Ec.: 6 
+- ✅ Ra.: 11 (2 polystr. with 3 and 4 str. resp.)
+- ✅ Ec.: 6 
 - ✅ Pl.: 2 
 
 Summa: 79
@@ -80,4 +80,4 @@ The penultimate paeon of  997 is an intersting example of melodic responsion as 
 
 # Results
 
-See [this markdown document](RESULT.md). 
+See [this notebook](nb_results.ipynb). 
