@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 import matplotlib.colors as mcolors
+import numpy as np
 
 def plot_dict_as_points(play_dict, syll_counts, y_start=0.8, y_end=0.84):
     x_vals = []
@@ -26,8 +27,18 @@ def plot_dict_as_points(play_dict, syll_counts, y_start=0.8, y_end=0.84):
     plt.figure(figsize=(10, 6))
     plt.scatter(x_vals, y_vals, color=point_colors, s=60)
 
+    # Add labels to each point
     for x, y, label in zip(x_vals, y_vals, labels):
         plt.text(x, y + 0.001, label, ha='center', va='bottom', fontsize=9)
+
+    # Superimpose linear regression line
+    if x_vals and y_vals:
+        coeffs = np.polyfit(x_vals, y_vals, 1)
+        poly_eq = np.poly1d(coeffs)
+        x_fit = np.linspace(min(x_vals), max(x_vals), 100)
+        y_fit = poly_eq(x_fit)
+        plt.plot(x_fit, y_fit, color='black', linestyle='--', linewidth=2, label='Linear Regression')
+        plt.legend()
 
     plt.xlabel('Syllable Count', fontsize=12)
     plt.ylabel('Compatibility Metric', fontsize=12)

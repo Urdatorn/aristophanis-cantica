@@ -1,48 +1,14 @@
 #!/usr/bin/env python3
 
 """
-stats_barys.py
-
-This script analyzes **barys/oxys accentual responsion** in **strophic poetry**, specifically in Ancient Greek cantica.
-It extends `stats.py` with updated **barys and oxys detection rules** and handles both **single responsion** and **polystrophic responsion**.
-
-------------------------------
-## **Logic Flow**
-------------------------------
-
-1) **XML Parsing & Data Extraction**
-   - Parses a TEI-XML formatted **responsion_ach_compiled.xml**.
-   - Extracts **syllables** and their attributes (accent, weight, position).
-   - Groups **lines** into **strophes** and **antistrophes** based on responsion structure.
-
-2) **Barys and Oxys Detection**
-   - **Barys:** A syllable qualifies if:
-     - It has a **circumflex accent**, OR
-     - It is **heavy** and its **preceding syllable has an acute**.
-   - **Oxys:** Two single syllables respond "oxys" if:
-     - Both have an **acute accent**, AND
-     - Each is **either the last syllable** in its line OR **followed by a light syllable**.
-
-3) **Line-based Responsion Processing**
-   - Checks if **two lines metrically respond**.
-   - Extracts **units of accent comparison** (single or resolution-pair).
-   - **Matches syllables** between corresponding positions in the two lines.
-   - Stores **barys and oxys matches**.
-
-4) **Strophe-based Responsion Processing**
-   - Groups **corresponding lines** in **strophe-antistrophe pairs**.
-   - Applies line-based responsion logic to **each line pair**.
-   - Aggregates **barys and oxys matches** across the strophe.
-
-5) **Polystrophic Responsion Handling**
-   - Handles **multiple strophes** in **polystrophic cantica**.
-   - Uses **pairwise comparisons** across strophes.
-   - Aggregates **only complete n-tuples**, ensuring all strophes participate in each match.
-
-6) **Output Formatting**
-   - Prints **total counts** of barys/oxys matches for each canticum.
-   - Lists **each match with its exact syllable position and text**.
-   - **Polystrophic matches** are formatted separately with **n-tuple alignment**.
+Sections:
+- BARYS AND OXYS ACCENT DEFINITIONS
+- COUNT BARYS AND OXYS ACCENTS (REGARDLESSS OF RESPONSION)
+- BARYS RESPONSION
+- OXYS RESPONSION
+- HELPER FOR PRINTING BARYS / OXYS TEXT
+- PER-LINE FUNCTION
+- PER-STROPHE FUNCTION
 
 """
 
@@ -54,111 +20,14 @@ from grc_utils import normalize_word
 from .stats import (
     polystrophic,
     metrically_responding_lines_polystrophic,
-    build_units_for_accent,         # same 'unit' building logic
-    is_heavy,                       # same helper
-    has_acute,                      # same helper
-    accents                         # same accent dict
+    build_units_for_accent,
+    is_heavy,
+    has_acute,
+    accents
 )
 
-
-def count_all_barys_oxys(tree):
-    """
-    Count all syllables that satisfy barys or oxys criteria, regardless of matching.
-    
-    Parameters:
-    tree (etree._ElementTree): The parsed XML tree
-    
-    Returns:
-    dict: Dictionary with counts of potential 'barys' and 'oxys' syllables
-    """
-    counts = {
-        'barys': 0,
-        'oxys': 0
-    }
-    
-    # Get all syllables
-    all_sylls = tree.findall('.//syll')
-    
-    for i, syll in enumerate(all_sylls):
-        # Get the line this syllable belongs to
-        line = syll.getparent().getparent()  # syll -> word -> line
-        line_sylls = line.findall('.//syll')
-        
-        # Get previous and next syllables if they exist
-        prev_syll = None if i == 0 else all_sylls[i-1]
-        
-        # Check for barys potential
-        is_circumflex = has_circumflex(syll)
-        is_heavy_with_prev_acute = (
-            is_heavy(syll) and 
-            prev_syll is not None and 
-            has_acute(prev_syll)
-        )
-        
-        if is_circumflex or is_heavy_with_prev_acute:
-            counts['barys'] += 1
-            
-        # Check for oxys potential
-        if has_acute(syll) and next_syll_is_light_or_none(syll, line_sylls):
-            counts['oxys'] += 1
-    
-    return counts
-
-
-def count_all_barys_oxys_canticum(tree, responsion):
-    """
-    Count all syllables that satisfy barys or oxys criteria for a specific responsion.
-
-    Parameters:
-    tree (etree._ElementTree): The parsed XML tree
-    responsion (str): The responsion number to filter strophes/antistrophes
-
-    Returns:
-    dict: Dictionary with counts of potential 'barys' and 'oxys' syllables
-    """
-    counts = {
-        'barys': 0,
-        'oxys': 0
-    }
-
-    # Restrict to syllables in the specific responsion
-    all_sylls = tree.xpath(f'//strophe[@responsion="{responsion}"]//syll | //antistrophe[@responsion="{responsion}"]//syll')
-
-    for syll in all_sylls:
-        # Get the line this syllable belongs to
-        line = syll.getparent().getparent()  # syll -> word -> line
-        line_sylls = line.findall('.//syll')
-
-        # Find the index of the current syllable in its line
-        try:
-            syll_index = line_sylls.index(syll)
-        except ValueError:
-            # Syllable not found in its parent line, skip
-            continue
-
-        # Get previous and next syllables in the same line
-        prev_syll = line_sylls[syll_index - 1] if syll_index > 0 else None
-        next_syll = line_sylls[syll_index + 1] if syll_index + 1 < len(line_sylls) else None
-
-        # Check for barys potential
-        is_circumflex = has_circumflex(syll)
-        is_heavy_with_prev_acute = (
-            is_heavy(syll) and 
-            prev_syll is not None and 
-            has_acute(prev_syll)
-        )
-        if is_circumflex or is_heavy_with_prev_acute:
-            counts['barys'] += 1
-
-        # Check for oxys potential
-        if has_acute(syll) and next_syll_is_light_or_none(syll, line_sylls):
-            counts['oxys'] += 1
-
-    return counts
-
-
 # ------------------------------------------------------------------------
-# BARYS RESPONSION
+# BARYS AND OXYS ACCENT DEFINITIONS
 # ------------------------------------------------------------------------
 
 
@@ -169,6 +38,113 @@ def has_circumflex(syll):
     text = syll.text or ""
     norm = normalize_word(text)
     return any(ch in accents['circumflex'] for ch in norm)
+
+
+def next_syll_is_light_or_none(curr_syll, all_sylls):
+    """
+    Returns True if 'curr_syll' is the last in its line
+    OR the next syllable is weight="light".
+    """
+    try:
+        idx = all_sylls.index(curr_syll)
+    except ValueError:
+        return False
+
+    # If it's the last syllable in the line
+    if idx == len(all_sylls) - 1:
+        return True
+
+    # Otherwise check if next is light
+    nxt = all_sylls[idx + 1]
+    return (nxt.get('weight') == 'light')
+
+
+def barys_accent(syll, prev_syll):
+    is_circumflex = has_circumflex(syll)
+    is_heavy_with_prev_acute = (
+        is_heavy(syll) and 
+        prev_syll is not None and 
+        has_acute(prev_syll)
+    )
+
+    return bool(is_circumflex or is_heavy_with_prev_acute)
+
+
+def oxys_accent(syll, line_sylls):
+    return bool(has_acute(syll) and next_syll_is_light_or_none(syll, line_sylls))
+
+
+# ------------------------------------------------------------------------
+# COUNT BARYS AND OXYS ACCENTS (REGARDLESSS OF RESPONSION)
+# ------------------------------------------------------------------------
+
+
+def count_all_barys_oxys(tree) -> dict:
+    """
+    Count all syllables that satisfy barys or oxys criteria, regardless of matching.
+    """
+    counts = {
+        'barys': 0,
+        'oxys': 0
+    }
+    
+    all_sylls = tree.findall('.//syll')
+    
+    for i, syll in enumerate(all_sylls):
+
+        line = syll.getparent()
+        line_sylls = line.findall('.//syll')
+        prev_syll = None if i == 0 else all_sylls[i-1]
+        
+        if barys_accent(syll, prev_syll):
+            counts['barys'] += 1
+            
+        # Oxys accent
+        if oxys_accent(syll, line_sylls):
+            counts['oxys'] += 1
+    
+    return counts
+
+
+def count_all_barys_oxys_canticum(tree, responsion=None) -> dict:
+    counts = {
+        'barys': 0,
+        'oxys': 0
+    }
+
+    all_sylls = []
+    if responsion:
+        all_sylls = tree.xpath(f'(//strophe[@responsion="{responsion}"] | //antistrophe[@responsion="{responsion}"])//syll')
+    else:
+        all_sylls = tree.findall('.//syll')
+
+    for i, syll in enumerate(all_sylls):
+
+        line = syll.getparent()
+        line_sylls = line.findall('.//syll')
+        
+        prev_syll = None if i == 0 else all_sylls[i-1]
+        
+        # Barys accent
+        is_circumflex = has_circumflex(syll)
+        is_heavy_with_prev_acute = (
+            is_heavy(syll) and 
+            prev_syll is not None and 
+            has_acute(prev_syll)
+        )
+        if is_circumflex or is_heavy_with_prev_acute:
+            counts['barys'] += 1
+            
+        # Oxys accent
+        if has_acute(syll) and next_syll_is_light_or_none(syll, line_sylls):
+            counts['oxys'] += 1
+    
+    return counts
+
+
+# ------------------------------------------------------------------------
+# BARYS RESPONSION
+# ------------------------------------------------------------------------
 
 
 def barys_responsion(syll1, syll2, prev_syll1=None, prev_syll2=None):
@@ -206,25 +182,6 @@ def barys_responsion(syll1, syll2, prev_syll1=None, prev_syll2=None):
 # ------------------------------------------------------------------------
 # OXYS RESPONSION
 # ------------------------------------------------------------------------
-
-
-def next_syll_is_light_or_none(curr_syll, all_sylls):
-    """
-    Returns True if 'curr_syll' is the last in its line
-    OR the next syllable is weight="light".
-    """
-    try:
-        idx = all_sylls.index(curr_syll)
-    except ValueError:
-        return False
-
-    # If it's the last syllable in the line
-    if idx == len(all_sylls) - 1:
-        return True
-
-    # Otherwise check if next is light
-    nxt = all_sylls[idx + 1]
-    return (nxt.get('weight') == 'light')
 
 
 def oxys_responsion_single_syllables(s_syll, a_syll, all_sylls_1, all_sylls_2):
@@ -414,7 +371,7 @@ if __name__ == "__main__":
     parser.add_argument("infix", help="Infix of the play file (e.g., 'ach' for 'responsion_ach_compiled.xml').")
     args = parser.parse_args()
 
-    input_file = f"responsion_{args.infix}_compiled.xml"
+    input_file = f"data/compiled/responsion_{args.infix}_compiled.xml"
 
     # Parse the XML tree
     tree = etree.parse(input_file)

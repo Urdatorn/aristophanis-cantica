@@ -70,6 +70,17 @@ def count_all_syllables(tree):
     return total_count
 
 
+def count_all_syllables_canticum(tree, responsion):
+
+    canticum_count = 0
+    lines = tree.xpath(f'(//strophe[@responsion="{responsion}"] | //antistrophe[@responsion="{responsion}"])//l')
+
+    for line in lines:
+        syllable_list = canonical_sylls(line)
+        canticum_count += len(syllable_list)
+    return canticum_count
+
+
 def count_all_accents_canticum(tree, responsion):
     """
     Counts all occurrences of acute, grave, and circumflex accents across
