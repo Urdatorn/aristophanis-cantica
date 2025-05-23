@@ -1,6 +1,18 @@
 #!/usr/bin/env python3
 
+# Copyright © Albin Ruben Johannes Thörn Cleland 2025, Lunds universitet, albin.thorn_cleland@klass.lu.se
+# https://orcid.org/0009-0003-3731-4038
+# This file is part of aristophanis-cantica, licensed under the GNU General Public License v3.0.
+# See the LICENSE file in the project root for full details.
+
 """
+To cut to the chase, just use 
+
+    barys_oxys_metric_canticum(responsion) 
+    
+to get a dict with the barys, oxys and barys + oxys metrics 
+for all strophes with a given responsion attribute.
+
 Sections:
 - BARYS AND OXYS ACCENT DEFINITIONS
 - COUNT BARYS AND OXYS ACCENTS (REGARDLESSS OF RESPONSION)
@@ -9,6 +21,7 @@ Sections:
 - HELPER FOR PRINTING BARYS / OXYS TEXT
 - PER-LINE FUNCTION
 - PER-STROPHE FUNCTION
+- THE BARYS OXYS METRIC
 
 """
 
@@ -239,7 +252,7 @@ def get_oxys_print_text(curr_syll, next_syll):
 
 
 # ------------------------------------------------------------------------
-# PER-LINE FUNCTION
+# PER-LINE RESPONSION
 # ------------------------------------------------------------------------
 
 
@@ -313,7 +326,7 @@ def barys_accentually_responding_syllables_of_lines(*lines):
 
 
 # ------------------------------------------------------------------------
-# PER-STROPHE FUNCTION
+# PER-STROPHE RESPONSION
 # ------------------------------------------------------------------------
 
 
@@ -357,6 +370,51 @@ def barys_accentually_responding_syllables_of_strophes_polystrophic(*strophes):
         combined_oxys.extend(line_barys_oxys[1])
 
     return [combined_barys, combined_oxys]
+
+
+# ------------------------------------------------------------------------
+# THE BARYS OXYS METRIC
+# ------------------------------------------------------------------------
+
+
+def barys_oxys_metric_canticum(responsion) -> dict:
+    """
+    Takes a canticum id and returns a dict with the barys and oxys metrics.
+    """
+    results = {}
+
+    infix = responsion[:-2]
+    input_file = f"data/compiled/responsion_{infix}_compiled.xml"
+    tree = etree.parse(input_file)
+            
+    all_barys_oxys_canticum_dict = count_all_barys_oxys_canticum(tree, responsion)
+
+    sum_barys = all_barys_oxys_canticum_dict['barys']
+    sum_oxys = all_barys_oxys_canticum_dict['oxys']
+    sum_barys_oxys = sum_barys + sum_oxys
+
+    strophes = tree.xpath(f'//strophe[@responsion="{responsion}"] | //antistrophe[@responsion="{responsion}"]') # bug fix (was only strophe)
+    n = len(strophes)
+
+    barys_oxys_results = barys_accentually_responding_syllables_of_strophes_polystrophic(*strophes)
+
+    if not barys_oxys_results:
+        print("No valid barys/oxys matches found.\n")
+
+    barys_list, oxys_list = barys_oxys_results
+    barys_matches = len(barys_list)
+    oxys_matches = len(oxys_list)
+
+    barys_metric = (n * barys_matches) / sum_barys if sum_barys > 0 else 0
+    oxys_metric = (n * oxys_matches) / sum_oxys if sum_oxys > 0 else 0
+    barys_oxys_metric = (n * (len(barys_list) + len(oxys_list))) / sum_barys_oxys if sum_barys_oxys > 0 else 0
+
+    results = {
+        'barys_metric': barys_metric,
+        'oxys_metric': oxys_metric,
+        'barys_oxys_metric': barys_oxys_metric,
+    }
+    return results
 
 
 # ------------------------------------------------------------------------

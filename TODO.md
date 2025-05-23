@@ -1,9 +1,6 @@
 # URGENT TODOS (from more to less urgent)
 
-
-  - benchmarka robusthet hos barys- och accentresponsion också
-
-- fixa polystrofisk trimeter-baseline
+- fixa polystrofisk trimeter- och lyrikbaseline!
 
 - plotta 
   - pjäsbasis
