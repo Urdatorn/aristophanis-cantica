@@ -1,6 +1,8 @@
 from collections import defaultdict
 import logging
+import os
 from lxml import etree
+from pathlib import Path
 
 from grc_utils import ACUTES, normalize_word
 from grc_utils import (
@@ -121,6 +123,33 @@ def count_all_accents(tree):
             total_counts[accent_type] += count
 
     return total_counts
+
+
+def count_all_accents_corpus(folder, exclude_substr=None, include_substr=None):
+    """
+    Run with exclude_substr="baseline" to include only the plays!
+    Run with include_substr="baseline" to include only the baselines!
+    """
+    master_counts = {'acute': 0, 'grave': 0, 'circumflex': 0}
+
+    for filename in os.listdir(folder):
+        if not filename.endswith('.xml'):
+            continue
+        if exclude_substr and exclude_substr in filename:
+            continue
+        if include_substr and include_substr not in filename:
+            continue
+
+        filepath = os.path.join(folder, filename)
+        try:
+            tree = etree.parse(filepath)
+            file_counts = count_all_accents(tree)
+            for accent_type, count in file_counts.items():
+                master_counts[accent_type] += count
+        except Exception as e:
+            print(f"Error processing {filename}: {e}")
+
+    return master_counts
 
 
 ###############################################################################
@@ -794,6 +823,65 @@ def accentual_responsion_metric_play(xml_file) -> dict:
     stat_dictionary['grave'] += grave_stat
     stat_dictionary['circumflex'] += circumflex_stat
     stat_dictionary['acute_circumflex'] += acute_circumflex_stat
+
+    return stat_dictionary
+
+def accentual_responsion_metric_corpus(folder="data/compiled/", exclude_substr="baseline") -> dict:
+
+    accent_responsion_counts = {
+        'acute': 0.0,
+        'grave': 0.0,
+        'circumflex': 0.0,
+    }
+
+    for xml_file in os.listdir(folder):
+        if not xml_file.endswith('.xml'):
+            continue
+        if exclude_substr and exclude_substr in xml_file:
+            continue
+        
+        folder_path = Path(folder)
+        filepath = folder_path / xml_file
+        tree = etree.parse(filepath)
+        strophes = tree.xpath('//strophe | //antistrophe')
+
+        cantica = defaultdict(list)
+        for s in strophes:
+            key = s.get('responsion')
+            if key:
+                cantica[key].append(s)
+
+        # Count responding accents by iterating
+        for responsion_value, responding_strophes in cantica.items():
+            accent_maps = accentually_responding_syllables_of_strophes_polystrophic(*responding_strophes)
+
+            accent_responsion_counts['acute'] += sum(len(dict) for dict in accent_maps[0]) # each dict looks like: {('205', 7): 'πάν', ('220', 7): 'τεί'}
+            accent_responsion_counts['grave'] += sum(len(dict) for dict in accent_maps[1])
+            accent_responsion_counts['circumflex'] += sum(len(dict) for dict in accent_maps[2])
+
+    # Count total accents in the corpus
+
+    total_accent_sums = count_all_accents_corpus(folder, exclude_substr=exclude_substr)
+    acute_total = total_accent_sums['acute']
+    grave_total = total_accent_sums['grave']
+    circumflex_total = total_accent_sums['circumflex']
+    
+    # Defining the four stats of the metric
+
+    acute_stat = accent_responsion_counts['acute'] / acute_total if acute_total > 0 else 0
+    grave_stat = accent_responsion_counts['grave'] / grave_total if grave_total > 0 else 0
+    circumflex_stat = accent_responsion_counts['circumflex'] / circumflex_total if circumflex_total > 0 else 0
+
+    acute_circumflex_numerator = accent_responsion_counts['acute'] + accent_responsion_counts['circumflex']
+    acute_circumflex_denominator = acute_total + circumflex_total
+    acute_circumflex_stat = acute_circumflex_numerator / acute_circumflex_denominator if acute_circumflex_denominator > 0 else 0
+
+    stat_dictionary = {
+        'acute': acute_stat,
+        'grave': grave_stat,
+        'circumflex': circumflex_stat,
+        'acute_circumflex': acute_circumflex_stat,
+    }
 
     return stat_dictionary
 
