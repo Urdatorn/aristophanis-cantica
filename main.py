@@ -17,7 +17,7 @@ from lxml import etree
 import concurrent.futures
 
 # Updated import from significance.py
-from src.significance import SignificanceTester
+from src.utils.significance import SignificanceTester
 
 from src.stats import (
     accentually_responding_syllables_of_strophes_polystrophic,

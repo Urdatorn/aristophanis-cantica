@@ -11,8 +11,9 @@
 
 ## Corpus
 
-Cantica med responsion: 
-- ✅ Ach.: 10 (1 polystr. with 4 str.)
+The corpus consists of all the **78** Aristophanic cantica (songs, chorals) that have responding strophes, i.e. that are either antistrophic (exactly two strophes) or polystrophic (that have 3 or 4 strophes):
+
+- ✅ Ach.: 9 (1 polystr. with 4 str.)
 - ✅ Eq.: 8, alla körer! (1 polystr. with 4 str.)
 - ✅ Nu.: 6
 - ✅ V.: 8
@@ -22,10 +23,9 @@ Cantica med responsion:
 - ✅ Th.: 4
 - ✅ Ra.: 11 (2 polystr. with 3 and 4 str. resp.)
 - ✅ Ec.: 6 
-- ✅ Pl.: 2 
+- ✅ Pl.: 2
 
-Summa: 79
-Varav polystrofiska: 6 (≈ 7.6%)
+As seen above, only 6 songs (≈ 7.6%) are polystrophic, only 3 of which have 4 strophes. 
 
 ## Work flow
 1. Extract the cantica from the Diogenes XMLs

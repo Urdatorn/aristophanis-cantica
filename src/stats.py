@@ -1,14 +1,15 @@
+from collections import defaultdict
 import logging
 from lxml import etree
 
-from grc_utils import normalize_word
-
-from grc_utils import ACUTES, CIRCUMFLEXES, GRAVES
+from grc_utils import ACUTES, normalize_word
 from grc_utils import (
     UPPER_SMOOTH_ACUTE, UPPER_ROUGH_ACUTE, LOWER_ACUTE, LOWER_SMOOTH_ACUTE, LOWER_ROUGH_ACUTE, LOWER_DIAERESIS_ACUTE,
     UPPER_SMOOTH_GRAVE, UPPER_ROUGH_GRAVE, LOWER_GRAVE, LOWER_SMOOTH_GRAVE, LOWER_ROUGH_GRAVE, LOWER_DIAERESIS_GRAVE,
     UPPER_SMOOTH_CIRCUMFLEX, UPPER_ROUGH_CIRCUMFLEX, LOWER_CIRCUMFLEX, LOWER_SMOOTH_CIRCUMFLEX, LOWER_ROUGH_CIRCUMFLEX, LOWER_DIAERESIS_CIRCUMFLEX
 )
+
+from src.utils.utils import abbreviations, get_canticum_ids
 
 logging.basicConfig(
     filename='logs/debug.log',           # Save logs here
@@ -660,8 +661,148 @@ def accentually_responding_syllables_of_strophes_polystrophic(*strophes):
 
     return combined_accent_lists
 
+###############################################################################
+# 3) THE ACCENTUAL RESPONSION METRIC
+###############################################################################
+
+
+def accentual_responsion_metric_canticum(xml_file, canticum) -> dict:
+    """
+    The strophicity-agnostic accentual responsion metric is defined as 
+        n(number of groups of responding ACCENT sylls) / total number of sylls with ACCENT in the canticum,
+    where n is the number of strophes and ACCENT is a subset of [acute, grave, circumflex].
+    Practically in this function though, the n is "baked in" by summing over the lenghts of the dictionaries of match groups.
+
+    Arguably, the most important is the acute-circumflex ratio, and unless otherwise specified,
+    "accentual responsion metric" refers to the acute-circumflex ratio.
+
+    Returns a dictionary with canticum-wide metric stats for the three accent types:
+
+        stat_dictionary = {
+        'acute': acute_stat,
+        'grave': grave_stat,
+        'circumflex': circumflex_stat,
+        'acute_circumflex': acute_circumflex_stat,
+        }
+    """
+
+    tree = etree.parse(xml_file)
+
+    strophes = tree.xpath(f'//strophe[@responsion="{canticum}"] | //antistrophe[@responsion="{canticum}"]')
+
+    accent_maps = accentually_responding_syllables_of_strophes_polystrophic(*strophes)
+
+    total_accent_sums = count_all_accents_canticum(tree, canticum)
+    accent_responsion_counts = {
+        'acute': sum(len(dict) for dict in accent_maps[0]), # each dict looks like: {('205', 7): 'πάν', ('220', 7): 'τεί'}
+        'grave': sum(len(dict) for dict in accent_maps[1]),
+        'circumflex': sum(len(dict) for dict in accent_maps[2])
+    }
+
+    acute_total = total_accent_sums['acute']
+    grave_total = total_accent_sums['grave']
+    circumflex_total = total_accent_sums['circumflex']
+
+    # Defining the four stats of the metric
+
+    acute_stat = accent_responsion_counts['acute'] / acute_total if acute_total > 0 else 0
+    grave_stat = accent_responsion_counts['grave'] / grave_total if grave_total > 0 else 0
+    circumflex_stat = accent_responsion_counts['circumflex'] / circumflex_total if circumflex_total > 0 else 0
+
+    acute_circumflex_numerator = accent_responsion_counts['acute'] + accent_responsion_counts['circumflex']
+    acute_circumflex_denominator = acute_total + circumflex_total
+    acute_circumflex_stat = acute_circumflex_numerator / acute_circumflex_denominator if acute_circumflex_denominator > 0 else 0
+
+    stat_dictionary = {
+        'acute': acute_stat,
+        'grave': grave_stat,
+        'circumflex': circumflex_stat,
+        'acute_circumflex': acute_circumflex_stat,
+    }
+
+    return stat_dictionary
+
+def accentual_responsion_metric_play(xml_file) -> dict:
+    """
+    The strophicity-agnostic accentual responsion metric is defined as 
+        n(number of groups of responding ACCENT sylls) / total number of sylls with ACCENT in the canticum,
+    where n is the number of strophes and ACCENT is a subset of [acute, grave, circumflex].
+    Practically in this function though, the n is "baked in" by summing over the lenghts of the dictionaries of match groups.
+
+    Arguably, the most important is the acute-circumflex ratio, and unless otherwise specified,
+    "accentual responsion metric" refers to the acute-circumflex ratio.
+
+    Returns a dictionary with play-wide metric stats for the three accent types:
+
+        stat_dictionary = {
+        'acute': acute_stat,
+        'grave': grave_stat,
+        'circumflex': circumflex_stat,
+        'acute_circumflex': acute_circumflex_stat,
+        }
+    """
+
+    stat_dictionary = {
+        'acute': 0.0,
+        'grave': 0.0,
+        'circumflex': 0.0,
+        'acute_circumflex': 0.0,
+    }
+
+    tree = etree.parse(xml_file)
+    strophes = tree.xpath('//strophe | //antistrophe') # union is more readable XPath than [self::foo or self::bar] predicates
+
+    cantica = defaultdict(list)
+    for s in strophes:
+        key = s.get('responsion')
+        if key:
+            cantica[key].append(s)
+
+    # Count responding accents by iterating
+
+    accent_responsion_counts = {
+        'acute': 0.0,
+        'grave': 0.0,
+        'circumflex': 0.0,
+    }
+
+    for responsion_value, responding_strophes in cantica.items():
+        accent_maps = accentually_responding_syllables_of_strophes_polystrophic(*responding_strophes)
+
+        accent_responsion_counts['acute'] += sum(len(dict) for dict in accent_maps[0]) # each dict looks like: {('205', 7): 'πάν', ('220', 7): 'τεί'}
+        accent_responsion_counts['grave'] += sum(len(dict) for dict in accent_maps[1])
+        accent_responsion_counts['circumflex'] += sum(len(dict) for dict in accent_maps[2])
+
+    # Count total accents in the play
+
+    total_accent_sums = count_all_accents(tree)
+    acute_total = total_accent_sums['acute']
+    grave_total = total_accent_sums['grave']
+    circumflex_total = total_accent_sums['circumflex']
+    
+    # Defining the four stats of the metric
+
+    acute_stat = accent_responsion_counts['acute'] / acute_total if acute_total > 0 else 0
+    grave_stat = accent_responsion_counts['grave'] / grave_total if grave_total > 0 else 0
+    circumflex_stat = accent_responsion_counts['circumflex'] / circumflex_total if circumflex_total > 0 else 0
+
+    acute_circumflex_numerator = accent_responsion_counts['acute'] + accent_responsion_counts['circumflex']
+    acute_circumflex_denominator = acute_total + circumflex_total
+    acute_circumflex_stat = acute_circumflex_numerator / acute_circumflex_denominator if acute_circumflex_denominator > 0 else 0
+
+    stat_dictionary['acute'] += acute_stat
+    stat_dictionary['grave'] += grave_stat
+    stat_dictionary['circumflex'] += circumflex_stat
+    stat_dictionary['acute_circumflex'] += acute_circumflex_stat
+
+    return stat_dictionary
+
+###############################################################################
+# MAIN
+###############################################################################
 
 if __name__ == "__main__":
+
     tree = etree.parse("data/compiled/responsion_ach_compiled.xml")
 
     # Specify the responsion numbers to process
