@@ -70,3 +70,6 @@ def get_strophicity(abbreviations):
     exactly_two = [rid for rid, count in responsion_counts.items() if count == 2]
 
     return more_than_two, exactly_two
+
+
+

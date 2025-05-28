@@ -26,7 +26,10 @@ Sections:
 """
 
 import argparse
+from collections import defaultdict
 from lxml import etree
+import os
+from pathlib import Path
 
 from grc_utils import normalize_word
 
@@ -376,7 +379,6 @@ def barys_accentually_responding_syllables_of_strophes_polystrophic(*strophes):
 # THE BARYS OXYS METRIC
 # ------------------------------------------------------------------------
 
-
 def barys_oxys_metric_canticum(responsion) -> dict:
     """
     Takes a canticum id and returns a dict with the barys and oxys metrics.
@@ -416,6 +418,116 @@ def barys_oxys_metric_canticum(responsion) -> dict:
     }
     return results
 
+def barys_oxys_metric_play(infix, debug=False) -> dict:
+    """
+    Takes an XML file and returns a dict with the barys and oxys metrics.
+    """
+    results = {}
+
+    input_file = f"data/compiled/responsion_{infix}_compiled.xml"
+    tree = etree.parse(input_file)
+    
+    all_barys_oxys_dict = count_all_barys_oxys(tree)
+
+    sum_barys = all_barys_oxys_dict['barys']
+    sum_oxys = all_barys_oxys_dict['oxys']
+    sum_barys_oxys = sum_barys + sum_oxys
+    if debug:
+        print(f"Total Barys: {sum_barys}, Total Oxys: {sum_oxys}, Total Barys+Oxys: {sum_barys_oxys}")
+
+    strophes = tree.xpath(f'//strophe | //antistrophe')
+
+    cantica = defaultdict(list)
+    for s in strophes:
+        key = s.get('responsion')
+        if key:
+            cantica[key].append(s)
+
+    barys_matches = 0
+    oxys_matches = 0
+
+    for responsion_value, responding_strophes in cantica.items():
+        
+        n = len(responding_strophes)
+
+        barys_oxys_results = barys_accentually_responding_syllables_of_strophes_polystrophic(*responding_strophes)
+        barys_list, oxys_list = barys_oxys_results
+
+        barys_matches += n * len(barys_list)
+        oxys_matches += n * len(oxys_list)
+
+    barys_metric = barys_matches / sum_barys if sum_barys > 0 else 0
+    oxys_metric = oxys_matches / sum_oxys if sum_oxys > 0 else 0
+    barys_oxys_metric = (barys_matches + oxys_matches) / sum_barys_oxys if sum_barys_oxys > 0 else 0
+
+    results = {
+        'barys_metric': barys_metric,
+        'oxys_metric': oxys_metric,
+        'barys_oxys_metric': barys_oxys_metric,
+    }
+    return results
+
+def barys_oxys_metric_corpus(folder="data/compiled/", exclude_substr="baseline") -> dict:
+    """
+    Takes a folder of XML files and returns a dict with the barys, oxys and barys_oxys metrics.
+    """
+    results = {}
+
+    sum_barys = 0
+    sum_oxys = 0
+    sum_barys_oxys = 0
+    
+    barys_matches = 0
+    oxys_matches = 0
+
+    for xml_file in os.listdir(folder):
+        if not xml_file.endswith('.xml'):
+            continue
+        if exclude_substr and exclude_substr in xml_file:
+            continue
+        
+        folder_path = Path(folder)
+        filepath = folder_path / xml_file
+        
+        tree = etree.parse(filepath)
+        strophes = tree.xpath('//strophe | //antistrophe')
+
+        # Total for play
+
+        all_barys_oxys_dict = count_all_barys_oxys(tree) # Total for the play
+
+        sum_barys += all_barys_oxys_dict['barys']
+        sum_oxys += all_barys_oxys_dict['oxys']
+        sum_barys_oxys += all_barys_oxys_dict['barys'] + all_barys_oxys_dict['oxys']
+
+
+        cantica = defaultdict(list)
+        for s in strophes:
+            key = s.get('responsion')
+            if key:
+                cantica[key].append(s)
+
+        for responsion_value, responding_strophes in cantica.items():
+            n = len(responding_strophes)
+
+            barys_oxys_results = barys_accentually_responding_syllables_of_strophes_polystrophic(*responding_strophes)
+            barys_list, oxys_list = barys_oxys_results
+
+            barys_matches += n * len(barys_list)
+            oxys_matches += n * len(oxys_list)
+
+    barys_metric = barys_matches / sum_barys if sum_barys > 0 else 0
+    oxys_metric = oxys_matches / sum_oxys if sum_oxys > 0 else 0
+    barys_oxys_metric = (barys_matches + oxys_matches) / sum_barys_oxys if sum_barys_oxys > 0 else 0
+
+    print(f"Total barys matches in corpus: {barys_matches}, Oxys matches: {oxys_matches}")
+
+    results = {
+        'barys_metric': barys_metric,
+        'oxys_metric': oxys_metric,
+        'barys_oxys_metric': barys_oxys_metric,
+    }
+    return results
 
 # ------------------------------------------------------------------------
 # MAIN
