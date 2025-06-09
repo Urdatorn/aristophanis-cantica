@@ -10,13 +10,11 @@ from scipy.stats import binomtest
 class SignificanceTester:
     """
     Tests whether an observed proportion differs from the
-    reference proportion (default 9.7%) via a binomial test.
+    reference proportion via a binomial test.
     """
 
-    def __init__(self, reference_proportion=0.097):
-        """
-        :param reference_proportion: The expected proportion (default = 0.097 or 9.7%).
-        """
+    def __init__(self, reference_proportion):
+    
         self.reference_proportion = reference_proportion
 
     def test_significance(self, successes, trials, alternative='two-sided'):

@@ -1,13 +1,21 @@
 # Aristophanis Canticorum Omniorum Responsio Accentuum
 
-## URGENT TODOS!!
+## Copyright and citation
 
-- ✅ scan some recitative as baseline, both since Conser does not provide a baseline of barys, and because it would be more fitting to use comic recitative 
-- ☐ fix accent count only counting one strophe sometimes
-- ✅ polystrophic songs
-- ✅ add "compatible syllables" stats
-- ☐ show word breaks in visualization 
-- ☐ might be good to add option to remove "precisely repeating rephrains" from stats; cf. Conser's diss. p. 374.
+That science is "open" should be an analytical truth, since without transparency of method and sharing of data there can be no true replicability and hence no interesting peer review (you can't *RE*-view what you aren't allowed to *view* in the first place!). Sadly, its not, and so I have to explicitly state that this repository is under the copyleft GNU GPL 3 license, which means you are more than welcome to fork and build on this software for your own open-science research. If you have found this repository useful, please cite it in the following way:
+
+> Thörn Cleland, Albin Ruben Johannes (2025, June 16-18). Hidden Choral Stimuli: The Role of Accent in the Refrains of Aristophanes [Conference presentation]. PLOTTING POETRY 8: Skeletons in the Closet, Prague, The Czech Republic.
+
+```
+@inproceedings{thorncleland2025hidden,
+  author       = {Thörn Cleland, Albin Ruben Johannes},
+  title        = {Hidden Choral Stimuli: The Role of Accent in the Refrains of Aristophanes},
+  eventtitle   = {PLOTTING POETRY 8: Skeletons in the Closet},
+  eventdate    = {2025-06-16/2025-06-18},
+  venue        = {Prague, The Czech Republic},
+  note         = {Conference presentation},
+}
+```
 
 ## Corpus
 

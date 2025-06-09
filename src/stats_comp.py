@@ -307,25 +307,27 @@ def compatibility_corpus(dir_path):
     return corpus_compatibility_lists
 
 
-def compatibility_strophicity(dir_path="compiled", mode="polystrophic", id=""):
+def compatibility_strophicity(dir_path="compiled", mode="antistrophic", id=""):
     """
     Compute compatibility ratios for all XML files in a directory,
     filtered by number of responding strophes and optional ID prefix.
-    
+
     Args:
         dir_path: Path to directory containing XML files
-        mode: "polystrophic" for 3+ strophes, "antistrophic" for exactly 2 strophes
+        mode: "polystrophic" (3+ strophes), "antistrophic" (exactly 2),
+              "three-strophic" (exactly 3), or "four-strophic" (exactly 4)
         id: String prefix to filter canticum IDs (e.g. "ach" for Acharnians)
-        
+
     Returns:
         List of compatibility ratio lists from filtered cantica
     """
-    if mode not in ["polystrophic", "antistrophic"]:
-        raise ValueError("Mode must be 'polystrophic' or 'antistrophic'")
-        
+    valid_modes = ["polystrophic", "antistrophic", "three-strophic", "four-strophic"]
+    if mode not in valid_modes:
+        raise ValueError(f"Mode must be one of {valid_modes}")
+
     corpus_compatibility_lists = []
     xml_files = [f for f in os.listdir(dir_path) if f.endswith('.xml')]
-    
+
     for xml_file in xml_files:
         file_path = os.path.join(dir_path, xml_file)
         try:
@@ -336,16 +338,19 @@ def compatibility_strophicity(dir_path="compiled", mode="polystrophic", id=""):
             canticum_counts = {}
             for strophe in root.xpath('//strophe[@responsion]'):
                 resp_id = strophe.get('responsion')
-                if id and not resp_id.startswith(id):  # Skip if ID doesn't match prefix
+                if id and not resp_id.startswith(id):
                     continue
                 canticum_counts[resp_id] = canticum_counts.get(resp_id, 0) + 1
 
             # Filter based on mode
-            filtered_cantica = [
-                canticum_id for canticum_id, count in canticum_counts.items() 
-                if (mode == "polystrophic" and count >= 3) or 
-                   (mode == "antistrophic" and count == 2)
-            ]
+            if mode == "polystrophic":
+                filtered_cantica = [cid for cid, count in canticum_counts.items() if count >= 3]
+            elif mode == "antistrophic":
+                filtered_cantica = [cid for cid, count in canticum_counts.items() if count == 2]
+            elif mode == "three-strophic":
+                filtered_cantica = [cid for cid, count in canticum_counts.items() if count == 3]
+            elif mode == "four-strophic":
+                filtered_cantica = [cid for cid, count in canticum_counts.items() if count == 4]
 
             # Process filtered cantica
             play_results = []
@@ -355,11 +360,11 @@ def compatibility_strophicity(dir_path="compiled", mode="polystrophic", id=""):
 
             if play_results:
                 corpus_compatibility_lists.append(play_results)
-                
+
         except Exception as e:
             print(f"Error processing {xml_file}: {e}")
             continue
-            
+
     return corpus_compatibility_lists
 
 

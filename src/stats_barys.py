@@ -379,14 +379,18 @@ def barys_accentually_responding_syllables_of_strophes_polystrophic(*strophes):
 # THE BARYS OXYS METRIC
 # ------------------------------------------------------------------------
 
-def barys_oxys_metric_canticum(responsion) -> dict:
+def barys_oxys_metric_canticum(responsion, baseline=False) -> dict:
     """
     Takes a canticum id and returns a dict with the barys and oxys metrics.
     """
     results = {}
 
     infix = responsion[:-2]
-    input_file = f"data/compiled/responsion_{infix}_compiled.xml"
+
+    if baseline:
+        input_file = f"data/compiled/baseline/responsion_{infix}_compiled.xml"
+    else:
+        input_file = f"data/compiled/responsion_{infix}_compiled.xml"
     tree = etree.parse(input_file)
             
     all_barys_oxys_canticum_dict = count_all_barys_oxys_canticum(tree, responsion)
@@ -418,13 +422,16 @@ def barys_oxys_metric_canticum(responsion) -> dict:
     }
     return results
 
-def barys_oxys_metric_play(infix, debug=False) -> dict:
+def barys_oxys_metric_play(responsion, debug=False, baseline=False) -> dict:
     """
     Takes an XML file and returns a dict with the barys and oxys metrics.
     """
     results = {}
 
-    input_file = f"data/compiled/responsion_{infix}_compiled.xml"
+    if baseline:
+        input_file = f"data/compiled/baseline/responsion_{responsion}_compiled.xml"
+    else:
+        input_file = f"data/compiled/responsion_{responsion}_compiled.xml"
     tree = etree.parse(input_file)
     
     all_barys_oxys_dict = count_all_barys_oxys(tree)
