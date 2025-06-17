@@ -18,12 +18,12 @@ def shuffle_lines_within_strophes(xml_input_path, xml_output_path):
 
     tree.write(xml_output_path, encoding="utf-8", xml_declaration=True)
 
-def run_shuffling_loop(start=15, stop=101):
+def run_shuffling_loop(start=101, stop=201):
     for i in range(start, stop):
-        prev_dir = f"data/compiled/baseline_tetrameter_shuffled{i - 1}"
-        curr_dir = f"data/compiled/baseline_tetrameter_shuffled{i}"
-        input_filename = "responsion_tetrametershuffled_compiled.xml"
-        output_filename = f"responsion_tetrametershuffled_compiled{i}.xml"
+        prev_dir = f"data/compiled/baseline_trimeter_shuffled{i - 1}"
+        curr_dir = f"data/compiled/baseline_trimeter_shuffled{i}"
+        input_filename = "responsion_baselinepoly_compiled.xml"
+        output_filename = f"responsion_baselinepoly_compiled{i}.xml"
 
         # Create the new folder
         os.makedirs(curr_dir, exist_ok=True)
