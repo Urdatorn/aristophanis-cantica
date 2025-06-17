@@ -20,8 +20,6 @@ The corpus consists of all the **78** Aristophanic cantica (songs, chorals) that
 - ✅ Ec.: 6 
 - ✅ Pl.: 2
 
-As seen above, only 6 songs (≈ 7.6%) are polystrophic, only 3 of which have 4 strophes. 
-
 ## Copyright and citation
 
 That science is "open" should be an analytical truth, since without transparency of method and sharing of data there can be no true replicability and hence no interesting peer review (you can't *RE*-view what you aren't allowed to *view* in the first place!). Sadly, its not, and so I have to explicitly state that this repository is under the copyleft GNU GPL 3 license, which means you are more than welcome to fork and build on this software for your own open-science research. If you have found this repository useful, please cite it in the following way:
