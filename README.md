@@ -1,8 +1,9 @@
 # Aristophanis Canticorum Omniorum Responsio Accentuum
 
+[![DOI](https://zenodo.org/badge/908346104.svg)](https://doi.org/10.5281/zenodo.16603568)
 ![Editio Princeps](media/editio-princeps.jpg)
 
-See [this notebook](nb_results.ipynb) for the results. The data are available in a custom XML format in the ```data/compiled``` folder. 
+See [this notebook](nb_results.ipynb) for the results. The data are available in a custom XML format in the ```data/compiled``` folder.  A slide presentation of the results is available [here](Albin_Plotting_Poetry.pdf).
 
 ## Corpus
 
@@ -22,7 +23,9 @@ The corpus consists of all the **78** Aristophanic cantica (songs, chorals) that
 
 ## Copyright and citation
 
-That science is "open" should be an analytical truth, since without transparency of method and sharing of data there can be no true replicability and hence no interesting peer review (you can't *RE*-view what you aren't allowed to *view* in the first place!). Sadly, its not, and so I have to explicitly state that this repository is under the copyleft GNU GPL 3 license, which means you are more than welcome to fork and build on this software for your own open-science research. If you have found this repository useful, please cite it in the following way:
+The script `stats_comp.py` contains adaptations of code from the [Greek-Poetry](https://github.com/aconser/Greek-Poetry) repository, which is copyright Anna Conser 2022 under the MIT licence. The license is quoted in its entirety in the doc string of that file.
+
+This repository, however, is under the copyleft GNU GPL 3 license (compatible with the MIT license), which means you are more than welcome to fork and build on this software for your own open-science research, as long as your code retains an equally generous licensing. If you have found this repository useful, please cite it in the following way:
 
 > Thörn Cleland, Albin Ruben Johannes (2025, June 16-18). Hidden Choral Stimuli: The Role of Accent in the Refrains of Aristophanes [Conference presentation]. PLOTTING POETRY 8: Skeletons in the Closet, Prague, The Czech Republic.
 
