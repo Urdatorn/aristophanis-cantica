@@ -3,14 +3,16 @@
 [![DOI](https://zenodo.org/badge/908346104.svg)](https://doi.org/10.5281/zenodo.16603568)
 ![Editio Princeps](media/editio-princeps.jpg)
 
-See [this notebook](nb_results.ipynb) for the results. The data are available in a custom XML format in the ```data/compiled``` folder.  A slide presentation of the results is available [here](Albin_Plotting_Poetry.pdf).
+See [this notebook](nb_results.ipynb) for the results. The data are available in a custom XML format in the ```data/compiled``` folder.  A slide presentation of the method and the results is available [here](Albin_Plotting_Poetry.pdf).
+
+This is a spearhead study, and follow-up studies applying the same method and software on the rest of archaic polystrophic Greek lyric are already underway [here](https://github.com/Urdatorn/responsio-accentuum), starting with Pindar.
 
 ## Corpus
 
 The corpus consists of all the **78** Aristophanic cantica (songs, chorals) that have responding strophes, i.e. that are either antistrophic (exactly two strophes) or polystrophic (that have 3 or 4 strophes):
 
-- ✅ Ach.: 9 (1 polystr. with 4 str.)
-- ✅ Eq.: 8, alla körer! (1 polystr. with 4 str.)
+- ✅ Ach.: 9 (1 polystrophic with 4 strophes)
+- ✅ Eq.: 8 (1 polystr. with 4 str.)
 - ✅ Nu.: 6
 - ✅ V.: 8
 - ✅ Pax: 6 (1 polystr. with 3 str.)
@@ -20,6 +22,8 @@ The corpus consists of all the **78** Aristophanic cantica (songs, chorals) that
 - ✅ Ra.: 11 (2 polystr. with 3 and 4 str. resp.)
 - ✅ Ec.: 6 
 - ✅ Pl.: 2
+
+Line pairs whose responsion has disappeared due to irremediable textual corruption are excluded, in general following the discretion of Parker's edition of *The Songs of Aristophanes*. For more information, see the slides. 
 
 ## Copyright and citation
 

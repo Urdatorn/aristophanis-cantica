@@ -1,4 +1,10 @@
 # b_compile.py
+
+# Copyright © Albin Ruben Johannes Thörn Cleland 2025, Lunds universitet, albin.thorn_cleland@klass.lu.se
+# https://orcid.org/0009-0003-3731-4038
+# This file is part of aristophanis-cantica, licensed under the GNU General Public License v3.0.
+# See the LICENSE file in the project root for full details.
+
 '''
 Second step of the XML processing pipeline for the accentual responsion project, Urdatorn/aristophanis-cantica.
 
@@ -10,9 +16,6 @@ the line "xml_content = remove_conjecture_tags(xml_content)" should be commented
 Since extra nested elements are bug prone, <conjecture> elements are otherwise removed.
 
 NB: self-closing placeholder <l skip="True"/> elements are supported, but not recommended. If skipped placeholder lines are needed, use <l skip="True"></l> instead.
-
-@author: Albin Thörn Cleland, Lunds universitet, albin.thorn_cleland@klass.lu.se
-@license: GPL-3.0 (GNU General Public License v3.0)
 '''
 
 import argparse
