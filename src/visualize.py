@@ -1,3 +1,11 @@
+'''
+There are known issues with this visualization script,
+and it should not be depended on.
+
+It's provided as a starting point and inspiration for how to do 
+text-only visualization of accentual responsion.
+'''
+
 import re
 import sys
 from lxml import etree
@@ -30,7 +38,7 @@ def extract_strophe_accent_positions(strophe_line, antistrophe_line):
             if line_id == strophe_n:
                 circ_set.add(unit_ord)
 
-    print(f"Acutes: {acutes_set}")
+    #print(f"Acutes: {acutes_set}")
     return acutes_set, circ_set
 
 def metre_line_with_accents(s_line, acutes_set, circ_set):

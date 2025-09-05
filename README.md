@@ -29,17 +29,34 @@ Line pairs whose responsion has disappeared due to irremediable textual corrupti
 
 The script `stats_comp.py` contains adaptations of code from the [Greek-Poetry](https://github.com/aconser/Greek-Poetry) repository, which is copyright Anna Conser 2022 under the MIT licence. The license is quoted in its entirety in the doc string of that file.
 
-This repository, however, is under the copyleft GNU GPL 3 license (compatible with the MIT license), which means you are more than welcome to fork and build on this software for your own open-science research, as long as your code retains an equally generous licensing. If you have found this repository useful, please cite it in the following way:
+This repository, however, is under the copyleft GNU GPL 3 license (compatible with the MIT license), which means you are more than welcome to fork and build on this software for your own open-science research, as long as your code retains an equally generous licensing. If you want to refer to either this repository or the presentation and/or its slides in your research, please cite it in the following ways (the important thing is to include the Zenodo DOI, which will always point to the most recent version):
 
-> Thörn Cleland, Albin Ruben Johannes (2025, June 16-18). Hidden Choral Stimuli: The Role of Accent in the Refrains of Aristophanes [Conference presentation]. PLOTTING POETRY 8: Skeletons in the Closet, Prague, The Czech Republic.
+### BibLaTeX
 
 ```
 @inproceedings{thorncleland2025hidden,
   author       = {Thörn Cleland, Albin Ruben Johannes},
   title        = {Hidden Choral Stimuli: The Role of Accent in the Refrains of Aristophanes},
-  eventtitle   = {PLOTTING POETRY 8: Skeletons in the Closet},
-  eventdate    = {2025-06-16/2025-06-18},
-  venue        = {Prague, The Czech Republic},
+  eventtitle   = {Plotting Poetry 8: Skeletons in the Closet},
+  eventdate    = {2025-06-18},
+  venue        = {Prague, Czech Republic},
+  doi          = {10.5281/zenodo.16603568},
   note         = {Conference presentation},
 }
 ```
+
+### APA (7th edition)
+
+Thörn Cleland, A. R. J. (2025, June 18). *Hidden choral stimuli: The role of accent in the refrains of Aristophanes*. Paper presented at *Plotting Poetry 8: Skeletons in the Closet*, Prague, Czech Republic. https://doi.org/10.5281/zenodo.16603568  
+
+---
+
+### MLA (9th edition)
+
+Thörn Cleland, Albin Ruben Johannes. *Hidden Choral Stimuli: The Role of Accent in the Refrains of Aristophanes*. Plotting Poetry 8: Skeletons in the Closet, 18 June 2025, Prague, Czech Republic. Conference presentation. DOI: 10.5281/zenodo.16603568.
+
+---
+
+### Chicago Author–Date
+
+Thörn Cleland, Albin Ruben Johannes. 2025. “Hidden Choral Stimuli: The Role of Accent in the Refrains of Aristophanes.” Paper presented at *Plotting Poetry 8: Skeletons in the Closet*, Prague, Czech Republic, June 18. https://doi.org/10.5281/zenodo.16603568.

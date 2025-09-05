@@ -1,6 +1,11 @@
 __pycache__/
 .DS_Store
+.vscode/
+
 data/raw
 data/source
 source/
+logs/*
+
 TODO.md
+extra_notes.md
