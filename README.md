@@ -1,7 +1,7 @@
 # Aristophanis Canticorum Omniorum Responsio Accentuum
 
 [![DOI](https://zenodo.org/badge/908346104.svg)](https://doi.org/10.5281/zenodo.16603568)
-![Editio Princeps](media/editio-princeps.jpg)
+![Editio Princeps](media/other/editio-princeps.jpg)
 
 See [this notebook](nb_results.ipynb) for the results. The data are available in a custom XML format in the ```data/compiled``` folder.  A slide presentation of the method and the results is available [here](Albin_Plotting_Poetry.pdf).
 
