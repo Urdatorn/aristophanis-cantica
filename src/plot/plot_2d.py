@@ -1,9 +1,12 @@
 import matplotlib.pyplot as plt
-import matplotlib.cm as cm
-import matplotlib.colors as mcolors
 import numpy as np
 
+from src.plot.style import PLOTTING_POETRY_HEX, apply_plotting_poetry_palette
+
+
 def plot_dict_as_points(play_dict, syll_counts, y_start=0.8, y_end=0.84):
+    apply_plotting_poetry_palette()
+
     x_vals = []
     y_vals = []
     labels = []
@@ -18,8 +21,10 @@ def plot_dict_as_points(play_dict, syll_counts, y_start=0.8, y_end=0.84):
 
     # Generate a color for each prefix group
     unique_keys = sorted(set(color_keys))
-    color_map = cm.get_cmap('tab20', len(unique_keys))  # categorical colormap
-    key_to_color = {key: color_map(i) for i, key in enumerate(unique_keys)}
+    key_to_color = {
+        key: PLOTTING_POETRY_HEX[i % len(PLOTTING_POETRY_HEX)]
+        for i, key in enumerate(unique_keys)
+    }
 
     # Assign colors
     point_colors = [key_to_color[key] for key in color_keys]

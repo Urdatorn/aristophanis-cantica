@@ -1,13 +1,19 @@
 import matplotlib.pyplot as plt
 
+from src.plot.style import PLOTTING_POETRY_HEX, apply_plotting_poetry_palette
+
+
 def plot_dict(play_dict, y_start=0.8, y_end=0.84):
+    apply_plotting_poetry_palette()
+
     # Extract keys and values from the dictionary
     plays = list(play_dict.keys())
     stats = list(play_dict.values())
 
     # Create a bar chart
     plt.figure(figsize=(10, 6))
-    plt.bar(plays, stats, color='skyblue')
+    colors = [PLOTTING_POETRY_HEX[i % len(PLOTTING_POETRY_HEX)] for i in range(len(plays))]
+    plt.bar(plays, stats, color=colors)
 
     # Add labels and title
     plt.xlabel('Play (abbreviations)', fontsize=12)
@@ -22,4 +28,3 @@ def plot_dict(play_dict, y_start=0.8, y_end=0.84):
 
     # Show the plot
     plt.show()
-

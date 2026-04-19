@@ -6,6 +6,7 @@ from src.utils.baselines import baseline_dict
 from collections import Counter
 from lxml import etree
 
+# all the plays in chronological order
 abbreviations = [
     'ach',
     'eq',

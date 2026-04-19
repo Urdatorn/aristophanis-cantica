@@ -9,3 +9,5 @@ logs/*
 
 TODO.md
 extra_notes.md
+
+data/compiled/baselines/baseline_aristophanes/temp_permutations

@@ -527,8 +527,6 @@ def barys_oxys_metric_corpus(folder="data/compiled/", exclude_substr="baseline")
     oxys_metric = oxys_matches / sum_oxys if sum_oxys > 0 else 0
     barys_oxys_metric = (barys_matches + oxys_matches) / sum_barys_oxys if sum_barys_oxys > 0 else 0
 
-    print(f"Total barys matches in corpus: {barys_matches}, Oxys matches: {oxys_matches}")
-
     results = {
         'barys_metric': barys_metric,
         'oxys_metric': oxys_metric,

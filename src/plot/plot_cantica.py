@@ -1,8 +1,12 @@
 import matplotlib.pyplot as plt
-import matplotlib.cm as cm
 import numpy as np
 
+from src.plot.style import PLOTTING_POETRY_HEX, apply_plotting_poetry_palette
+
+
 def plot_dict(play_dict, y_start=0.8, y_end=0.84):
+    apply_plotting_poetry_palette()
+
     # Extract keys and values
     plays = list(play_dict.keys())
     stats = list(play_dict.values())
@@ -12,8 +16,10 @@ def plot_dict(play_dict, y_start=0.8, y_end=0.84):
     unique_prefixes = sorted(set(prefixes))
 
     # Assign a unique color to each prefix group
-    cmap = cm.get_cmap('tab20', len(unique_prefixes))  # or 'viridis', 'Set3', etc.
-    prefix_to_color = {prefix: cmap(i) for i, prefix in enumerate(unique_prefixes)}
+    prefix_to_color = {
+        prefix: PLOTTING_POETRY_HEX[i % len(PLOTTING_POETRY_HEX)]
+        for i, prefix in enumerate(unique_prefixes)
+    }
 
     # Map each play to its group color
     colors = [prefix_to_color[key[:-2]] for key in plays]
