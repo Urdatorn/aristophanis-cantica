@@ -422,14 +422,14 @@ def barys_oxys_metric_canticum(responsion, baseline=False) -> dict:
     }
     return results
 
-def barys_oxys_metric_play(responsion, debug=False, baseline=False) -> dict:
+def barys_oxys_metric_play(responsion, xml_file=None, debug=False, baseline=False) -> dict:
     """
     Takes an XML file and returns a dict with the barys and oxys metrics.
     """
     results = {}
 
-    if baseline:
-        input_file = f"data/compiled/baseline/responsion_{responsion}_compiled.xml"
+    if baseline and xml_file:
+        input_file = xml_file
     else:
         input_file = f"data/compiled/responsion_{responsion}_compiled.xml"
     tree = etree.parse(input_file)
