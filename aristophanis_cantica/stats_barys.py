@@ -25,7 +25,6 @@ Sections:
 
 """
 
-import argparse
 from collections import defaultdict
 from lxml import etree
 import os
