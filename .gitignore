@@ -7,6 +7,7 @@ data/source
 source/
 old_src/
 logs/*
+aristophanis_cantica.egg-info/
 
 TODO.md
 extra_notes.md

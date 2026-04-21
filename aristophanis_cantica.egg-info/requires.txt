@@ -1,7 +1,0 @@
-cycler>=0.12
-grc-utils
-lxml>=4.9
-matplotlib>=3.7
-numpy>=1.24
-scipy>=1.10
-tqdm>=4.66
