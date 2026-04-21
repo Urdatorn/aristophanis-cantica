@@ -5,6 +5,7 @@ __pycache__/
 data/raw
 data/source
 source/
+old_src/
 logs/*
 
 TODO.md
