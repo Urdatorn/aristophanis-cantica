@@ -23,6 +23,21 @@ abbreviations = [
     'pl'
 ]
 
+# Pax is not an abbreviation, so no period
+abbreviations_fancy = {
+    'ach': 'Ach.',
+    'eq': 'Eq.',
+    'nu': 'Nu.',
+    'v': 'V.',
+    'pax': 'Pax',
+    'av': 'Av.',
+    'lys': 'Lys.',
+    'th': 'Th.',
+    'ra': 'Ra.',
+    'ec': 'Ec.',
+    'pl': 'Pl.'
+}
+
 def get_cohen_category(r):
     abs_r = abs(r)
 
