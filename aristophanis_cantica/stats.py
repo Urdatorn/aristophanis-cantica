@@ -386,7 +386,7 @@ def do_double_vs_double(u1, u2, accent_lists):
     """
     Special resolution vs resolution logic (both are 'double').
     
-    The user wants them to match (and only for acutes) if:
+    The resolved pairs match (and only for acutes) if:
       - EITHER both pairs have the acute on their first sub-syllable,
       - OR both pairs have the acute on their second sub-syllable.
 
@@ -418,7 +418,7 @@ def do_double_vs_double(u1, u2, accent_lists):
         })
 
 
-def do_double_vs_double_polystrophic(units, accent_lists):
+def do_double_vs_double_polystrophic(units, accent_lists, debug=False):
     """
     Check for accentual matches among double syllables across multiple strophes.
     Matches for acute accents if:
@@ -430,14 +430,16 @@ def do_double_vs_double_polystrophic(units, accent_lists):
 
     # Case (a): All first sub-syllables have acute
     if first_acutes:
-        print(f"DOUBLE RESPONSION: {units[0]['unit_ord']}.")
+        if debug:
+            print(f"DOUBLE RESPONSION: {units[0]['unit_ord']}.")
         accent_lists[0].append({
             (u['line_n'], u['unit_ord']): u['syll1'].text or "" for u in units
         })
 
     # Case (b): All second sub-syllables have acute
     if second_acutes:
-        print(f"DOUBLE RESPONSION: {units[0]['unit_ord']}.")
+        if debug:
+            print(f"DOUBLE RESPONSION: {units[0]['unit_ord']}.")
         accent_lists[0].append({
             (u['line_n'], u['unit_ord']): u['syll2'].text or "" for u in units
         })
@@ -468,7 +470,7 @@ def do_double_vs_single(u_double, u_single, accent_lists):
         })
 
 
-def do_mixed_single_double_polystrophic(units, accent_lists):
+def do_mixed_single_double_polystrophic(units, accent_lists, debug=False):
     """
     Handle accentual matches when some units are 'single' and others are 'double'.
     Rule: Respond if:
@@ -488,7 +490,8 @@ def do_mixed_single_double_polystrophic(units, accent_lists):
         return
 
     # If conditions are satisfied, record matches
-    print(f"MIXED RESPONSION: {units[0]['unit_ord']}.")
+    if debug:
+        print(f"MIXED RESPONSION: {units[0]['unit_ord']}.")
     for u in single_units:
         for d in double_units:
             accent_lists[0].append({
@@ -550,7 +553,7 @@ def accentually_responding_syllables_of_line_pair(strophe_line, antistrophe_line
     return accent_lists
 
 
-def accentually_responding_syllables_of_lines_polystrophic(*strophe_lines):
+def accentually_responding_syllables_of_lines_polystrophic(*strophe_lines, debug=False):
     """
     Returns a triple-list [ [dict, ...], [dict, ...], [dict, ...] ]
     for [acute_matches, grave_matches, circumflex_matches], 
@@ -604,15 +607,17 @@ def accentually_responding_syllables_of_lines_polystrophic(*strophe_lines):
         elif all(t == 'double' for t in types):
             # All lines have double syllables at this index
             do_double_vs_double_polystrophic(units, accent_lists)
-            print(
-                f"\naccentually_responding_syllables_of_lines_polystrophic:"
-                f"\n\tAll double types at ordinal {units[0]['unit_ord']} in lines {line_numbers}."
-            )
+            if debug:
+                print(
+                    f"\naccentually_responding_syllables_of_lines_polystrophic:"
+                    f"\n\tAll double types at ordinal {units[0]['unit_ord']} in lines {line_numbers}."
+                )
 
         else:
             # Mixed single/double cases
-            do_mixed_single_double_polystrophic(units, accent_lists)
-            print(
+            do_mixed_single_double_polystrophic(units, accent_lists, debug=debug)
+            if debug:
+                print(
                 f"\naccentually_responding_syllables_of_lines_polystrophic: "
                 f"\n\tMixed types at ordinal {units[0]['unit_ord']} in lines {line_numbers}."
             )
