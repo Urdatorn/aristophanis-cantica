@@ -25,12 +25,19 @@ abbreviations = [
 
 def get_cohen_category(r):
     abs_r = abs(r)
-    if abs_r >= 0.5:
+
+    if abs_r >= 0.71:
+        return "huge"
+    if abs_r >= 0.51:
+        return "very large"
+    if abs_r >= 0.37:
         return "large"
-    if abs_r >= 0.3:
+    if abs_r >= 0.24:
         return "medium"
-    if abs_r >= 0.1:
+    if abs_r >= 0.10:
         return "small"
+    if abs_r >= 0.005:
+        return "very small"
     return "negligible"
 
 polystrophic_cantica = ["ach05", # 4

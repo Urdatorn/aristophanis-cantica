@@ -36,6 +36,7 @@ def apply_plotting_poetry_palette():
     plt.rcParams["axes.prop_cycle"] = cycler(color=PLOTTING_POETRY_HEX)
     plt.rcParams["figure.dpi"] = 600
     plt.rcParams["savefig.dpi"] = 600
+    plt.rcParams["font.size"] = 18
     plt.rcParams["font.family"] = "serif"
     plt.rcParams["font.serif"] = [
         "cmr10",
