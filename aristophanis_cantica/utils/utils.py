@@ -23,6 +23,16 @@ abbreviations = [
     'pl'
 ]
 
+def get_cohen_category(r):
+    abs_r = abs(r)
+    if abs_r >= 0.5:
+        return "large"
+    if abs_r >= 0.3:
+        return "medium"
+    if abs_r >= 0.1:
+        return "small"
+    return "negligible"
+
 polystrophic_cantica = ["ach05", # 4
                         "eq07", # 4
                         "pax01", # 3
