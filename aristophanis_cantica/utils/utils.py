@@ -23,6 +23,19 @@ abbreviations = [
     'pl'
 ]
 
+abbreviations_no_pl = [
+    'ach',
+    'eq',
+    'nu',
+    'v',
+    'pax',
+    'av',
+    'lys',
+    'th',
+    'ra',
+    'ec'
+]
+
 # Pax is not an abbreviation, so no period
 abbreviations_fancy = {
     'ach': 'Ach.',
