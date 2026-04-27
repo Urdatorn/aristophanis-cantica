@@ -1,4 +1,4 @@
--e git+ssh://git@github.com/Urdatorn/aristophanis-cantica.git@6e87dd599f3797b132bf6d3e67a35fc7f6fea4dd#egg=aristophanis_cantica
+-e .
 asttokens==3.0.1
 beautifulsoup4==4.14.3
 bs4==0.0.2
@@ -36,7 +36,7 @@ Pygments==2.20.0
 pyparsing==3.3.2
 python-dateutil==2.9.0.post0
 pyzmq==27.1.0
--e git+ssh://git@github.com/Urdatorn/responsio-accentuum.git@cb471c2d04ba7209d32d8a604551206a09c4c79e#egg=responsio_accentuum
+responsio_accentuum @ git+https://github.com/Urdatorn/responsio-accentuum.git@cb471c2d04ba7209d32d8a604551206a09c4c79e
 scipy==1.17.1
 seaborn==0.13.2
 six==1.17.0
